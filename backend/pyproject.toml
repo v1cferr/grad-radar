@@ -1,0 +1,31 @@
+# GradRadar backend — dependency manifest (uv).
+#
+# `package = false` marks this as an APPLICATION, not a library: uv installs the
+# dependencies into the venv without trying to build/install this project itself,
+# so no build backend is needed.
+#
+# Keep `requires-python` in sync with the python313 in flake.nix and the
+# python:3.13-slim in Dockerfile — the three must agree.
+
+[project]
+name = "grad-radar-backend"
+version = "0.0.0"
+description = "GradRadar backend — FastAPI service"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.115",
+    # [standard] brings uvloop + httptools (C extensions). They build fine
+    # inside the container; the host devShell never installs them, which is why
+    # flake.nix needs no LD_LIBRARY_PATH today.
+    "uvicorn[standard]>=0.34",
+    # [asyncio] pulls greenlet, required by SQLAlchemy's async engine.
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg>=0.30",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100

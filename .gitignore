@@ -1,0 +1,66 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# GradRadar — .gitignore
+#
+# Ordem: Nix/direnv primeiro (é o que toca em TODO clone), depois runtimes,
+# depois o bloco endurecido de segredos.
+#
+# NÃO bloqueado de propósito: migrations (`*.sql`) e templates `.env.example` —
+# ambos precisam estar versionados.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── Nix / direnv ──────────────────────────────────────────────────────────────
+result
+result-*
+# cache do direnv/nix-direnv
+.direnv/
+
+# ── Python (backend) ──────────────────────────────────────────────────────────
+# O venv real vive num volume do container (/app/.venv); este é só o do host.
+.venv/
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# ── Node / Next.js (frontend) ────────────────────────────────────────────────
+node_modules/
+.next/
+next-env.d.ts
+*.tsbuildinfo
+# PEGADINHA: o pnpm mantém o store global em ~/.local/share/pnpm/store, MAS ele
+# precisa hardlinkar do store para o node_modules — e hardlink não atravessa
+# filesystem. Nesta máquina o diretório do projeto e o $HOME caem em subvolumes
+# btrfs diferentes, então o pnpm cria um store LOCAL de ~370 MB aqui dentro.
+# É cache regenerável e jamais deve ser versionado.
+.pnpm-store/
+
+# ── Segredos e credenciais ───────────────────────────────────────────────────
+# Bloqueio amplo por padrão; o template é reaberto explicitamente abaixo.
+.env
+.env.*
+*.env
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+# CA raiz interna do Caddy, extraída pelo `just trust-ca` — artefato local,
+# regenerável, e específico da máquina.
+deploy/caddy-root.crt
+
+# ── Dumps e arquivos ──────────────────────────────────────────────────────────
+*.dump
+*.sqlite
+*.sqlite3
+*.zip
+*.tar
+*.tar.gz
+
+# ── Sistema operacional / editor ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp

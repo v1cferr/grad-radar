@@ -1,0 +1,18 @@
+# pnpm settings. This file exists ONLY for the setting below — GradRadar is not a
+# pnpm workspace and declares no `packages:`.
+#
+# WHY here and not in package.json: pnpm 11 stopped reading the `pnpm` field of
+# package.json and moved every setting to this file. It warns and ignores the old
+# location, which is easy to miss. The key is `allowBuilds` (a map), which
+# replaced the older `onlyBuiltDependencies` list.
+#
+# WHY it is needed at all: pnpm 10+ refuses to run dependency build scripts by
+# default, and since v11 that refusal FAILS the install with
+# ERR_PNPM_IGNORED_BUILDS instead of just warning. The non-zero exit breaks the
+# compose command chain (`pnpm install --frozen-lockfile && next dev`), so the
+# frontend container dies before the dev server ever starts. Every dependency
+# with a legitimate postinstall has to be decided here explicitly.
+#
+# sharp: Next.js's optional native image optimizer.
+allowBuilds:
+  sharp: true

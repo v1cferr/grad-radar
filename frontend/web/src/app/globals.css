@@ -1,0 +1,10 @@
+/* Tailwind v4: a single import replaces the v3 @tailwind directives, and theme
+   customisation happens here via @theme rather than in a JS config file. */
+@import "tailwindcss";
+
+/* Follow the viewer's OS preference — no toggle to build in F0. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}

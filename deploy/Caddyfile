@@ -1,0 +1,53 @@
+# Caddyfile — GradRadar servido localmente em https://grad-radar.localhost
+#
+# Fluxo: browser → Caddy (TLS + roteamento) → frontend Next (:3000) ou backend
+# FastAPI (:8000). Os upstreams são NOMES DE SERVIÇO do compose, não
+# localhost:PORT: o Caddy roda como container e resolve os vizinhos pela rede
+# interna do compose. Nem backend nem frontend publicam porta no host — a única
+# porta de entrada é esta.
+#
+# Subir:  just dev      (o Caddy sobe junto com o resto do stack)
+# Logs:   just logs caddy
+# Validar depois de editar:  caddy validate --adapter caddyfile --config deploy/Caddyfile
+#
+# POR QUE um único host em vez de portas separadas: frontend e API compartilham
+# origem, então o browser faz fetch em `/api/...` relativo — sem CORS, sem porta
+# hardcoded no bundle, e o comportamento é o mesmo em qualquer ambiente.
+#
+# POR QUE `.localhost` (e não `<projeto>.v1cferr.dev` como o megasena): o
+# nsswitch desta máquina tem `myhostname`, que resolve qualquer `*.localhost`
+# para 127.0.0.1/::1 automaticamente — dispensa entrada em /etc/hosts e qualquer
+# alteração nos dotfiles. Para acesso via LAN/Tailscale, troque o endereço do
+# site por `grad-radar.v1cferr.dev` e publique um A record apontando para a
+# máquina (aí sim seguindo o precedente do megasena).
+
+grad-radar.localhost {
+	encode zstd gzip
+
+	# A API mantém o prefixo /api no upstream (sem strip): assim a mesma URL
+	# funciona através do Caddy ou batendo direto no container, o que simplifica
+	# debug com `docker compose exec`.
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+
+	# Tudo o mais é o Next: páginas, assets e o websocket de HMR (que o Caddy
+	# faz upgrade transparentemente).
+	handle {
+		reverse_proxy frontend:3000
+	}
+
+	# HTTPS local com a CA interna do Caddy (sem Let's Encrypt — `.localhost`
+	# não é validável por ACME).
+	#
+	# Até a CA raiz ser confiada, o browser mostra aviso de certificado: em dev é
+	# inofensivo e clicável. Para eliminar o aviso, rode `just trust-ca`, que
+	# extrai a raiz do volume `caddy_data` e imprime o snippet
+	# `security.pki.certificateFiles` para colar nos dotfiles.
+	tls internal
+
+	# Log em stdout do container (visível em `just logs caddy`). O
+	# /var/log/caddy/<projeto>.log do megasena não se aplica aqui: aquele Caddy
+	# roda no host, este é containerizado e o log pertence ao docker.
+	log
+}
