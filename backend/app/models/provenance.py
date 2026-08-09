@@ -25,6 +25,13 @@ from app.db import Base, pg_enum
 
 class SourceType(enum.StrEnum):
     INSTITUTIONAL_PAGE = "institutional_page"
+
+    # O catálogo de uma instituição: onde um programa QUE AINDA NÃO CONHECEMOS
+    # aparece pela primeira vez. Todas as outras fontes respondem "mudou algo
+    # neste programa?"; só esta responde "existe um programa novo?" — e essa era
+    # a única pergunta que o monitor não sabia fazer.
+    PROGRAM_INDEX = "program_index"
+
     GRADUATE_PROGRAM_PAGE = "graduate_program_page"
     ADMISSION_PAGE = "admission_page"
     EDITAL_PDF = "edital_pdf"

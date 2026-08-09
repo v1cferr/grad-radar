@@ -23,6 +23,7 @@ const KIND: Record<string, string> = {
   schedule_pdf: "grade horária (PDF)",
   edital_pdf: "edital (PDF)",
   regulation_pdf: "regimento (PDF)",
+  program_index: "catálogo de programas",
 };
 
 /**
@@ -40,6 +41,7 @@ export function Sources({ sources }: { sources: Source[] }) {
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">
         {sources.length} fontes oficiais monitoradas ·{" "}
+        {sources.filter((s) => s.source_type === "program_index").length} catálogos ·{" "}
         {changed.length === 0 ? "nenhuma mudança detectada" : `${changed.length} com mudança`}
         {failing.length > 0 && ` · ${failing.length} inacessível(is)`}
       </p>

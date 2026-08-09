@@ -283,6 +283,25 @@ PPGPEP_DOCS = [
     ("Declaração de vínculo com membros do corpo docente (Anexo II)", True),
 ]
 
+# ── Índices de descoberta ────────────────────────────────────────────────────
+# Não descrevem um programa: listam TODOS os de uma instituição. Uma mudança
+# aqui pode ser um programa novo, e é o único jeito de descobrir uma opção sem
+# alguém ir procurar à mão.
+INDEX_SOURCES = [
+    (
+        "https://www.propg.ufscar.br/pt-br/pos-na-ufscar/programas",
+        SourceType.PROGRAM_INDEX,
+        "UFSCar ProPG — todos os programas de pós",
+        None,
+    ),
+    (
+        "https://www.icmc.usp.br/pos-graduacao",
+        SourceType.PROGRAM_INDEX,
+        "USP ICMC — pós-graduação",
+        None,
+    ),
+]
+
 PPGPEP_SOURCES = [
     (f"{PPGPEP_URL}/processo-seletivo/processo-seletivo", SourceType.ADMISSION_PAGE,
      "PPGPEP — processo seletivo", None),
@@ -615,14 +634,14 @@ async def seed(db: AsyncSession) -> dict[str, int]:
             )
     counts["program_requirements"] = sum(len(r) for r in REQUIREMENTS.values())
 
-    for url, kind, title, redirect in SOURCES + PPGPEP_SOURCES:
+    for url, kind, title, redirect in SOURCES + PPGPEP_SOURCES + INDEX_SOURCES:
         await _get_or_create(
             db, Source,
             {"source_type": kind, "title": title, "institution_id": ufscar.id,
              "redirects_to": redirect, "last_checked_at": datetime(2026, 8, 8, tzinfo=UTC)},
             url=url,
         )
-    counts["sources"] = len(SOURCES) + len(PPGPEP_SOURCES)
+    counts["sources"] = len(SOURCES) + len(PPGPEP_SOURCES) + len(INDEX_SOURCES)
 
     victor = await _get_or_create(
         db, Candidate,
