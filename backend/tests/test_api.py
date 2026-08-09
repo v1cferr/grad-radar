@@ -153,6 +153,56 @@ class TestFaculty:
         assert diego["external_affiliation"] == "icmc.usp.br"
 
 
+class TestOptions:
+    """A tabela de opções — a pergunta "já olhamos esse?"."""
+
+    async def test_eliminated_programmes_stay_in_the_list(self, client: AsyncClient):
+        """Removê-los faria a mesma varredura ser refeita todo mês."""
+        options = (await client.get("/api/options")).json()
+        assert {o["acronym"] for o in options} >= {"PPGPEP", "PPGCC", "PPGEE", "PIPGEs"}
+
+    async def test_approved_comes_first(self, client: AsyncClient):
+        """A ordem da tabela é a ordem em que gastar atenção."""
+        options = (await client.get("/api/options")).json()
+        assert options[0]["acronym"] == "PPGPEP"
+        assert options[0]["verdict"] == "approved"
+        assert [o["verdict"] for o in options].count("eliminated") == 3
+
+    async def test_one_proven_failure_eliminates(self, client: AsyncClient):
+        """Assimetria deliberada: para descartar basta uma falha comprovada."""
+        options = {o["acronym"]: o for o in (await client.get("/api/options")).json()}
+        ppgcc = options["PPGCC"]
+        assert ppgcc["verdict"] == "eliminated"
+        status = {r["requirement"]: r["status"] for r in ppgcc["requirements"]}
+        assert status["evening_classes"] == "not_met"
+        # ...mesmo com um requisito ainda desconhecido: a falha já basta.
+        assert status["tuition_free"] == "unknown"
+
+    async def test_absence_of_failures_is_not_approval(self, client: AsyncClient):
+        """E a recíproca: sem os quatro verificados, o veredito é 'pending'."""
+        from app.models import Requirement, RequirementStatus, verdict_for
+
+        class _R:
+            def __init__(self, requirement, status):
+                self.requirement, self.status = requirement, status
+
+        partial = [_R(Requirement.EVENING_CLASSES, RequirementStatus.MET)]
+        assert verdict_for(partial).value == "pending"
+
+    async def test_every_verdict_carries_its_evidence(self, client: AsyncClient):
+        """Um veredito sem o porquê obriga a refazer a pesquisa a cada dúvida."""
+        for o in (await client.get("/api/options")).json():
+            for r in o["requirements"]:
+                if r["status"] != "unknown":
+                    assert r["evidence"], f"{o['acronym']}/{r['requirement']} sem evidência"
+
+    async def test_a_closed_cycle_is_not_a_deadline(self, client: AsyncClient):
+        options = {o["acronym"]: o for o in (await client.get("/api/options")).json()}
+        assert options["PPGPEP"]["days_left"] is not None
+        # O PPGCC tem ciclo, mas encerrado — não pode aparecer como prazo.
+        assert options["PPGCC"]["days_left"] is None
+
+
 class TestHealth:
     async def test_health_reports_the_database(self, client: AsyncClient):
         r = await client.get("/api/health")

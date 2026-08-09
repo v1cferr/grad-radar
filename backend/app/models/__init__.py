@@ -38,6 +38,13 @@ from app.models.curriculum import (
     OfferingScope,
     Weekday,
 )
+from app.models.eligibility import (
+    ProgramRequirement,
+    ProgramVerdict,
+    Requirement,
+    RequirementStatus,
+    verdict_for,
+)
 from app.models.provenance import Source, SourceSnapshot, SourceType
 
 __all__ = [
@@ -66,10 +73,15 @@ __all__ = [
     "LinkKind",
     "OfferingLocation",
     "OfferingScope",
+    "ProgramRequirement",
+    "ProgramVerdict",
     "RequiredDocument",
+    "Requirement",
+    "RequirementStatus",
     "ResearchLine",
     "Source",
     "SourceSnapshot",
     "SourceType",
     "Weekday",
+    "verdict_for",
 ]

@@ -26,7 +26,9 @@ test("renders the search itself, not a single programme", async ({ page }) => {
   // The subtitle states the four eliminatory requirements. It used to name the
   // PPGCC — which is eliminated, and led the page with a dead end.
   await expect(page.getByText(/presencial em São Carlos e com aula à noite/)).toBeVisible();
-  await expect(page.getByText(/2 programas acompanhados/)).toBeVisible();
+  // Contagem por regex: ela cresce a cada varredura, e travar o número faria
+  // este teste falhar por sucesso da pesquisa.
+  await expect(page.getByText(/\d+ programas acompanhados/)).toBeVisible();
 });
 
 test("the open call leads the page, above everything else", async ({ page }) => {
@@ -202,6 +204,60 @@ test("the process timeline says when we will actually know", async ({ page }) =>
   await expect(timeline).toContainText("Etapa 1");
   await expect(timeline).toContainText("Resultado");
   await expect(timeline).toContainText("18 de dez.");
+});
+
+test("the options table shows every programme investigated, eliminated included", async ({
+  page,
+}) => {
+  /**
+   * "Já olhamos esse?" custa tanto quanto "qual serve?". A tabela existe para
+   * que a varredura não seja refeita todo mês.
+   */
+  const table = page.locator("table").filter({ hasText: "Veredito" });
+  for (const acronym of ["PPGPEP", "PPGCC", "PPGEE", "PIPGEs"]) {
+    await expect(table.getByText(acronym, { exact: false }).first()).toBeVisible();
+  }
+  // Aprovado primeiro: a ordem da tabela é a ordem em que gastar atenção.
+  const first = table.locator("tbody tr").first();
+  await expect(first).toContainText("PPGPEP");
+  await expect(first).toContainText("aprovado");
+});
+
+test("a verdict carries the evidence that produced it", async ({ page }) => {
+  // Um veredito sem o porquê obriga a refazer a pesquisa a cada dúvida.
+  const row = page.getByRole("row", { name: /PIPGEs/ });
+  await row.locator('[data-slot="tooltip-trigger"]').first().hover();
+
+  const tip = page.locator('[data-slot="tooltip-content"]');
+  await expect(tip).toBeVisible();
+  await expect(tip).toContainText("não atende");
+  await expect(tip).toContainText("16:00–17:40");
+});
+
+test("an unverified requirement reads as pending work, never as a no", async ({ page }) => {
+  const row = page.getByRole("row", { name: /PPGEE/ });
+  // Terceiro requisito: gratuidade, não verificada porque o horário já eliminou.
+  await row.locator('[data-slot="tooltip-trigger"]').nth(2).hover();
+  const tip = page.locator('[data-slot="tooltip-content"]');
+  await expect(tip).toContainText("não verificado");
+});
+
+test("the eliminated rows can be hidden without losing them", async ({ page }) => {
+  const table = page.locator("table").filter({ hasText: "Veredito" });
+  await expect(table.locator("tbody tr")).toHaveCount(4);
+
+  await page.getByRole("button", { name: /Ocultar 3 eliminados/ }).click();
+  await expect(table.locator("tbody tr")).toHaveCount(1);
+
+  await page.getByRole("button", { name: /Mostrando só viáveis/ }).click();
+  await expect(table.locator("tbody tr")).toHaveCount(4);
+});
+
+test("the table filters by programme and by institution", async ({ page }) => {
+  const table = page.locator("table").filter({ hasText: "Veredito" });
+  await page.getByLabel("Filtrar opções").fill("PIPGEs");
+  await expect(table.locator("tbody tr")).toHaveCount(1);
+  await expect(table.locator("tbody tr")).toContainText("Estatística");
 });
 
 test("shows what the monitor watches, and when it last looked", async ({ page }) => {

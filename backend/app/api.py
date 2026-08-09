@@ -24,8 +24,12 @@ from app.models import (
     Department,
     FacultyMember,
     GraduateProgram,
+    ProgramRequirement,
+    Requirement,
+    RequirementStatus,
     ResearchLine,
     Source,
+    verdict_for,
 )
 
 # The whole chain must be eager-loaded: an async session raises on lazy access
@@ -161,6 +165,34 @@ class OfferingOut(BaseModel):
     conflicts_with_work: bool | None
 
 
+class RequirementOut(BaseModel):
+    requirement: Requirement
+    status: RequirementStatus
+    evidence: str | None
+
+
+class OptionOut(BaseModel):
+    """Uma linha da tabela de opções: um programa e por que ele entra ou sai."""
+
+    program_id: int
+    acronym: str
+    name: str
+    institution: str
+    campus: str
+    website: str | None
+    capes_rating: int | None
+    verdict: str
+    requirements: list[RequirementOut]
+    research_lines: list[str]
+    # Só o ciclo que ainda pode ser feito. Um processo encerrado não é opção, e
+    # mostrá-lo na coluna de prazo faria a tabela mentir.
+    applications_open_on: date | None
+    applications_close_on: date | None
+    cycle_status: str | None
+    total_seats: int | None
+    days_left: int | None
+
+
 # ── endpoints ────────────────────────────────────────────────────────────────
 
 
@@ -219,6 +251,69 @@ def _program_out(p: GraduateProgram, by_line: dict[int, list[str]]) -> ProgramOu
             _line_out(line, by_line) for line in sorted(p.research_lines, key=lambda x: x.acronym)
         ],
     )
+
+
+@router.get("/options", response_model=list[OptionOut])
+async def list_options(db: Db) -> list[OptionOut]:
+    """Todos os programas investigados, aprovados e eliminados, lado a lado.
+
+    Inclui os eliminados de propósito: a pergunta "já olhamos esse?" é tão
+    importante quanto "qual serve?", e uma lista só com aprovados faz a mesma
+    varredura ser refeita a cada mês.
+    """
+    today = date.today()  # noqa: DTZ011 — datas de edital são civis, sem fuso
+
+    programs = (await db.scalars(select(GraduateProgram).options(*_PROGRAM_LOADERS))).all()
+    reqs: dict[int, list[ProgramRequirement]] = {}
+    for r in (await db.scalars(select(ProgramRequirement))).all():
+        reqs.setdefault(r.program_id, []).append(r)
+
+    cycles: dict[int, AdmissionCycle] = {}
+    stmt = select(AdmissionCycle).options(
+        selectinload(AdmissionCycle.seats), selectinload(AdmissionCycle.stages)
+    )
+    for c in (await db.scalars(stmt)).all():
+        # O ciclo mais relevante é o que ainda dá para fazer; na falta de um,
+        # o mais recente, para que a coluna não fique vazia sem explicação.
+        current = cycles.get(c.program_id)
+        alive = c.applications_close_on is not None and c.applications_close_on >= today
+        if current is None or (alive and not (
+            current.applications_close_on is not None
+            and current.applications_close_on >= today
+        )):
+            cycles[c.program_id] = c
+
+    out: list[OptionOut] = []
+    for p in programs:
+        rows = sorted(reqs.get(p.id, []), key=lambda r: list(Requirement).index(r.requirement))
+        cycle = cycles.get(p.id)
+        close = cycle.applications_close_on if cycle else None
+        out.append(
+            OptionOut(
+                program_id=p.id,
+                acronym=p.acronym,
+                name=p.name,
+                institution=p.department.campus.institution.acronym,
+                campus=p.department.campus.name,
+                website=p.website,
+                capes_rating=p.capes_rating,
+                verdict=verdict_for(rows).value,
+                requirements=[
+                    RequirementOut(requirement=r.requirement, status=r.status, evidence=r.evidence)
+                    for r in rows
+                ],
+                research_lines=sorted(x.acronym for x in p.research_lines),
+                applications_open_on=cycle.applications_open_on if cycle else None,
+                applications_close_on=close,
+                cycle_status=cycle.status_on(today).value if cycle else None,
+                total_seats=sum(s.seats for s in cycle.seats) if cycle else None,
+                days_left=(close - today).days if close and close >= today else None,
+            )
+        )
+    # Aprovados primeiro, depois pendentes, e os eliminados por último: a ordem
+    # da tabela é a ordem em que alguém deve gastar atenção.
+    rank = {"approved": 0, "pending": 1, "eliminated": 2}
+    return sorted(out, key=lambda o: (rank.get(o.verdict, 9), o.acronym))
 
 
 @router.get("/research-lines", response_model=list[ResearchLineOut])

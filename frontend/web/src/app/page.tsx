@@ -28,6 +28,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import {
   getCycles,
   getOfferings,
+  getOptions,
   getPrograms,
   getSources,
   type Cycle,
@@ -37,6 +38,7 @@ import {
 import { daysUntil, fmt, fmtLong } from "@/lib/format";
 
 import { NextSteps, Timeline } from "./next-steps";
+import { OptionsTable } from "./options-table";
 import { LineTooltip } from "./research-line";
 import { ScheduleGrid } from "./schedule-grid";
 import { Sources } from "./sources";
@@ -320,11 +322,12 @@ function LinesTable({
 }
 
 export default async function Home() {
-  const [programs, cycles, offerings, sources] = await Promise.all([
+  const [programs, cycles, offerings, sources, options] = await Promise.all([
     getPrograms(),
     getCycles(),
     getOfferings(CANDIDATE),
     getSources(),
+    getOptions(),
   ]);
 
   // Nomeado explicitamente, nunca programs[0]: a ordem mudou no dia em que um
@@ -392,10 +395,21 @@ export default async function Home() {
         </Card>
       )}
 
+      <section className="mt-10">
+        <h2 className="text-lg font-semibold">Opções</h2>
+        <p className="mt-1 mb-4 text-sm text-muted-foreground">
+          Todos os programas já investigados, com os quatro requisitos eliminatórios lado a lado.
+          Os eliminados continuam aqui — saber que um programa já foi olhado evita refazer a
+          varredura, e a evidência da eliminação fica a um hover de distância.
+        </p>
+        <OptionsTable options={options} />
+      </section>
+
       {/* Um programa aprovado e um eliminado não são duas seções de uma lista:
           são respostas opostas. Misturá-los numa rolagem só fazia o leitor
           encontrar primeiro os números do que não serve. */}
-      <Tabs defaultValue="PPGPEP" className="mt-8">
+      <h2 className="mt-10 text-lg font-semibold">Detalhe por programa</h2>
+      <Tabs defaultValue="PPGPEP" className="mt-4">
         <TabsList>
           <TabsTrigger value="PPGPEP">
             PPGPEP

@@ -40,7 +40,10 @@ from app.models import (
     LinkKind,
     OfferingLocation,
     OfferingScope,
+    ProgramRequirement,
     RequiredDocument,
+    Requirement,
+    RequirementStatus,
     ResearchLine,
     Source,
     SourceType,
@@ -293,6 +296,77 @@ PPGPEP_SOURCES = [
 ]
 
 
+# ── Vereditos eliminatórios ──────────────────────────────────────────────────
+# Um programa por linha, com a EVIDÊNCIA de cada requisito. PPGEE e PIPGEs foram
+# varridos e eliminados em docs/research/ufscar-oferta-noturna.md, mas nunca
+# tinham entrado no banco — a lista de opções mostrava só o que já estava
+# modelado, que é o oposto de uma lista de opções.
+MORE_PROGRAMS: list[tuple[str, str, str, str, str]] = [
+    (
+        "PPGEE",
+        "Departamento de Engenharia Elétrica",
+        "DEE",
+        "Programa de Pós-Graduação em Engenharia Elétrica",
+        "https://www.ppgee.ufscar.br/pt-br",
+    ),
+    (
+        "PIPGEs",
+        "Departamento de Estatística",
+        "DEs",
+        "Programa Interinstitucional de Pós-Graduação em Estatística (UFSCar/USP)",
+        "https://www.pipges.ufscar.br/pt-br",
+    ),
+]
+
+_NIGHT = Requirement.EVENING_CLASSES
+_LOCAL = Requirement.IN_PERSON_SAO_CARLOS
+_FREE = Requirement.TUITION_FREE
+_PUBLIC = Requirement.PUBLIC_INSTITUTION
+_MET, _NO, _UNK = RequirementStatus.MET, RequirementStatus.NOT_MET, RequirementStatus.UNKNOWN
+
+REQUIREMENTS: dict[str, list[tuple[Requirement, RequirementStatus, str]]] = {
+    "PPGCC": [
+        (_NIGHT, _NO, (
+            "Grade 2026/2 publica apenas 08:00–12:00 e 14:00–18:00 — as 13 disciplinas "
+            "do semestre estão no banco e nenhuma começa às 18h."
+        )),
+        (_LOCAL, _MET, "Presencial em São Carlos; parte das disciplinas é espelhada em Sorocaba."),
+        (_FREE, _UNK, (
+            "Nenhuma página consultada afirma gratuidade. Programa federal, mas inferência "
+            "não é fato."
+        )),
+        (_PUBLIC, _MET, "UFSCar — universidade federal."),
+    ],
+    "PPGEE": [
+        (_NIGHT, _NO, (
+            "Grade 2026/2: faixas 8:00–10:00, 10:00–12:00, 14:00–16:00 e 16:00–18:00. "
+            "A última termina às 18h, exatamente quando a jornada acaba."
+        )),
+        (_LOCAL, _MET, "Presencial em São Carlos."),
+        (_FREE, _UNK, "Não verificado — eliminado antes por horário."),
+        (_PUBLIC, _MET, "UFSCar — universidade federal."),
+    ],
+    "PIPGEs": [
+        (_NIGHT, _NO, (
+            "Grade 2026/2 vai de 08:00–09:40 a 16:00–17:40. Nada depois das 18h, apesar de "
+            "ser o programa com linha explícita de Aprendizado de Máquina."
+        )),
+        (_LOCAL, _MET, "Presencial em São Carlos, interinstitucional UFSCar/USP."),
+        (_FREE, _UNK, "Não verificado — eliminado antes por horário."),
+        (_PUBLIC, _MET, "UFSCar e USP — ambas públicas."),
+    ],
+    "PPGPEP": [
+        (_NIGHT, _MET, (
+            "Programa Trilha Graduação: as aulas do mestrado profissional ocorrem à noite, "
+            "de segunda a sexta; o diurno é complemento opcional."
+        )),
+        (_LOCAL, _MET, "Presencial no campus São Carlos da UFSCar."),
+        (_FREE, _MET, "Portfólio oficial: \"Pós-Graduação Stricto Sensu 100% gratuita\"."),
+        (_PUBLIC, _MET, "UFSCar — universidade federal."),
+    ],
+}
+
+
 async def _get_or_create(db: AsyncSession, model, defaults: dict | None = None, **keys):
     obj = (await db.scalars(select(model).filter_by(**keys))).first()
     if obj is None:
@@ -513,6 +587,33 @@ async def seed(db: AsyncSession) -> dict[str, int]:
     )
     counts["admission_cycles"] = 2
     counts["research_lines"] = len(lines) + len(pep_lines)
+
+    # ── Programas varridos e eliminados, que só existiam nos docs ───────────
+    for acronym, dep_name, dep_acr, name, site in MORE_PROGRAMS:
+        d = await _get_or_create(
+            db, Department, {"acronym": dep_acr}, campus_id=sc.id, name=dep_name
+        )
+        await _get_or_create(
+            db, GraduateProgram,
+            {"department_id": d.id, "name": name, "website": site},
+            acronym=acronym,
+        )
+
+    # ── Os quatro requisitos, com a evidência de cada um ────────────────────
+    all_programs = {
+        p.acronym: p for p in (await db.scalars(select(GraduateProgram))).all()
+    }
+    for acronym, rows in REQUIREMENTS.items():
+        program = all_programs.get(acronym)
+        if program is None:
+            continue
+        for requirement, status, evidence in rows:
+            await _get_or_create(
+                db, ProgramRequirement,
+                {"status": status, "evidence": evidence, "verified_on": date(2026, 8, 8)},
+                program_id=program.id, requirement=requirement,
+            )
+    counts["program_requirements"] = sum(len(r) for r in REQUIREMENTS.values())
 
     for url, kind, title, redirect in SOURCES + PPGPEP_SOURCES:
         await _get_or_create(

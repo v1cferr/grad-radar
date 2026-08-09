@@ -21,6 +21,32 @@ export type ResearchLine = {
   offerings: string[];
 };
 
+export type RequirementStatus = "met" | "not_met" | "unknown";
+
+/** Uma linha da tabela de opções: um programa e por que ele entra ou sai. */
+export type Option = {
+  program_id: number;
+  acronym: string;
+  name: string;
+  institution: string;
+  campus: string;
+  website: string | null;
+  capes_rating: number | null;
+  verdict: "approved" | "pending" | "eliminated";
+  requirements: {
+    requirement: string;
+    status: RequirementStatus;
+    /** O texto que sustenta o veredito. Sem ele, "eliminado" é só uma opinião. */
+    evidence: string | null;
+  }[];
+  research_lines: string[];
+  applications_open_on: string | null;
+  applications_close_on: string | null;
+  cycle_status: string | null;
+  total_seats: number | null;
+  days_left: number | null;
+};
+
 export type Program = {
   id: number;
   name: string;
@@ -108,3 +134,4 @@ export const getCycles = () => get<Cycle[]>("/admission-cycles");
 export const getOfferings = (candidate: string) =>
   get<Offering[]>(`/offerings?candidate=${encodeURIComponent(candidate)}`);
 export const getSources = () => get<Source[]>("/sources");
+export const getOptions = () => get<Option[]>("/options");
