@@ -79,6 +79,21 @@ export type Offering = {
   conflicts_with_work: boolean | null;
 };
 
+export type Source = {
+  id: number;
+  url: string;
+  title: string | null;
+  source_type: string;
+  active: boolean;
+  last_checked_at: string | null;
+  redirects_to: string | null;
+  last_status: number | null;
+  last_error: string | null;
+  /** null = never changed since we started watching — not "never checked". */
+  last_change_at: string | null;
+  checks: number;
+};
+
 async function get<T>(path: string): Promise<T> {
   // no-store: this is a tracking dashboard; a cached deadline is a wrong deadline.
   const res = await fetch(`${BASE}/api${path}`, { cache: "no-store" });
@@ -90,3 +105,4 @@ export const getPrograms = () => get<Program[]>("/programs");
 export const getCycles = () => get<Cycle[]>("/admission-cycles");
 export const getOfferings = (candidate: string) =>
   get<Offering[]>(`/offerings?candidate=${encodeURIComponent(candidate)}`);
+export const getSources = () => get<Source[]>("/sources");

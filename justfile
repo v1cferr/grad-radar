@@ -77,6 +77,13 @@ seed:
 e2e:
     cd frontend/web && pnpm exec playwright test
 
+# verifica as fontes oficiais uma vez e grava o que mudou
+# Uma PASSADA só, de propósito: o agendamento mora fora (systemd timer/cron),
+# onde dá para declarar, inspecionar e desligar sem mexer no código — e um
+# scheduler dentro do processo morreria junto com o container.
+monitor:
+    {{compose}} exec backend sh -c 'cd /app && python -m app.monitor'
+
 # testes + lint do backend
 test:
     {{compose}} exec backend sh -c 'cd /app && python -m pytest -q && python -m ruff check app tests'

@@ -17,11 +17,13 @@ import {
   getCycles,
   getOfferings,
   getPrograms,
+  getSources,
   type Cycle,
   type ResearchLine,
 } from "@/lib/api";
 
 import { LineTooltip } from "./research-line";
+import { Sources } from "./sources";
 import { ScheduleGrid } from "./schedule-grid";
 
 export const dynamic = "force-dynamic";
@@ -200,10 +202,11 @@ function CycleCard({ c, lines }: { c: Cycle; lines: ResearchLine[] }) {
 }
 
 export default async function Home() {
-  const [programs, cycles, offerings] = await Promise.all([
+  const [programs, cycles, offerings, sources] = await Promise.all([
     getPrograms(),
     getCycles(),
     getOfferings(CANDIDATE),
+    getSources(),
   ]);
 
   const program = programs[0];
@@ -310,6 +313,15 @@ export default async function Home() {
             </TableBody>
           </Table>
         </Card>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-lg font-semibold">Monitoramento</h2>
+        <p className="mt-1 mb-4 text-sm text-muted-foreground">
+          O coletor compara o TEXTO extraído, não os bytes — PDF regerado muda byte a byte dizendo a
+          mesma coisa, e um monitor que grita à toa ninguém lê.
+        </p>
+        <Sources sources={sources} />
       </section>
 
       <footer className="mt-12 text-xs text-muted-foreground">

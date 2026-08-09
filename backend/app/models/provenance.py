@@ -70,6 +70,9 @@ class SourceSnapshot(Base):
     ``content_hash`` is what makes change detection possible without storing
     every byte forever, and ``retrieved_at`` is what lets a fact say *when* it
     was true rather than merely that someone believed it.
+
+    The hash is over the **extracted text**, never the raw bytes — a regenerated
+    PDF differs byte-for-byte while saying the same thing. See app/collector.py.
     """
 
     __tablename__ = "source_snapshot"
@@ -81,5 +84,24 @@ class SourceSnapshot(Base):
     http_status: Mapped[int | None] = mapped_column()
     content_path: Mapped[str | None] = mapped_column(Text)
     notes: Mapped[str | None] = mapped_column(Text)
+
+    # Kept so a future diff can say WHAT changed without re-fetching — and a
+    # re-fetch would be a different document anyway, which is precisely the
+    # problem monitoring exists to catch.
+    text: Mapped[str | None] = mapped_column(Text)
+
+    # Where the request actually landed. A 302 into SEI is the normal case here,
+    # not an anomaly, and recording it is how the next collector knows.
+    final_url: Mapped[str | None] = mapped_column(Text)
+    content_type: Mapped[str | None] = mapped_column(String(120))
+
+    # True when this differed from the previous snapshot of the same source.
+    # Denormalised on purpose: "what changed recently" is the query this system
+    # exists to answer, and it should not require a self-join every time.
+    changed: Mapped[bool] = mapped_column(default=False)
+
+    # Set when the fetch failed. A failed check is still a check — silence about
+    # it would let a source rot unnoticed.
+    error: Mapped[str | None] = mapped_column(Text)
 
     source: Mapped[Source] = relationship(back_populates="snapshots")

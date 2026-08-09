@@ -25,6 +25,15 @@ dependencies = [
     # change goes through a reviewed migration, so the database of today is
     # reproducible tomorrow.
     "alembic>=1.14",
+    # Coletor (F5). httpx segue redirect por configuração, e três das fontes que
+    # importam fazem 302 para o SEI — um cliente que não segue volta vazio.
+    "httpx>=0.28",
+    # Extração de PDF em Python puro: as datas, vagas e a grade horária moram
+    # todas em PDF, não no HTML.
+    "pypdf>=5.1",
+    # Texto visível do HTML. Hash de HTML cru é ruidoso demais para detectar
+    # mudança — ver o docstring do collector.
+    "beautifulsoup4>=4.12",
 ]
 
 [dependency-groups]

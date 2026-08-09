@@ -25,6 +25,7 @@ from app.models import (
     FacultyMember,
     GraduateProgram,
     ResearchLine,
+    Source,
 )
 
 # The whole chain must be eager-loaded: an async session raises on lazy access
@@ -119,6 +120,23 @@ class CycleOut(BaseModel):
     seats: list[SeatOut]
     stages: list[StageOut]
     required_documents: list[str]
+
+
+class SourceOut(BaseModel):
+    id: int
+    url: str
+    title: str | None
+    source_type: str
+    active: bool
+    last_checked_at: datetime | None
+    """Where the request actually landed — a 302 into SEI is the normal case."""
+    redirects_to: str | None
+    last_status: int | None
+    last_error: str | None
+    # When the content last differed from the previous check. None = never
+    # changed since we started watching, which is not the same as never checked.
+    last_change_at: datetime | None
+    checks: int
 
 
 class OfferingOut(BaseModel):
@@ -288,6 +306,43 @@ async def list_admission_cycles(db: Db) -> list[CycleOut]:
         )
         for c in cycles
     ]
+
+
+@router.get("/sources", response_model=list[SourceOut])
+async def list_sources(db: Db) -> list[SourceOut]:
+    """What the monitor watches, and what it last saw.
+
+    A failed check is reported, not hidden: silence about an unreachable source
+    is how a source rots without anyone noticing.
+    """
+    sources = (
+        await db.scalars(
+            select(Source)
+            .options(selectinload(Source.snapshots))
+            .order_by(Source.title)
+        )
+    ).all()
+    out: list[SourceOut] = []
+    for s in sources:
+        snaps = sorted(s.snapshots, key=lambda x: x.retrieved_at)
+        last = snaps[-1] if snaps else None
+        changes = [x for x in snaps if x.changed]
+        out.append(
+            SourceOut(
+                id=s.id,
+                url=s.url,
+                title=s.title,
+                source_type=s.source_type,
+                active=s.active,
+                last_checked_at=s.last_checked_at,
+                redirects_to=s.redirects_to,
+                last_status=last.http_status if last else None,
+                last_error=last.error if last else None,
+                last_change_at=changes[-1].retrieved_at if changes else None,
+                checks=len(snaps),
+            )
+        )
+    return out
 
 
 @router.get("/offerings", response_model=list[OfferingOut])

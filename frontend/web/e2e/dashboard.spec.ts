@@ -112,6 +112,14 @@ test("research lines are listed with their faculty counts", async ({ page }) => 
   await expect(row).toContainText("9");
 });
 
+test("shows what the monitor watches, and when it last looked", async ({ page }) => {
+  const section = page.locator("section", { hasText: "Monitoramento" });
+  await expect(section).toContainText("fontes oficiais monitoradas");
+  // The one that 302s into SEI — the case a naive collector silently misses.
+  await expect(section).toContainText("Calendário e disciplinas do semestre 2/2026");
+  await expect(section).toContainText("grade horária (PDF)");
+});
+
 test("is legible on a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole("heading", { name: "GradRadar", level: 1 })).toBeVisible();
