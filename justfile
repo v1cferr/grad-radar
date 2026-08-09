@@ -36,8 +36,16 @@ rebuild-backend:
     {{compose}} up -d --build --force-recreate backend
 
 # recria só o FRONTEND — use após mudar package.json/pnpm-lock.yaml
+#
+# APAGA o volume de node_modules de propósito. O container é alpine (musl) e o
+# host é glibc; quando o grafo de dependências muda, o `--frozen-lockfile` sobre
+# um volume já populado deixa uma árvore MISTA — o sintoma real foi
+# `Cannot find module '../lightningcss.linux-x64-musl.node'` e HTTP 500 no Next.
+# Reinstalar do zero custa ~15s e evita uma hora de investigação.
 rebuild-frontend:
-    {{compose}} up -d --force-recreate frontend
+    {{compose}} rm -sf frontend
+    -docker volume rm grad-radar_frontend_node_modules grad-radar_frontend_next
+    {{compose}} up -d frontend
 
 # reset PRISTINE: apaga volumes (banco, node_modules, .next) e recria
 # ATENÇÃO: isto DESTRÓI os dados do Postgres.
@@ -62,6 +70,12 @@ migration name:
 # popula o banco com os dados verificados do PPGCC (idempotente)
 seed:
     {{compose}} exec backend sh -c 'cd /app && python -m app.seed'
+
+# e2e no navegador contra o stack NO AR (requer `just up` antes)
+# Browsers vêm do devShell; @playwright/test tem que casar com a versão que o
+# shellHook imprime.
+e2e:
+    cd frontend/web && pnpm exec playwright test
 
 # testes + lint do backend
 test:

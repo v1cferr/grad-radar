@@ -49,6 +49,11 @@
             postgresql_17 # só o cliente psql; casa com o postgres:17-alpine do compose
 
             git
+
+            # ── E2E ──────────────────────────────────────────────────────────
+            # Browsers do Playwright já buildados p/ Nix. Sem isso o
+            # `playwright install` baixaria binários não-FHS que não rodam aqui.
+            playwright-driver.browsers
           ];
 
           env = {
@@ -56,16 +61,21 @@
             # Força o uv a usar o python313 do Nix, nunca baixar um.
             UV_PYTHON_DOWNLOADS = "never";
             UV_PYTHON_PREFERENCE = "only-system";
+
+            # Usa os browsers do Nix em vez de baixar. A versão do pacote npm
+            # @playwright/test PRECISA casar com a do driver — o banner do
+            # shellHook imprime a do driver justamente p/ conferir na hora.
+            PLAYWRIGHT_BROWSERS_PATH = "${pkgs.playwright-driver.browsers}";
+            PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true";
           };
 
-          # NOTA p/ a fase de scraping/PDF (F5): quando entrarem lxml/playwright
-          # e afins, este shellHook vai precisar do LD_LIBRARY_PATH com
-          # stdenv.cc.cc.lib + zlib (wheels binários do PyPI linkam libstdc++,
-          # que no NixOS não está no path padrão) e de
-          # playwright-driver.browsers + PLAYWRIGHT_BROWSERS_PATH nos packages.
-          # Hoje nada aqui compila C, então ficam de fora de propósito.
+          # NOTA p/ a fase de scraping/PDF (F5): quando entrarem lxml e wheels
+          # binários do PyPI, este shellHook vai precisar de LD_LIBRARY_PATH com
+          # stdenv.cc.cc.lib + zlib (eles linkam libstdc++, que no NixOS não está
+          # no path padrão). Hoje nada aqui compila C, então fica de fora.
           shellHook = ''
             echo "grad-radar devShell → python $(python3 --version 2>&1 | cut -d' ' -f2) · node $(node --version) · uv $(uv --version | cut -d' ' -f2) · pnpm $(pnpm --version) · caddy $(caddy version | head -1 | cut -d' ' -f1)"
+            echo "playwright-driver: ${pkgs.playwright-driver.version} — o @playwright/test do pnpm precisa casar com essa versão."
           '';
         };
       });

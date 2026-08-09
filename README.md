@@ -39,7 +39,8 @@ Run `just` with no arguments to list every recipe. The most useful ones:
 | `just psql` | Open `psql` against the project database |
 | `just migrate` | Apply pending Alembic migrations |
 | `just seed` | Load the verified PPGCC data (idempotent) |
-| `just test` | Backend tests + lint |
+| `just test` | Backend tests + lint (unit + integration) |
+| `just e2e` | Browser tests against the running stack (Playwright) |
 | `just ingress` | Show where the reverse proxy lives and its current status |
 
 ### Things worth knowing
@@ -56,6 +57,24 @@ Run `just` with no arguments to list every recipe. The most useful ones:
 - **The published ports are `3006` (frontend) and `8006` (API), loopback only.** They are the interface with
   Caddy, not with the network. Changing them requires changing the port map in the dotfiles module too.
 - **`.env` is not optional.** The compose file loads it via `env_file`, and `just` refuses to start without it.
+- **Changing a frontend dependency? Use `just rebuild-frontend`, not a plain restart.** The container is
+  Alpine (musl) and the host is glibc; installing over an existing `node_modules` volume after the dependency
+  graph changes leaves a mixed tree, and the symptom is an opaque `Cannot find module
+  '…linux-x64-musl.node'` with HTTP 500.
+
+### Testing
+
+Three layers, each answering a question the others cannot:
+
+| Layer | Command | What it proves |
+| --- | --- | --- |
+| unit | `just test` | domain rules, no I/O |
+| integration | `just test` | the real app against the real PostgreSQL, in-process via httpx `ASGITransport` — no server |
+| e2e | `just e2e` | a browser renders the data, through Caddy |
+
+Playwright is deliberately **not** used for the API: `ASGITransport` calls FastAPI in the same process, so
+those tests need no server and finish in milliseconds. Playwright earns its place only where a real browser
+does.
 
 ---
 

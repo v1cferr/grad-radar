@@ -11,8 +11,15 @@
 # ERR_PNPM_IGNORED_BUILDS instead of just warning. The non-zero exit breaks the
 # compose command chain (`pnpm install --frozen-lockfile && next dev`), so the
 # frontend container dies before the dev server ever starts. Every dependency
-# with a legitimate postinstall has to be decided here explicitly.
-#
-# sharp: Next.js's optional native image optimizer.
+# with a postinstall has to be decided here explicitly — including the ones we
+# decide AGAINST, or the error comes back.
 allowBuilds:
+  # Next.js's optional native image optimizer.
   sharp: true
+  # DENIED on purpose. Playwright's postinstall downloads browser binaries that
+  # are not FHS-compatible and would not run on NixOS anyway — the devShell
+  # supplies them from nixpkgs via PLAYWRIGHT_BROWSERS_PATH. Denying it also
+  # keeps the frontend container from pulling ~400 MB it never uses.
+  playwright: false
+  playwright-core: false
+  "@playwright/test": false
