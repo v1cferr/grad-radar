@@ -74,7 +74,7 @@ browser ──► caddy :443 ──┬── /api/*  ──► backend  (FastAPI
 | Frontend | Next.js 15 (App Router), TypeScript, Tailwind v4 |
 | Backend | FastAPI, SQLAlchemy 2.0 (async), Python 3.13 |
 | Database | PostgreSQL 17, self-hosted in a container |
-| Reverse proxy | Caddy 2, `tls internal` |
+| Reverse proxy | Caddy 2 (central, in the dotfiles), wildcard Let's Encrypt cert |
 | Dev environment | Nix flake dev shell + direnv; `uv` for Python, `pnpm` for Node |
 | Task runner | `just` |
 
@@ -85,10 +85,13 @@ containers. This keeps the host machine clean and the environment reproducible p
 ### Layout
 
 ```
-backend/            FastAPI service (F0: a single /api/health endpoint)
-frontend/web/       Next.js app (F0: a smoke-test page)
-deploy/Caddyfile    Reverse proxy and local TLS
-docs/               Design notes
+backend/app/models/ Domain models — academic, curriculum, admission, provenance
+backend/app/api.py  Read-only endpoints over the seeded domain
+backend/app/seed.py Verified PPGCC data, idempotent
+backend/alembic/    Migrations (the app never calls create_all)
+frontend/web/       Next.js dashboard — cycles, cronograma, weekly grid
+deploy/README.md    Points at the central Caddy in the dotfiles
+docs/research/      Domain discovery, with a source URL per fact
 flake.nix           Host dev shell
 justfile            Development shortcuts
 ```
