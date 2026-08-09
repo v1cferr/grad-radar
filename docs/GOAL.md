@@ -61,15 +61,22 @@ pesos, porém, são **por candidato** — o modelo nunca assumiu um ranking glob
 | UFSCar | PPGCC | ❌ requisito 1 | eliminado — só 08–12 e 14–18 |
 | UFSCar | PPGEE | ❌ requisito 1 | eliminado |
 | UFSCar | PIPGEs | ❌ requisito 1 | eliminado — apesar de ter linha de Aprendizado de Máquina |
-| UFSCar | **PPGPEP** (profissional) | ✅ **todos** | **único aprovado até agora** |
+| UFSCar | **PPGPEP** (profissional) | ✅ **todos** | **INSCRIÇÕES ABERTAS: 20/08 a 14/09/2026** |
 | USP/ICMC | — | — | não investigado |
+
+> **Edital PPGPEP 001/2026 — ingresso em 2027.** 25 vagas, sem distribuição por linha, sem bolsa.
+> A seleção é 100% sobre um **projeto de pesquisa**: etapa 1 avalia o projeto escrito, etapa 2 é a
+> defesa oral dele. Ou seja, o trabalho real acontece **antes** de 20/08.
+> Ver [`research/ufscar-ppgpep-edital-001-2026.md`](research/ufscar-ppgpep-edital-001-2026.md).
 
 O PPGPEP passa nos quatro, mas tem aderência fraca a IA técnica. É a tensão central da busca hoje, e o
 motivo de o ICMC-USP ainda valer a pena investigar.
 
 ## O que falta o sistema fazer
 
-1. **Monitorar** as fontes oficiais automaticamente e detectar edital novo ou alterado (F5).
+1. **Monitorar** as fontes oficiais automaticamente e detectar edital novo ou alterado (F5) — o
+   coletor funciona e cobre 13 fontes, mas ainda depende de `just monitor` rodado à mão; falta o
+   timer systemd nos dotfiles.
 2. **Avisar** os três no WhatsApp quando algo que passa nos eliminatórios aparecer (F4).
 
 Sem essas duas, o sistema é um retrato — e o problema que ele existe para resolver é justamente que

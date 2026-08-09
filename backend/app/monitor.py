@@ -56,6 +56,9 @@ async def check_source(db: AsyncSession, source: Source, client: httpx.AsyncClie
         content_type=result.content_type or None,
         changed=changed,
         error=result.error,
+        # Recorded, not hidden: a change flagged on a byte hash deserves a human
+        # look before anyone acts on it.
+        notes=None if result.text_extractable else "hash sobre bytes (PDF sem camada de texto)",
     )
     db.add(snapshot)
 
@@ -98,7 +101,8 @@ async def main() -> None:
         if snap.error:
             mark, detail = "ERRO ", snap.error[:70]
         elif snap.changed:
-            mark, detail = "MUDOU", f"{len(snap.text or '')} chars · {snap.content_hash[:12]}"
+            basis = " (bytes)" if snap.notes else ""
+            mark, detail = "MUDOU", f"{len(snap.text or '')} chars{basis} · {snap.content_hash[:12]}"
         else:
             mark, detail = "igual", f"{len(snap.text or '')} chars"
         print(f"  {mark}  {source.title or source.url}\n         {detail}")

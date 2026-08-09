@@ -26,10 +26,21 @@ class TestPrograms:
         presented as a fact. Both are worse than admitting the gap.
         """
         r = await client.get("/api/programs")
-        assert r.json()[0]["tuition_free"] is None
+        ppgcc = next(p for p in r.json() if p["acronym"] == "PPGCC")
+        assert ppgcc["tuition_free"] is None
 
     async def test_unknown_program_is_404(self, client: AsyncClient):
         assert (await client.get("/api/programs/999999")).status_code == 404
+
+
+async def _cycle(client: AsyncClient, program: str) -> dict:
+    """Look a cycle up by programme, never by position.
+
+    Indexing [0] passed for months and then broke the moment a second programme
+    was seeded — and it would have broken *silently* if the two happened to agree.
+    """
+    cycles = (await client.get("/api/admission-cycles")).json()
+    return next(c for c in cycles if c["program"] == program)
 
 
 class TestAdmissionCycles:
@@ -39,12 +50,12 @@ class TestAdmissionCycles:
         The PPGCC site labels this cycle "Processo vigente" while its window
         closed on 26/04/2026. The API must report it closed anyway.
         """
-        cycle = (await client.get("/api/admission-cycles")).json()[0]
+        cycle = await _cycle(client, "PPGCC")
         assert cycle["site_label"] == "Processo vigente"
         assert cycle["status"] == "concluded"
 
     async def test_seats_are_per_research_line(self, client: AsyncClient):
-        cycle = (await client.get("/api/admission-cycles")).json()[0]
+        cycle = await _cycle(client, "PPGCC")
         seats = {s["research_line"]: s["seats"] for s in cycle["seats"]}
         assert seats == {"AMPLN": 4, "VC": 7, "SDARC": 7, "SAR": 2, "BD": 1, "ES": 1, "CCH": 1}
         # The edital says "23 (vinte e três)". A first reading of the PDF said 21;
@@ -52,9 +63,36 @@ class TestAdmissionCycles:
         assert cycle["total_seats"] == 23
 
     async def test_stages_are_ordered_and_dated(self, client: AsyncClient):
-        cycle = (await client.get("/api/admission-cycles")).json()[0]
+        cycle = await _cycle(client, "PPGCC")
         assert [s["ordinal"] for s in cycle["stages"]] == [1, 2]
         assert cycle["stages"][0]["starts_on"] == "2026-05-13"
+
+
+class TestPpgpep:
+    """The only programme that survives all four eliminatory requirements.
+
+    Evening classes, in person in São Carlos, free, public. Everything else the
+    project looked at fails on the first one — see docs/research/.
+    """
+
+    async def test_it_is_free_and_that_is_verified_not_assumed(self, client: AsyncClient):
+        program = next(
+            p for p in (await client.get("/api/programs")).json() if p["acronym"] == "PPGPEP"
+        )
+        assert program["tuition_free"] is True
+
+    async def test_the_2027_call_is_open_for_applications(self, client: AsyncClient):
+        """The reason the monitor exists. If this ever regresses, nobody applies."""
+        cycle = await _cycle(client, "PPGPEP")
+        assert cycle["applications_open_on"] == "2026-08-20"
+        assert cycle["applications_close_on"] == "2026-09-14"
+        assert cycle["status"] in {"announced", "open"}
+
+    async def test_seats_are_not_split_by_research_line(self, client: AsyncClient):
+        """Edital 3.6, and the opposite of PPGCC — the model had to allow both."""
+        cycle = await _cycle(client, "PPGPEP")
+        assert cycle["total_seats"] == 25
+        assert [s["research_line"] for s in cycle["seats"]] == [None]
 
 
 class TestOfferings:

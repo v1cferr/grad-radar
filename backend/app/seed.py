@@ -234,6 +234,65 @@ SOURCES = [
 ]
 
 
+# ── PPGPEP — o único programa que passa nos requisitos eliminatórios ─────────
+# Mestrado PROFISSIONAL em Engenharia de Produção. Aulas à noite, de segunda a
+# sexta; "Pós-Graduação Stricto Sensu 100% gratuita" (portfólio oficial).
+# Ver docs/research/ufscar-oferta-noturna.md.
+PPGPEP_URL = "https://www.ppgpep.ufscar.br/pt-br"
+
+PPGPEP_LINES: list[tuple[str, str, str]] = [
+    (
+        "PCsP",
+        "Planejamento e Controle de Sistemas Produtivos",
+        (
+            "Como planejar e controlar a produção: capacidade, estoques, programação "
+            "e a operação do dia a dia."
+        ),
+    ),
+    (
+        "GQ",
+        "Gestão da Qualidade",
+        "Métodos para medir, controlar e melhorar qualidade em processos e produtos.",
+    ),
+    (
+        "TOTI",
+        "Trabalho, Organizações, Tecnologia e Inovação",
+        (
+            "Como organizações adotam tecnologia e inovam — incluindo o efeito sobre "
+            "o trabalho. É a linha mais próxima de adoção institucional de IA."
+        ),
+    ),
+]
+
+# Edital PPGPEP/UFSCar n. 001/2026, lido do PDF (digitalizado, sem camada de
+# texto — foi preciso renderizar as páginas para ler).
+PPGPEP_STAGES = [
+    (1, "Avaliação do Projeto de Pesquisa", None, None, date(2026, 11, 6)),
+    (2, "Defesa do Projeto de Pesquisa", date(2026, 11, 23), date(2026, 12, 1), date(2026, 12, 4)),
+]
+
+PPGPEP_DOCS = [
+    ("Projeto de pesquisa", True),
+    ("Diploma de graduação ou certificado de conclusão", True),
+    ("Histórico escolar", True),
+    ("Currículo Lattes", True),
+    ("Documento de identidade", True),
+    ("Declaração de vínculo com membros do corpo docente (Anexo II)", True),
+]
+
+PPGPEP_SOURCES = [
+    (f"{PPGPEP_URL}/processo-seletivo/processo-seletivo", SourceType.ADMISSION_PAGE,
+     "PPGPEP — processo seletivo", None),
+    (f"{PPGPEP_URL}/o-programa", SourceType.GRADUATE_PROGRAM_PAGE, "PPGPEP — o programa", None),
+    (f"{PPGPEP_URL}/informacoes-academicas/disciplinas", SourceType.COURSE_CATALOG,
+     "PPGPEP — disciplinas", None),
+    (f"{PPGPEP_URL}/informacoes-academicas/calendarios-e-horarios", SourceType.SCHEDULE_PDF,
+     "PPGPEP — calendários e horários", None),
+    ("https://www.ppgpep.ufscar.br/en/assets/arquivos/edital-ppgpep-2026.pdf",
+     SourceType.EDITAL_PDF, "PPGPEP — Edital 001/2026 (ingresso 2027)", None),
+]
+
+
 async def _get_or_create(db: AsyncSession, model, defaults: dict | None = None, **keys):
     obj = (await db.scalars(select(model).filter_by(**keys))).first()
     if obj is None:
@@ -389,14 +448,79 @@ async def seed(db: AsyncSession) -> dict[str, int]:
     )
     counts["admission_cycles"] = 1
 
-    for url, kind, title, redirect in SOURCES:
+    # ── PPGPEP ──────────────────────────────────────────────────────────────
+    dep = await _get_or_create(
+        db, Department, {"acronym": "DEP", "website": "https://www.dep.ufscar.br"},
+        campus_id=sc.id, name="Departamento de Engenharia de Produção",
+    )
+    ppgpep = await _get_or_create(
+        db, GraduateProgram,
+        {
+            "department_id": dep.id,
+            "name": "Programa de Pós-Graduação Profissional em Engenharia de Produção",
+            "website": PPGPEP_URL,
+            # "Pós-Graduação Stricto Sensu 100% gratuita" — portfólio oficial.
+            "tuition_free": True,
+            "notes": "Mestrado profissional. Aulas à NOITE, de segunda a sexta — único "
+                     "programa da UFSCar investigado que atende ao requisito de horário. "
+                     "Edital 001/2026: não dispõe de bolsas de CAPES/CNPq.",
+        },
+        acronym="PPGPEP",
+    )
+    pep_lines: dict[str, ResearchLine] = {}
+    for acronym, name, description in PPGPEP_LINES:
+        pep_lines[acronym] = await _get_or_create(
+            db, ResearchLine, {"name": name, "description": description},
+            program_id=ppgpep.id, acronym=acronym,
+        )
+
+    pep_cycle = await _get_or_create(
+        db, AdmissionCycle,
+        {
+            "applications_open_on": date(2026, 8, 20),
+            "applications_close_on": date(2026, 9, 14),
+            "site_label": "Processo Seletivo para ingresso em 2027",
+            "official_url": f"{PPGPEP_URL}/processo-seletivo",
+            "notes": "25 vagas (17 ampla concorrência + 8 de ações afirmativas). "
+                     "Edital 3.6: NÃO há distribuição de vagas por linha de pesquisa. "
+                     "Exige PROJETO DE PESQUISA — é a Etapa 1.",
+        },
+        program_id=ppgpep.id, year=2027, semester=1, entry_mode=EntryMode.REGULAR,
+    )
+    pep_cycle.degree_level = "master"
+    for ordinal, name, starts, ends, result in PPGPEP_STAGES:
+        await _get_or_create(
+            db, AdmissionStage,
+            {"name": name, "starts_on": starts, "ends_on": ends, "result_on": result},
+            cycle_id=pep_cycle.id, ordinal=ordinal,
+        )
+    # research_line_id NULO de propósito: o edital diz que as vagas NÃO são
+    # distribuídas por linha, ao contrário do PPGCC. O modelo já permitia.
+    await _get_or_create(
+        db, AdmissionSeat, {"seats": 25}, cycle_id=pep_cycle.id, research_line_id=None
+    )
+    pep_existing = {d.name for d in (await db.scalars(
+        select(RequiredDocument).where(RequiredDocument.cycle_id == pep_cycle.id))).all()}
+    for name, mandatory in PPGPEP_DOCS:
+        if name not in pep_existing:
+            db.add(RequiredDocument(cycle_id=pep_cycle.id, name=name, mandatory=mandatory))
+    await _get_or_create(
+        db, AdmissionNotice,
+        {"title": "Edital PPGPEP/UFSCar n. 001/2026 — ingresso em 2027",
+         "url": "https://www.ppgpep.ufscar.br/en/assets/arquivos/edital-ppgpep-2026.pdf"},
+        cycle_id=pep_cycle.id, number="001/2026",
+    )
+    counts["admission_cycles"] = 2
+    counts["research_lines"] = len(lines) + len(pep_lines)
+
+    for url, kind, title, redirect in SOURCES + PPGPEP_SOURCES:
         await _get_or_create(
             db, Source,
             {"source_type": kind, "title": title, "institution_id": ufscar.id,
              "redirects_to": redirect, "last_checked_at": datetime(2026, 8, 8, tzinfo=UTC)},
             url=url,
         )
-    counts["sources"] = len(SOURCES)
+    counts["sources"] = len(SOURCES) + len(PPGPEP_SOURCES)
 
     victor = await _get_or_create(
         db, Candidate,

@@ -7,6 +7,9 @@ it hashes something unstable, until nobody reads the alerts any more.
 
 from __future__ import annotations
 
+import httpx
+
+from app import collector
 from app.collector import digest, html_to_text, normalise
 
 
@@ -55,3 +58,42 @@ class TestHtmlExtraction:
         one = html_to_text(b"<html><body><p>23 vagas</p></body></html>")
         two = html_to_text(b"<html><body><p>21 vagas</p></body></html>")
         assert digest(one) != digest(two)
+
+
+class TestPdfWithoutATextLayer:
+    """The PPGPEP edital is 18 scanned pages. Extraction returns nothing.
+
+    Before this, every image-only PDF hashed to the digest of "" — identical to
+    each other and immovable, so a replaced edital read as "no change". Silence
+    that looks like good news is the one failure this project cannot afford.
+    """
+
+    def test_empty_extraction_is_indistinguishable(self):
+        """Why the fallback is necessary, stated as a fact rather than a comment."""
+        assert digest(normalise("")) == digest(normalise("  \n\n "))
+
+    async def test_falls_back_to_bytes_and_says_so(self, monkeypatch):
+        monkeypatch.setattr(collector, "pdf_to_text", lambda raw: "")
+        one = await _fetch_bytes(b"%PDF-1.4 scan A")
+        two = await _fetch_bytes(b"%PDF-1.4 scan B")
+
+        assert one.text_extractable is False
+        assert one.content_hash != two.content_hash
+
+    async def test_a_real_text_pdf_still_hashes_its_text(self, monkeypatch):
+        body = "Edital PPGPEP 001/2026 " * 40  # comfortably over MIN_PDF_TEXT
+        monkeypatch.setattr(collector, "pdf_to_text", lambda raw: body)
+        one = await _fetch_bytes(b"build-1")
+        two = await _fetch_bytes(b"build-2")
+
+        # Same words, regenerated file: NOT a change. The original guarantee.
+        assert one.text_extractable is True
+        assert one.content_hash == two.content_hash
+
+
+async def _fetch_bytes(raw: bytes):
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(200, content=raw, headers={"content-type": "application/pdf"})
+    )
+    async with httpx.AsyncClient(transport=transport) as client:
+        return await collector.fetch("https://example.org/edital.pdf", client)
