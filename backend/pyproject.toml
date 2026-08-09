@@ -21,10 +21,27 @@ dependencies = [
     # [asyncio] pulls greenlet, required by SQLAlchemy's async engine.
     "sqlalchemy[asyncio]>=2.0",
     "asyncpg>=0.30",
+    # Schema evolution. The app must NEVER call metadata.create_all() — every
+    # change goes through a reviewed migration, so the database of today is
+    # reproducible tomorrow.
+    "alembic>=1.14",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    # httpx drives FastAPI's ASGI transport in tests — no live server needed.
+    "httpx>=0.28",
+    "ruff>=0.8",
 ]
 
 [tool.uv]
 package = false
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
 
 [tool.ruff]
 target-version = "py313"

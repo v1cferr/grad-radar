@@ -49,6 +49,24 @@ fresh: _require-env
 psql:
     {{compose}} exec db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 
+# aplica as migrations pendentes
+migrate:
+    {{compose}} exec backend sh -c 'cd /app && alembic upgrade head'
+
+# cria uma migration a partir do diff entre os modelos e o banco
+# ATENÇÃO: revise o arquivo gerado. O autogenerate NÃO dropa ENUM no downgrade —
+# sem acrescentar os DROP TYPE à mão, o próximo `upgrade` morre com DuplicateObject.
+migration name:
+    {{compose}} exec backend sh -c 'cd /app && alembic revision --autogenerate -m "{{name}}"'
+
+# popula o banco com os dados verificados do PPGCC (idempotente)
+seed:
+    {{compose}} exec backend sh -c 'cd /app && python -m app.seed'
+
+# testes + lint do backend
+test:
+    {{compose}} exec backend sh -c 'cd /app && python -m pytest -q && python -m ruff check app tests'
+
 # status do ingress: o proxy NÃO é deste projeto, vive nos dotfiles
 ingress:
     @echo "O ingress é do Caddy central (systemd), não deste compose:"

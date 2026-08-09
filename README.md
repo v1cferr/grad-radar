@@ -10,7 +10,7 @@ Intelligence, Machine Learning, Natural Language Processing, Large Language Mode
 related fields in São Carlos, Brazil — especially programs connected to the UFSCar Department of Computing and
 the USP Institute of Mathematics and Computer Sciences (ICMC).
 
-**Status:** F0 — infrastructure foundation. No domain model yet; see [Roadmap](#roadmap).
+**Status:** F1 — domain model, verified PPGCC/UFSCar data and a read API. See [Roadmap](#roadmap).
 
 ---
 
@@ -37,6 +37,9 @@ Run `just` with no arguments to list every recipe. The most useful ones:
 | `just down` | Tear down, preserving volumes |
 | `just fresh` | **Destructive** — drop volumes (database included) and rebuild |
 | `just psql` | Open `psql` against the project database |
+| `just migrate` | Apply pending Alembic migrations |
+| `just seed` | Load the verified PPGCC data (idempotent) |
+| `just test` | Backend tests + lint |
 | `just ingress` | Show where the reverse proxy lives and its current status |
 
 ### Things worth knowing
@@ -128,8 +131,8 @@ checklist, application history and scores.
 
 | Phase | Contents |
 | --- | --- |
-| **F0** | Infrastructure foundation — dev shell, compose stack, Caddy, PostgreSQL ← **current** |
-| F1 | Data model, Alembic migrations, seed data for PPGCC and PPG-CCMC, candidate profiles |
+| F0 | Infrastructure foundation — dev shell, compose stack, Caddy, PostgreSQL |
+| **F1** | Data model, Alembic, verified PPGCC seed, read API ← **current** |
 | F2 | REST API — CRUD, filters, opportunity scoring |
 | F3 | UI — program list and filters, program detail, deadline calendar, pipeline board, checklists |
 | F4 | Notifications — deadline and change alerts |

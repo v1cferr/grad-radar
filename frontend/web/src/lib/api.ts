@@ -1,0 +1,88 @@
+/**
+ * Typed access to the GradRadar API.
+ *
+ * Server components call this, so it uses BACKEND_INTERNAL_URL (container →
+ * container). The browser never talks to the backend directly; it only receives
+ * rendered HTML, which is why no CORS configuration exists anywhere.
+ */
+
+const BASE = process.env.BACKEND_INTERNAL_URL ?? "http://backend:8000";
+
+export type Weekday = "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
+
+export type ResearchLine = {
+  id: number;
+  acronym: string;
+  name: string;
+  faculty_count: number;
+};
+
+export type Program = {
+  id: number;
+  name: string;
+  acronym: string;
+  website: string | null;
+  capes_rating: number | null;
+  tuition_free: boolean | null;
+  institution: string;
+  campus: string;
+  research_lines: ResearchLine[];
+};
+
+export type Stage = {
+  ordinal: number;
+  name: string;
+  starts_on: string | null;
+  ends_on: string | null;
+  result_on: string | null;
+};
+
+export type Cycle = {
+  id: number;
+  program: string;
+  year: number;
+  semester: number;
+  entry_mode: string;
+  degree_level: string | null;
+  applications_open_on: string | null;
+  applications_close_on: string | null;
+  site_label: string | null;
+  official_url: string | null;
+  status: string;
+  total_seats: number;
+  seats: { research_line: string | null; seats: number }[];
+  stages: Stage[];
+  required_documents: string[];
+};
+
+export type Offering = {
+  id: number;
+  code: string;
+  name: string;
+  name_en: string | null;
+  credits: number | null;
+  year: number;
+  semester: number;
+  weekday: Weekday | null;
+  starts_at: string | null;
+  ends_at: string | null;
+  language: string | null;
+  scope: string | null;
+  research_line: string | null;
+  professor: string | null;
+  locations: string[];
+  /** null = schedule unknown. Deliberately distinct from false. */
+  conflicts_with_work: boolean | null;
+};
+
+async function get<T>(path: string): Promise<T> {
+  // no-store: this is a tracking dashboard; a cached deadline is a wrong deadline.
+  const res = await fetch(`${BASE}/api${path}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`${path} → HTTP ${res.status}`);
+  return res.json() as Promise<T>;
+}
+
+export const getPrograms = () => get<Program[]>("/programs");
+export const getCycles = () => get<Cycle[]>("/admission-cycles");
+export const getOfferings = (candidate: string) =>
+  get<Offering[]>(`/offerings?candidate=${encodeURIComponent(candidate)}`);

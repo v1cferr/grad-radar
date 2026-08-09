@@ -133,7 +133,7 @@ The SEI PDF **is** machine-retrievable. Contents:
 | Field | Value |
 | --- | --- |
 | Application period | **19/03/2026 to 26/04/2026** |
-| Total positions | **21** |
+| Total positions | **23** — *"Número de vagas oferecidas neste processo seletivo: 23 (vinte e três)"* |
 | Stage 1 — Documentary analysis | 13–19/05/2026 · results 24/06 |
 | Stage 2 — Structured interview | 07–20/06/2026 · results 24/06 |
 | Application fee | not mentioned |
@@ -147,6 +147,10 @@ Seats per research line:
 
 Affirmative action reserves **20%** for Black/mixed-race candidates, **5%** for candidates with disabilities,
 and **1 seat** for Indigenous candidates.
+
+> A first reading of this PDF reported "21 total". The per-line figures sum to 23, and re-reading the document
+> confirmed *"23 (vinte e três)"*. The contradiction was caught by the seeded database, not by a human — which
+> is a small argument for storing seats per line rather than as one number on the cycle.
 
 Required documents: diploma or completion certificate, official transcript, Lattes CV (Brazilian applicants),
 identity documents, **presentation letter (max. 800 words)**, proof of address, optional proficiency

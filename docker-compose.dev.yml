@@ -53,7 +53,7 @@ services:
       - /app/.venv # volume anônimo: mantém o venv Linux do container, sem ser sobrescrito pelo bind-mount do host
     # `uv sync` a cada start é rápido (no-op quando o lock não mudou) e garante
     # que o venv do volume acompanhe mudanças no uv.lock sem rebuild da imagem.
-    command: sh -c "uv sync --frozen --no-dev && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    command: sh -c "uv sync --frozen && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     # Só no loopback: quem publica é o Caddy central. A 8006 está anotada no mapa
     # de portas em dotfiles/system/services/caddy.nix — mudar aqui exige mudar lá.
     ports:

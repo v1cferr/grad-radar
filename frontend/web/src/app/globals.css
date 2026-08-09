@@ -1,10 +1,57 @@
-/* Tailwind v4: a single import replaces the v3 @tailwind directives, and theme
-   customisation happens here via @theme rather than in a JS config file. */
 @import "tailwindcss";
 
-/* Follow the viewer's OS preference — no toggle to build in F0. */
+/* Design tokens.
+ *
+ * Both modes are SELECTED, not flipped: the dark values are their own steps
+ * against the dark surface, not an inversion of the light ones.
+ *
+ * Status colours are reserved and never reused as series colours. On the light
+ * surface `warning` sits below 3:1 by design — which is exactly why every status
+ * in this UI ships with an icon AND a label, never colour alone. */
+:root {
+  --surface: #fcfcfb;
+  --surface-raised: #ffffff;
+  --border: #e3e3e0;
+  --ink: #1a1a19;
+  --ink-secondary: #55554f;
+  --ink-muted: #7a7a72;
+
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+
+  /* Categorical, fixed order — a research line keeps its hue no matter how the
+     list is filtered. Never cycled: an 8th line would fold into "Other". */
+  --cat-1: #2a78d6; /* blue    */
+  --cat-2: #eb6834; /* orange  */
+  --cat-3: #1baf7a; /* aqua    */
+  --cat-4: #eda100; /* yellow  */
+  --cat-5: #e87ba4; /* magenta */
+  --cat-6: #008300; /* green   */
+  --cat-7: #4a3aa7; /* violet  */
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
-    color-scheme: dark;
+    --surface: #1a1a19;
+    --surface-raised: #232322;
+    --border: #35352f;
+    --ink: #f2f2ef;
+    --ink-secondary: #b9b9b1;
+    --ink-muted: #8d8d85;
+
+    --cat-1: #3987e5;
+    --cat-2: #d95926;
+    --cat-3: #199e70;
+    --cat-4: #c98500;
+    --cat-5: #d55181;
+    --cat-6: #008300;
+    --cat-7: #9085e9;
   }
+}
+
+body {
+  background: var(--surface);
+  color: var(--ink);
 }
