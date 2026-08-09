@@ -68,6 +68,12 @@ class AdmissionCycle(Base):
     applications_open_on: Mapped[date | None] = mapped_column()
     applications_close_on: Mapped[date | None] = mapped_column()
 
+    # When the candidate finally knows. Not derivable from the stages: the last
+    # stage publishes ITS notes, and the definitive result comes after a further
+    # appeal window — 04/12 vs 18/12 in the PPGPEP cycle. A tracking system whose
+    # whole job is "when will we know" should be able to answer it directly.
+    final_result_on: Mapped[date | None] = mapped_column()
+
     # What the institution calls it. Kept for traceability, NEVER used to decide
     # status — see the module docstring.
     site_label: Mapped[str | None] = mapped_column(String(120))

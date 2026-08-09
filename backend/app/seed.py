@@ -479,6 +479,7 @@ async def seed(db: AsyncSession) -> dict[str, int]:
         {
             "applications_open_on": date(2026, 8, 20),
             "applications_close_on": date(2026, 9, 14),
+            "final_result_on": date(2026, 12, 18),
             "site_label": "Processo Seletivo para ingresso em 2027",
             "official_url": f"{PPGPEP_URL}/processo-seletivo",
             "notes": "25 vagas (17 ampla concorrência + 8 de ações afirmativas). "

@@ -14,6 +14,13 @@ export const LINE_HUE: Record<string, string> = {
   SAR: "var(--cat-5)",
   SDARC: "var(--cat-6)",
   VC: "var(--cat-7)",
+
+  // PPGPEP. Reusa as três primeiras matizes de propósito: os dois programas
+  // nunca aparecem na mesma visão — ficam em abas separadas —, e inventar
+  // matizes novas depois da sétima é exatamente o que produz paletas ilegíveis.
+  PCsP: "var(--cat-1)",
+  GQ: "var(--cat-2)",
+  TOTI: "var(--cat-3)",
 };
 
 /**
@@ -28,10 +35,15 @@ export function LineTooltip({
   line,
   children,
   className,
+  termCollected = true,
 }: {
   line: ResearchLine | undefined;
   children: React.ReactNode;
   className?: string;
+  /** False quando a grade do programa ainda não foi transcrita. Uma linha sem
+   *  oferta e uma linha cuja oferta ninguém leu são fatos diferentes, e só o
+   *  primeiro é uma informação sobre o programa. */
+  termCollected?: boolean;
 }) {
   if (!line) return <>{children}</>;
 
@@ -74,12 +86,14 @@ export function LineTooltip({
 
           <dl className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 border-t pt-1.5 text-[11px]">
             <dt className="opacity-70">Docentes</dt>
-            <dd>{line.faculty_count}</dd>
+            <dd>{line.faculty_count > 0 ? line.faculty_count : "não levantados"}</dd>
             <dt className="opacity-70">Em 2026/2</dt>
             <dd>
-              {line.offerings.length > 0
-                ? line.offerings.join(" · ")
-                : "nenhuma disciplina ofertada"}
+              {!termCollected
+                ? "grade ainda não transcrita"
+                : line.offerings.length > 0
+                  ? line.offerings.join(" · ")
+                  : "nenhuma disciplina ofertada"}
             </dd>
           </dl>
         </div>

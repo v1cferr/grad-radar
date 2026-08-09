@@ -113,6 +113,7 @@ class CycleOut(BaseModel):
     degree_level: str | None
     applications_open_on: date | None
     applications_close_on: date | None
+    final_result_on: date | None
     site_label: str | None
     official_url: str | None
     status: str
@@ -284,6 +285,7 @@ async def list_admission_cycles(db: Db) -> list[CycleOut]:
             degree_level=c.degree_level,
             applications_open_on=c.applications_open_on,
             applications_close_on=c.applications_close_on,
+            final_result_on=c.final_result_on,
             site_label=c.site_label,
             official_url=c.official_url,
             status=c.status_on(today),

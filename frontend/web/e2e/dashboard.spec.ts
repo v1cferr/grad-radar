@@ -14,6 +14,13 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
 
+/** O PPGCC está atrás de uma aba porque está eliminado: quem abre a página
+ *  precisa ver primeiro o que tem prazo. Os testes dele passam por aqui. */
+async function openPpgcc(page: Page) {
+  await page.getByRole("tab", { name: /PPGCC/ }).click();
+  await expect(page.getByText(/Eliminado: não há oferta noturna/)).toBeVisible();
+}
+
 test("renders the search itself, not a single programme", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "GradRadar", level: 1 })).toBeVisible();
   // The subtitle states the four eliminatory requirements. It used to name the
@@ -30,7 +37,7 @@ test("the open call leads the page, above everything else", async ({ page }) => 
   const banner = page.locator("main > div").first();
   await expect(banner).toContainText("PPGPEP");
   await expect(banner).toContainText(/inscrições (abrem|abertas)/);
-  await expect(banner).toContainText("14 de set.");
+  await expect(banner).toContainText("14 de setembro de 2026");
   await expect(banner).toContainText("projeto de pesquisa");
   await expect(banner).toContainText(/dias? até fechar/);
 });
@@ -44,12 +51,14 @@ test("seats that are not split by line say so instead of drawing empty bars", as
 });
 
 test("the schedule conflict is stated as a headline number", async ({ page }) => {
+  await openPpgcc(page);
   const tile = page.locator("div", { hasText: /^Conflitam com sua jornada/ }).first();
   await expect(tile).toContainText("13/13");
   await expect(tile).toContainText("não há oferta noturna");
 });
 
 test("warns that the site label contradicts the real status", async ({ page }) => {
+  await openPpgcc(page);
   // The behaviour the whole project exists for: the page must say the cycle is
   // closed even though the institution still calls it "Processo vigente".
   await expect(page.getByText(/encerrado/).first()).toBeVisible();
@@ -59,14 +68,15 @@ test("warns that the site label contradicts the real status", async ({ page }) =
 });
 
 test("shows the admission timeline with dated stages", async ({ page }) => {
-  // .first(): there are two cycle cards now, so the heading is no longer unique.
-  await expect(page.getByText("CRONOGRAMA").first()).toBeVisible();
+  await openPpgcc(page);
+  await expect(page.getByText("CRONOGRAMA")).toBeVisible();
   await expect(page.getByText(/Análise documental/)).toBeVisible();
   await expect(page.getByText(/Entrevista estruturada/)).toBeVisible();
   await expect(page.getByText(/13 de mai\. a 19 de mai\./)).toBeVisible();
 });
 
 test("the weekly grid renders both bands and neither is in the evening", async ({ page }) => {
+  await openPpgcc(page);
   const grid = page.locator("section", { hasText: "Grade semanal" });
   await expect(grid.getByText("08:00–12:00")).toBeVisible();
   await expect(grid.getByText("14:00–18:00")).toBeVisible();
@@ -84,6 +94,7 @@ const card = (page: Page, code: string) =>
   page.locator('[data-slot="tooltip-trigger"]', { hasText: code });
 
 test("the only AI offering of the term is visible with its professor", async ({ page }) => {
+  await openPpgcc(page);
   const cell = card(page, "CCO-724");
   await expect(cell).toContainText("Aprendizado de Máquina");
   await expect(cell).toContainText("Tiago Agostinho de Almeida");
@@ -92,6 +103,7 @@ test("the only AI offering of the term is visible with its professor", async ({ 
 test("hovering an offering reveals the detail the card omits", async ({ page }) => {
   // The card shows code, name and professor; everything else lives in the
   // tooltip, so this is the only place that proves the rest reaches the user.
+  await openPpgcc(page);
   await card(page, "CCO-724").hover();
 
   // Base UI does not set role="tooltip" — the popup is identified by its slot.
@@ -110,6 +122,7 @@ test("every research-line acronym explains itself on hover", async ({ page }) =>
   // The acronyms are opaque to anyone outside computing — and three people will
   // use this. Each must carry the official name, a plain gloss, and what the
   // line actually taught.
+  await openPpgcc(page);
   const row = page.getByRole("row", { name: /AMPLN/ });
   await row.getByText("AMPLN").hover();
 
@@ -123,6 +136,7 @@ test("every research-line acronym explains itself on hover", async ({ page }) =>
 test("a line with no offering this term says so instead of showing nothing", async ({ page }) => {
   // BD taught nothing in 2026/2. An empty field would read as missing data;
   // the absence is itself the information.
+  await openPpgcc(page);
   const row = page.getByRole("row", { name: /Banco de Dados/ });
   await row.getByText("BD", { exact: true }).hover();
   await expect(page.locator('[data-slot="tooltip-content"]')).toContainText(
@@ -131,9 +145,63 @@ test("a line with no offering this term says so instead of showing nothing", asy
 });
 
 test("research lines are listed with their faculty counts", async ({ page }) => {
+  await openPpgcc(page);
   const row = page.getByRole("row", { name: /AMPLN/ });
   await expect(row).toContainText("Aprendizado de Máquina e Processamento de Língua Natural");
   await expect(row).toContainText("9");
+});
+
+test("the eliminated programme is one click away, never the default", async ({ page }) => {
+  /**
+   * A regra que estrutura a página: o programa que não serve não pode ser a
+   * primeira coisa que alguém lê. Antes disso, era.
+   */
+  await expect(page.getByRole("tab", { name: /PPGPEP/ })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByText(/Aprendizado de Máquina e Processamento/)).toHaveCount(0);
+
+  await openPpgcc(page);
+  await expect(page.getByText(/Aprendizado de Máquina e Processamento/).first()).toBeVisible();
+});
+
+test("the edital is shown as actions, not as a wall of dates", async ({ page }) => {
+  /**
+   * A informação decisiva do edital não é uma data: é que o projeto de pesquisa
+   * precisa estar escrito ANTES de a inscrição abrir. Se isso não estiver
+   * visível, a página informa sem servir para nada.
+   */
+  const steps = page.getByText("O que fazer, em ordem");
+  await expect(steps).toBeVisible();
+  await expect(page.getByText(/três das quatro etapas acontecem/)).toBeVisible();
+
+  // O primeiro passo vem aberto — é o que consome as quatro semanas.
+  await expect(page.getByText(/É a única coisa avaliada/)).toBeVisible();
+
+  const anexo = page.getByRole("button", { name: /declaração de vínculo/ });
+  await anexo.click();
+  await expect(page.getByText(/Anexo II/)).toBeVisible();
+  await expect(page.getByText(/TOTI/).first()).toBeVisible();
+});
+
+test("the PPGPEP acronyms explain themselves too", async ({ page }) => {
+  // O Victor pediu isto explicitamente: nem ele conhece as siglas, e o JP e o
+  // César vão abrir a mesma página.
+  const row = page.getByRole("row", { name: /TOTI/ });
+  await row.getByText("TOTI", { exact: true }).hover();
+
+  const tip = page.locator('[data-slot="tooltip-content"]');
+  await expect(tip).toBeVisible();
+  await expect(tip).toContainText("Trabalho, Organizações, Tecnologia e Inovação");
+  await expect(tip).toContainText("adoção institucional de IA");
+  // Não afirmar oferta que ninguém leu.
+  await expect(tip).toContainText("grade ainda não transcrita");
+});
+
+test("the process timeline says when we will actually know", async ({ page }) => {
+  const timeline = page.locator("div", { hasText: /^Do edital ao resultado/ }).first();
+  await expect(timeline).toContainText("Inscrições");
+  await expect(timeline).toContainText("Etapa 1");
+  await expect(timeline).toContainText("Resultado");
+  await expect(timeline).toContainText("18 de dez.");
 });
 
 test("shows what the monitor watches, and when it last looked", async ({ page }) => {

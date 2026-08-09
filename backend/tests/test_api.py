@@ -88,6 +88,13 @@ class TestPpgpep:
         assert cycle["applications_close_on"] == "2026-09-14"
         assert cycle["status"] in {"announced", "open"}
 
+    async def test_it_says_when_we_will_actually_know(self, client: AsyncClient):
+        """Não derivável das etapas: a última publica SUAS notas em 04/12 e o
+        resultado definitivo sai em 18/12, depois do prazo de recurso."""
+        cycle = await _cycle(client, "PPGPEP")
+        assert cycle["final_result_on"] == "2026-12-18"
+        assert cycle["stages"][-1]["result_on"] == "2026-12-04"
+
     async def test_seats_are_not_split_by_research_line(self, client: AsyncClient):
         """Edital 3.6, and the opposite of PPGCC — the model had to allow both."""
         cycle = await _cycle(client, "PPGPEP")

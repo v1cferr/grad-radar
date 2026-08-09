@@ -50,6 +50,8 @@ export type Cycle = {
   degree_level: string | null;
   applications_open_on: string | null;
   applications_close_on: string | null;
+  /** Quando o candidato finalmente sabe — depois do último prazo de recurso. */
+  final_result_on: string | null;
   site_label: string | null;
   official_url: string | null;
   status: string;
