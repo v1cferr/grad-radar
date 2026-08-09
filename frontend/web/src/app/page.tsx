@@ -1,4 +1,12 @@
-import { AlertTriangle, CalendarX2, Clock, Info, Ban, Users } from "lucide-react";
+import {
+  AlertTriangle,
+  Ban,
+  CalendarClock,
+  CalendarX2,
+  Clock,
+  Info,
+  Users,
+} from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -80,6 +88,9 @@ function CycleCard({ c, lines }: { c: Cycle; lines: ResearchLine[] }) {
   const s = STATUS[c.status] ?? STATUS.expected;
   const mismatch = c.site_label && c.status === "concluded";
   const maxSeats = Math.max(...c.seats.map((x) => x.seats), 1);
+  // O PPGCC distribui vagas por linha; o PPGPEP explicitamente NÃO (edital 3.6).
+  // Renderizar uma barra sem rótulo seria pior que dizer que a divisão não existe.
+  const seatsByLine = c.seats.some((s2) => s2.research_line !== null);
 
   return (
     <Card>
@@ -124,9 +135,12 @@ function CycleCard({ c, lines }: { c: Cycle; lines: ResearchLine[] }) {
                 <span>
                   {st.name}
                   <span className="text-muted-foreground">
-                    {" — "}
-                    {fmt(st.starts_on)} a {fmt(st.ends_on)}
-                    {st.result_on && `, resultado ${fmt(st.result_on)}`}
+                    {/* Nem toda etapa tem janela: a avaliação do projeto no PPGPEP
+                        só publica a data do resultado. "— a —" fingiria uma lacuna
+                        que não existe. */}
+                    {st.starts_on && ` — ${fmt(st.starts_on)} a ${fmt(st.ends_on)}`}
+                    {st.result_on &&
+                      `${st.starts_on ? ", resultado " : " — resultado "}${fmt(st.result_on)}`}
                   </span>
                 </span>
               </li>
@@ -138,10 +152,17 @@ function CycleCard({ c, lines }: { c: Cycle; lines: ResearchLine[] }) {
 
         <section>
           <h4 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-            Vagas por linha
+            {seatsByLine ? "Vagas por linha" : "Vagas"}
           </h4>
+          {!seatsByLine && (
+            <p className="mt-3 text-sm text-muted-foreground">
+              <strong className="text-foreground tabular-nums">{c.total_seats} vagas</strong> — o
+              edital não as distribui por linha de pesquisa, então concorre-se a todas
+              independentemente da linha escolhida.
+            </p>
+          )}
           <div className="mt-3 space-y-2">
-            {c.seats.map((s2) => (
+            {(seatsByLine ? c.seats : []).map((s2) => (
               <Tooltip key={s2.research_line ?? "?"}>
                 <TooltipTrigger
                   render={<div className="flex cursor-help items-center gap-3 text-sm" />}
@@ -209,11 +230,37 @@ export default async function Home() {
     getSources(),
   ]);
 
-  const program = programs[0];
-  const lines = program?.research_lines ?? [];
+  // Nomeado explicitamente, nunca programs[0]: a ordem mudou no dia em que um
+  // segundo programa entrou, e os números do PPGCC apareceram sob o título de
+  // outro programa sem que nada quebrasse.
+  const ppgcc = programs.find((p) => p.acronym === "PPGCC");
+  const linesOf = (acronym: string) =>
+    programs.find((p) => p.acronym === acronym)?.research_lines ?? [];
+  const program = ppgcc;
   const conflicts = offerings.filter((o) => o.conflicts_with_work === true).length;
-  const ampln = program?.research_lines.find((l) => l.acronym === "AMPLN");
-  const amplnSeats = cycles[0]?.seats.find((s) => s.research_line === "AMPLN")?.seats;
+  const ampln = ppgcc?.research_lines.find((l) => l.acronym === "AMPLN");
+  const amplnSeats = cycles
+    .find((c) => c.program === "PPGCC")
+    ?.seats.find((s) => s.research_line === "AMPLN")?.seats;
+
+  // A única coisa desta página com prazo. Vem antes de tudo porque é a única que
+  // é perdida por não ser vista a tempo.
+  const today = new Date();
+  const actionable = cycles
+    .filter((c) => c.applications_close_on && new Date(`${c.applications_close_on}T23:59:59`) >= today)
+    .sort((a, b) => (a.applications_close_on! < b.applications_close_on! ? -1 : 1))[0];
+  const daysLeft = actionable
+    ? Math.ceil(
+        (new Date(`${actionable.applications_close_on}T23:59:59`).getTime() - today.getTime()) /
+          86400000,
+      )
+    : null;
+  const daysToOpen = actionable?.applications_open_on
+    ? Math.ceil(
+        (new Date(`${actionable.applications_open_on}T00:00:00`).getTime() - today.getTime()) /
+          86400000,
+      )
+    : null;
   const eveningOfferings = offerings.filter((o) => o.starts_at && o.starts_at >= "18:00:00").length;
 
   return (
@@ -221,10 +268,36 @@ export default async function Home() {
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">GradRadar</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {program ? `${program.name} · ${program.institution} ${program.campus}` : "sem dados"}
-          {program?.capes_rating != null && ` · CAPES ${program.capes_rating}`}
+          Pós-graduação pública, gratuita, presencial em São Carlos e com aula à noite ·{" "}
+          {programs.length} programas acompanhados
         </p>
       </header>
+
+      {actionable && (
+        <Card className="mt-6 border-2" style={{ borderColor: "var(--status-good)" }}>
+          <CardContent className="flex flex-wrap items-start gap-4 px-6">
+            <CalendarClock className="mt-0.5 size-5 shrink-0" style={{ color: "var(--status-good)" }} />
+            <div className="min-w-0 flex-1 space-y-1">
+              <p className="font-medium">
+                {actionable.program} — inscrições {daysToOpen !== null && daysToOpen > 0 ? "abrem" : "abertas"}{" "}
+                {fmt(actionable.applications_open_on)} a {fmt(actionable.applications_close_on)}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                É o único processo aberto que atende aos quatro requisitos: noturno, presencial em
+                São Carlos, gratuito e público. A seleção é inteiramente sobre um{" "}
+                <strong className="text-foreground">projeto de pesquisa</strong> — não há prova de
+                conteúdo —, e ele precisa estar escrito antes de a inscrição abrir.
+              </p>
+            </div>
+            <div className="shrink-0 text-right">
+              <div className="text-3xl font-semibold tabular-nums">{daysLeft}</div>
+              <div className="text-xs text-muted-foreground">
+                {daysLeft === 1 ? "dia até fechar" : "dias até fechar"}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* The requirement is eliminatory, not a scoring dimension — so it is stated
           at the top, before any number that might suggest a trade-off exists. */}
@@ -232,10 +305,11 @@ export default async function Home() {
         <Alert className="mt-6">
           <Ban className="size-4" />
           <AlertDescription>
-            <strong>Requisito não atendido: oferta noturna.</strong> Nenhuma das{" "}
+            <strong>PPGCC eliminado: não há oferta noturna.</strong> Nenhuma das{" "}
             {offerings.length} disciplinas deste semestre começa depois das 18:00. Com jornada{" "}
             {WORK}, cursar este programa exigiria acordo com o empregador — não é questão de
-            escolher a disciplina certa.
+            escolher a disciplina certa. Os números abaixo descrevem o programa eliminado; o
+            processo com prazo é o do card acima.
           </AlertDescription>
         </Alert>
       )}
@@ -275,22 +349,22 @@ export default async function Home() {
         <h2 className="text-lg font-semibold">Processos seletivos</h2>
         <div className="mt-4 space-y-4">
           {cycles.map((c) => (
-            <CycleCard key={c.id} c={c} lines={lines} />
+            <CycleCard key={c.id} c={c} lines={linesOf(c.program)} />
           ))}
         </div>
       </section>
 
       <section className="mt-10">
-        <h2 className="text-lg font-semibold">Grade semanal · 2026/2</h2>
+        <h2 className="text-lg font-semibold">Grade semanal do PPGCC · 2026/2</h2>
         <p className="mt-1 mb-4 text-sm text-muted-foreground">
           O programa publica apenas duas faixas, e nenhuma é noturna. Passe o mouse numa disciplina
           para ver docente, créditos, salas e idioma.
         </p>
-        <ScheduleGrid offerings={offerings} workLabel={WORK} lines={lines} />
+        <ScheduleGrid offerings={offerings} workLabel={WORK} lines={linesOf("PPGCC")} />
       </section>
 
       <section className="mt-10">
-        <h2 className="text-lg font-semibold">Linhas de pesquisa</h2>
+        <h2 className="text-lg font-semibold">Linhas de pesquisa do PPGCC</h2>
         <Card className="mt-4 py-0">
           <Table>
             <TableHeader>
@@ -325,8 +399,8 @@ export default async function Home() {
       </section>
 
       <footer className="mt-12 text-xs text-muted-foreground">
-        Dados verificados em fontes oficiais do PPGCC/UFSCar — ver docs/research/ufscar-ppgcc.md.
-        Campos não afirmados pela fonte ficam vazios, nunca preenchidos por inferência.
+        Dados verificados em fontes oficiais da UFSCar — ver docs/research/. Campos não afirmados
+        pela fonte ficam vazios, nunca preenchidos por inferência.
       </footer>
     </main>
   );

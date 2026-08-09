@@ -14,10 +14,33 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
 
-test("renders the programme identity from the database", async ({ page }) => {
+test("renders the search itself, not a single programme", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "GradRadar", level: 1 })).toBeVisible();
-  await expect(page.getByText(/Programa de Pós-Graduação em Ciência da Computação/)).toBeVisible();
-  await expect(page.getByText(/CAPES 5/)).toBeVisible();
+  // The subtitle states the four eliminatory requirements. It used to name the
+  // PPGCC — which is eliminated, and led the page with a dead end.
+  await expect(page.getByText(/presencial em São Carlos e com aula à noite/)).toBeVisible();
+  await expect(page.getByText(/2 programas acompanhados/)).toBeVisible();
+});
+
+test("the open call leads the page, above everything else", async ({ page }) => {
+  /**
+   * The one thing here that is lost by not being seen in time. If this stops
+   * being the first thing on the page, the project has failed at its only job.
+   */
+  const banner = page.locator("main > div").first();
+  await expect(banner).toContainText("PPGPEP");
+  await expect(banner).toContainText(/inscrições (abrem|abertas)/);
+  await expect(banner).toContainText("14 de set.");
+  await expect(banner).toContainText("projeto de pesquisa");
+  await expect(banner).toContainText(/dias? até fechar/);
+});
+
+test("seats that are not split by line say so instead of drawing empty bars", async ({ page }) => {
+  const card = page.locator("div").filter({ hasText: /^PPGPEP · Mestrado/ }).first();
+  await expect(
+    page.getByText(/o edital não as distribui por linha de pesquisa/),
+  ).toBeVisible();
+  await expect(card).toBeVisible();
 });
 
 test("the schedule conflict is stated as a headline number", async ({ page }) => {
@@ -36,7 +59,8 @@ test("warns that the site label contradicts the real status", async ({ page }) =
 });
 
 test("shows the admission timeline with dated stages", async ({ page }) => {
-  await expect(page.getByText("CRONOGRAMA")).toBeVisible();
+  // .first(): there are two cycle cards now, so the heading is no longer unique.
+  await expect(page.getByText("CRONOGRAMA").first()).toBeVisible();
   await expect(page.getByText(/Análise documental/)).toBeVisible();
   await expect(page.getByText(/Entrevista estruturada/)).toBeVisible();
   await expect(page.getByText(/13 de mai\. a 19 de mai\./)).toBeVisible();
