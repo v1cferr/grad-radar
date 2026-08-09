@@ -49,14 +49,72 @@ from app.models import (
 
 PPGCC_URL = "https://www.ppgcc.ufscar.br/pt-br"
 
-RESEARCH_LINES: list[tuple[str, str]] = [
-    ("AMPLN", "Aprendizado de Máquina e Processamento de Língua Natural"),
-    ("BD", "Banco de Dados"),
-    ("CCH", "Computação Centrada no Humano"),
-    ("ES", "Engenharia de Software"),
-    ("SAR", "Sistemas de Automação e Robótica"),
-    ("SDARC", "Sistemas Distribuídos, Arquiteturas e Redes de Computadores"),
-    ("VC", "Visão Computacional"),
+# acronym, official name (VERIFIED), plain-language gloss (EDITORIAL)
+#
+# The official page publishes names only — no descriptions. The third field is
+# therefore OURS, written to make the acronyms legible to someone outside
+# computing, and it is presented in the UI as an explanation, never as a quote.
+# What grounds each tooltip is the verified data next to it: how many faculty the
+# line has and which disciplines it actually offered this term.
+RESEARCH_LINES: list[tuple[str, str, str]] = [
+    (
+        "AMPLN",
+        "Aprendizado de Máquina e Processamento de Língua Natural",
+        (
+            "Ensinar computadores a aprender padrões a partir de dados, e a interpretar e "
+            "gerar linguagem humana. É a linha de IA no sentido corrente do termo — inclui "
+            "os modelos de linguagem."
+        ),
+    ),
+    (
+        "BD",
+        "Banco de Dados",
+        (
+            "Como armazenar, indexar e consultar grandes volumes de dados de forma "
+            "eficiente e confiável."
+        ),
+    ),
+    (
+        "CCH",
+        "Computação Centrada no Humano",
+        (
+            "Como as pessoas de fato usam os sistemas: interface, usabilidade, "
+            "acessibilidade e o efeito do software sobre quem o opera."
+        ),
+    ),
+    (
+        "ES",
+        "Engenharia de Software",
+        (
+            "Como construir software de forma sistemática — arquitetura, testes, "
+            "manutenção e qualidade ao longo do tempo, não só fazer funcionar."
+        ),
+    ),
+    (
+        "SAR",
+        "Sistemas de Automação e Robótica",
+        (
+            "Máquinas que percebem o ambiente e agem sobre ele: robôs, drones, controle e "
+            "automação industrial."
+        ),
+    ),
+    (
+        "SDARC",
+        "Sistemas Distribuídos, Arquiteturas e Redes de Computadores",
+        (
+            "Sistemas que rodam em muitas máquinas ao mesmo tempo: redes, computação de "
+            "alto desempenho, nuvem e a infraestrutura por baixo delas."
+        ),
+    ),
+    (
+        "VC",
+        "Visão Computacional",
+        (
+            "Extrair informação de imagens e vídeo — reconhecer objetos, segmentar, "
+            "classificar. Usa muito aprendizado profundo, então encosta em IA por outro "
+            "caminho."
+        ),
+    ),
 ]
 
 P, C, S = AffiliationStatus.PERMANENT, AffiliationStatus.COLLABORATOR, AffiliationStatus.SENIOR_PERMANENT
@@ -218,9 +276,10 @@ async def seed(db: AsyncSession) -> dict[str, int]:
     )
 
     lines: dict[str, ResearchLine] = {}
-    for acronym, name in RESEARCH_LINES:
+    for acronym, name, description in RESEARCH_LINES:
         lines[acronym] = await _get_or_create(
-            db, ResearchLine, {"name": name}, program_id=ppgcc.id, acronym=acronym
+            db, ResearchLine, {"name": name, "description": description},
+            program_id=ppgcc.id, acronym=acronym,
         )
     counts["research_lines"] = len(lines)
 
@@ -348,17 +407,21 @@ async def seed(db: AsyncSession) -> dict[str, int]:
     jp = await _get_or_create(
         db, Candidate, {"work_starts_at": time(8, 0), "work_ends_at": time(18, 0)}, name="João Pedro"
     )
+    cesar = await _get_or_create(
+        db, Candidate, {"work_starts_at": time(8, 0), "work_ends_at": time(18, 0)}, name="César"
+    )
     for cand, topics in (
         (victor, ["Artificial Intelligence", "Machine Learning", "NLP", "LLMs",
                   "Information Retrieval", "AI agents", "Software Engineering", "AI infrastructure"]),
         (jp, ["Artificial Intelligence", "Machine Learning"]),
+        (cesar, ["Artificial Intelligence", "Machine Learning"]),
     ):
         have = {i.topic for i in (await db.scalars(
             select(CandidateInterest).where(CandidateInterest.candidate_id == cand.id))).all()}
         for topic in topics:
             if topic not in have:
                 db.add(CandidateInterest(candidate_id=cand.id, topic=topic))
-    counts["candidates"] = 2
+    counts["candidates"] = 3
 
     await db.commit()
     return counts

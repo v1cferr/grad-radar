@@ -13,8 +13,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { getCycles, getOfferings, getPrograms, type Cycle } from "@/lib/api";
+import {
+  getCycles,
+  getOfferings,
+  getPrograms,
+  type Cycle,
+  type ResearchLine,
+} from "@/lib/api";
 
+import { LineTooltip } from "./research-line";
 import { ScheduleGrid } from "./schedule-grid";
 
 export const dynamic = "force-dynamic";
@@ -67,7 +74,7 @@ function Tile({
   );
 }
 
-function CycleCard({ c }: { c: Cycle }) {
+function CycleCard({ c, lines }: { c: Cycle; lines: ResearchLine[] }) {
   const s = STATUS[c.status] ?? STATUS.expected;
   const mismatch = c.site_label && c.status === "concluded";
   const maxSeats = Math.max(...c.seats.map((x) => x.seats), 1);
@@ -138,9 +145,12 @@ function CycleCard({ c }: { c: Cycle }) {
                   render={<div className="flex cursor-help items-center gap-3 text-sm" />}
                 >
                   <>
-                    <span className="w-14 shrink-0 font-mono text-xs text-muted-foreground">
+                    <LineTooltip
+                      line={lines.find((l) => l.acronym === s2.research_line)}
+                      className="w-14 shrink-0 font-mono text-xs text-muted-foreground"
+                    >
                       {s2.research_line}
-                    </span>
+                    </LineTooltip>
                     <span className="flex-1">
                       <span
                         className="block h-2 rounded-sm"
@@ -197,6 +207,7 @@ export default async function Home() {
   ]);
 
   const program = programs[0];
+  const lines = program?.research_lines ?? [];
   const conflicts = offerings.filter((o) => o.conflicts_with_work === true).length;
   const ampln = program?.research_lines.find((l) => l.acronym === "AMPLN");
   const amplnSeats = cycles[0]?.seats.find((s) => s.research_line === "AMPLN")?.seats;
@@ -261,7 +272,7 @@ export default async function Home() {
         <h2 className="text-lg font-semibold">Processos seletivos</h2>
         <div className="mt-4 space-y-4">
           {cycles.map((c) => (
-            <CycleCard key={c.id} c={c} />
+            <CycleCard key={c.id} c={c} lines={lines} />
           ))}
         </div>
       </section>
@@ -272,7 +283,7 @@ export default async function Home() {
           O programa publica apenas duas faixas, e nenhuma é noturna. Passe o mouse numa disciplina
           para ver docente, créditos, salas e idioma.
         </p>
-        <ScheduleGrid offerings={offerings} workLabel={WORK} />
+        <ScheduleGrid offerings={offerings} workLabel={WORK} lines={lines} />
       </section>
 
       <section className="mt-10">
@@ -289,7 +300,9 @@ export default async function Home() {
             <TableBody>
               {program?.research_lines.map((l) => (
                 <TableRow key={l.id}>
-                  <TableCell className="font-mono text-xs">{l.acronym}</TableCell>
+                  <TableCell className="font-mono text-xs">
+                    <LineTooltip line={l}>{l.acronym}</LineTooltip>
+                  </TableCell>
                   <TableCell className="text-muted-foreground">{l.name}</TableCell>
                   <TableCell className="text-right tabular-nums">{l.faculty_count}</TableCell>
                 </TableRow>

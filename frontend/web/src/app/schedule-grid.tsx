@@ -1,9 +1,10 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import type { Offering, Weekday } from "@/lib/api";
+import type { Offering, ResearchLine, Weekday } from "@/lib/api";
+
+import { LINE_HUE, LineLegend } from "./research-line";
 
 const DAYS: { key: Weekday; label: string }[] = [
   { key: "monday", label: "Segunda" },
@@ -12,18 +13,6 @@ const DAYS: { key: Weekday; label: string }[] = [
   { key: "thursday", label: "Quinta" },
   { key: "friday", label: "Sexta" },
 ];
-
-/** Fixed hue per research line. Assigned by position and never cycled, so a line
- *  keeps its colour regardless of what is filtered out. */
-const LINE_HUE: Record<string, string> = {
-  AMPLN: "var(--cat-1)",
-  BD: "var(--cat-2)",
-  CCH: "var(--cat-3)",
-  ES: "var(--cat-4)",
-  SAR: "var(--cat-5)",
-  SDARC: "var(--cat-6)",
-  VC: "var(--cat-7)",
-};
 
 const hhmm = (t: string | null) => (t ? t.slice(0, 5) : "—");
 const lang = (l: string | null) => (l === "en" ? "inglês" : l ? "português" : "—");
@@ -106,9 +95,11 @@ function Cell({ o }: { o: Offering }) {
 export function ScheduleGrid({
   offerings,
   workLabel,
+  lines,
 }: {
   offerings: Offering[];
   workLabel: string;
+  lines: ResearchLine[];
 }) {
   const bands = [...new Set(offerings.map((o) => `${o.starts_at}|${o.ends_at}`))].sort();
 
@@ -167,12 +158,7 @@ export function ScheduleGrid({
             Faixa sombreada = sua jornada ({workLabel})
           </span>
           <span className="text-muted-foreground/40">·</span>
-          {Object.entries(LINE_HUE).map(([acronym, hue]) => (
-            <Badge key={acronym} variant="outline" className="gap-1.5 font-normal">
-              <span aria-hidden className="size-2 rounded-full" style={{ background: hue }} />
-              {acronym}
-            </Badge>
-          ))}
+          <LineLegend lines={lines} />
         </div>
       </div>
     </div>

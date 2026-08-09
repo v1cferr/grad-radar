@@ -70,6 +70,12 @@ class ResearchLineOut(BaseModel):
     acronym: str
     name: str
     faculty_count: int
+    # Plain-language gloss. Ours, not the institution's — the official page
+    # publishes names only. The UI labels it as an explanation, never a quote.
+    description: str | None
+    # What the line actually taught this term. Verified, and the real antidote to
+    # a vague acronym: "VC" means little, three deep-learning disciplines do not.
+    offerings: list[str]
 
 
 class ProgramOut(BaseModel):
@@ -143,7 +149,8 @@ class OfferingOut(BaseModel):
 async def list_programs(db: Db) -> list[ProgramOut]:
     stmt = select(GraduateProgram).options(*_PROGRAM_LOADERS)
     programs = (await db.scalars(stmt)).all()
-    return [_program_out(p) for p in programs]
+    by_line = await _offerings_by_line(db)
+    return [_program_out(p, by_line) for p in programs]
 
 
 @router.get("/programs/{program_id}", response_model=ProgramOut)
@@ -154,10 +161,30 @@ async def get_program(program_id: int, db: Db) -> ProgramOut:
     program = (await db.scalars(stmt)).first()
     if program is None:
         raise HTTPException(status_code=404, detail="program not found")
-    return _program_out(program)
+    return _program_out(program, await _offerings_by_line(db))
 
 
-def _program_out(p: GraduateProgram) -> ProgramOut:
+def _line_out(line: ResearchLine, offerings: dict[int, list[str]]) -> ResearchLineOut:
+    return ResearchLineOut(
+        id=line.id,
+        acronym=line.acronym,
+        name=line.name,
+        faculty_count=len(line.faculty),
+        description=line.description,
+        offerings=offerings.get(line.id, []),
+    )
+
+
+async def _offerings_by_line(db: AsyncSession) -> dict[int, list[str]]:
+    stmt = select(CourseOffering).options(selectinload(CourseOffering.discipline))
+    out: dict[int, list[str]] = {}
+    for o in (await db.scalars(stmt)).all():
+        if o.research_line_id:
+            out.setdefault(o.research_line_id, []).append(o.discipline.name)
+    return out
+
+
+def _program_out(p: GraduateProgram, by_line: dict[int, list[str]]) -> ProgramOut:
     campus_obj = p.department.campus
     institution = campus_obj.institution
     return ProgramOut(
@@ -170,21 +197,18 @@ def _program_out(p: GraduateProgram) -> ProgramOut:
         institution=institution.acronym,
         campus=campus_obj.name,
         research_lines=[
-            ResearchLineOut(
-                id=line.id, acronym=line.acronym, name=line.name, faculty_count=len(line.faculty)
-            )
-            for line in sorted(p.research_lines, key=lambda x: x.acronym)
+            _line_out(line, by_line) for line in sorted(p.research_lines, key=lambda x: x.acronym)
         ],
     )
 
 
 @router.get("/research-lines", response_model=list[ResearchLineOut])
 async def list_research_lines(db: Db) -> list[ResearchLineOut]:
-    stmt = select(ResearchLine).options(selectinload(ResearchLine.faculty)).order_by(ResearchLine.acronym)
-    return [
-        ResearchLineOut(id=x.id, acronym=x.acronym, name=x.name, faculty_count=len(x.faculty))
-        for x in (await db.scalars(stmt)).all()
-    ]
+    stmt = (
+        select(ResearchLine).options(selectinload(ResearchLine.faculty)).order_by(ResearchLine.acronym)
+    )
+    by_line = await _offerings_by_line(db)
+    return [_line_out(x, by_line) for x in (await db.scalars(stmt)).all()]
 
 
 @router.get("/faculty", response_model=list[FacultyOut])

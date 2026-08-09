@@ -15,6 +15,10 @@ export type ResearchLine = {
   acronym: string;
   name: string;
   faculty_count: number;
+  /** Plain-language gloss — ours, not the institution's. */
+  description: string | null;
+  /** Disciplines this line actually taught in the current term. */
+  offerings: string[];
 };
 
 export type Program = {

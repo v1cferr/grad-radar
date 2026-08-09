@@ -82,6 +82,30 @@ test("hovering an offering reveals the detail the card omits", async ({ page }) 
   await expect(tip).toContainText("Conflita integralmente");
 });
 
+test("every research-line acronym explains itself on hover", async ({ page }) => {
+  // The acronyms are opaque to anyone outside computing — and three people will
+  // use this. Each must carry the official name, a plain gloss, and what the
+  // line actually taught.
+  const row = page.getByRole("row", { name: /AMPLN/ });
+  await row.getByText("AMPLN").hover();
+
+  const tip = page.locator('[data-slot="tooltip-content"]');
+  await expect(tip).toBeVisible();
+  await expect(tip).toContainText("Aprendizado de Máquina e Processamento de Língua Natural");
+  await expect(tip).toContainText("Ensinar computadores a aprender padrões");
+  await expect(tip).toContainText("Docentes");
+});
+
+test("a line with no offering this term says so instead of showing nothing", async ({ page }) => {
+  // BD taught nothing in 2026/2. An empty field would read as missing data;
+  // the absence is itself the information.
+  const row = page.getByRole("row", { name: /Banco de Dados/ });
+  await row.getByText("BD", { exact: true }).hover();
+  await expect(page.locator('[data-slot="tooltip-content"]')).toContainText(
+    "nenhuma disciplina ofertada",
+  );
+});
+
 test("research lines are listed with their faculty counts", async ({ page }) => {
   const row = page.getByRole("row", { name: /AMPLN/ });
   await expect(row).toContainText("Aprendizado de Máquina e Processamento de Língua Natural");
