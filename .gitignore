@@ -48,9 +48,6 @@ next-env.d.ts
 *.pfx
 id_rsa*
 id_ed25519*
-# CA raiz interna do Caddy, extraída pelo `just trust-ca` — artefato local,
-# regenerável, e específico da máquina.
-deploy/caddy-root.crt
 
 # ── Dumps e arquivos ──────────────────────────────────────────────────────────
 *.dump

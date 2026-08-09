@@ -10,7 +10,7 @@ compose := "docker compose -f docker-compose.dev.yml"
 default:
     @just --list
 
-# sobe o stack de dev com HOT RELOAD em foreground → https://grad-radar.localhost
+# sobe o stack de dev com HOT RELOAD em foreground → https://pos.v1cferr.dev
 dev: _require-env
     {{compose}} up --build
 
@@ -18,7 +18,8 @@ dev: _require-env
 up: _require-env
     {{compose}} up --build -d
 
-# logs ao vivo — todos os serviços, ou um só: `just logs caddy`
+# logs ao vivo — todos os serviços, ou um só: `just logs backend`
+# (o Caddy não está aqui: `journalctl -u caddy -f`)
 logs service="":
     {{compose}} logs -f {{service}}
 
@@ -38,8 +39,8 @@ rebuild-backend:
 rebuild-frontend:
     {{compose}} up -d --force-recreate frontend
 
-# reset PRISTINE: apaga volumes (banco, node_modules, .next, CA do Caddy) e recria
-# ATENÇÃO: isto DESTRÓI os dados do Postgres e invalida a CA já confiada.
+# reset PRISTINE: apaga volumes (banco, node_modules, .next) e recria
+# ATENÇÃO: isto DESTRÓI os dados do Postgres.
 fresh: _require-env
     {{compose}} down -v --remove-orphans
     {{compose}} up --build
@@ -48,33 +49,15 @@ fresh: _require-env
 psql:
     {{compose}} exec db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 
-# extrai a CA raiz interna do Caddy e mostra como confiá-la no NixOS
-trust-ca:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    dest=deploy/caddy-root.crt
-    {{compose}} exec -T caddy cat /data/caddy/pki/authorities/local/root.crt > "$dest"
-    echo "✓ CA raiz extraída para $dest"
-    echo
-    echo "O Caddy só gera essa CA no primeiro start com TLS — se o arquivo saiu"
-    echo "vazio, abra https://grad-radar.localhost uma vez e rode de novo."
-    echo
-    echo "Para confiar system-wide (o NixOS não aceita jogar cert em /etc/ssl/certs):"
-    echo
-    echo "  1. copie o cert para os dotfiles:"
-    echo "       cp $dest ~/Projects/GitHub/v1cferr/dotfiles/system/core/caddy-grad-radar-root.crt"
-    echo "  2. no módulo correspondente dos dotfiles, adicione:"
-    echo "       security.pki.certificateFiles = [ ./caddy-grad-radar-root.crt ];"
-    echo "  3. rebuild do sistema."
-    echo
-    echo "Sem esse passo o browser mostra aviso de certificado — em dev é"
-    echo "inofensivo e clicável, e no CLI basta 'curl -k'."
+# status do ingress: o proxy NÃO é deste projeto, vive nos dotfiles
+ingress:
+    @echo "O ingress é do Caddy central (systemd), não deste compose:"
+    @echo "  módulo:  ~/Projects/GitHub/v1cferr/dotfiles/system/services/caddy.nix"
+    @echo "  vhost:   pos.v1cferr.dev  →  127.0.0.1:3006 (front) · 127.0.0.1:8006 (/api/*)"
+    @echo
+    systemctl status caddy --no-pager | head -5 || true
 
-# valida o Caddyfile sem subir o stack
-validate:
-    caddy validate --adapter caddyfile --config deploy/Caddyfile
-
-# formata os arquivos Nix (nixfmt-tree, igual aos dotfiles)
+# formata os arquivos Nix deste repo (nixfmt-tree, igual aos dotfiles)
 fmt:
     nix fmt
 

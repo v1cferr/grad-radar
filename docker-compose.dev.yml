@@ -1,15 +1,21 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # GradRadar — stack de DESENVOLVIMENTO local (`just dev`).
 #
-# Quatro serviços: caddy (única porta de entrada) → frontend/backend → db.
-# Nem backend nem frontend publicam porta: quem expõe é o Caddy, num único host
-# (https://grad-radar.localhost), o que elimina CORS e portas hardcoded.
+# Três serviços: frontend + backend → db. O ingress NÃO mora aqui: quem publica
+# https://pos.v1cferr.dev, termina TLS e roteia /api/* é o Caddy central,
+# declarado em ~/Projects/GitHub/v1cferr/dotfiles/system/services/caddy.nix.
+#
+# POR QUE CENTRALIZADO: só um processo faz bind na 443. Um Caddy por projeto não
+# coexiste com outro, e o mapa de portas de loopback precisa de um dono único —
+# o módulo dos dotfiles é esse dono (regra 14).
+#
+# Ambos publicam só em 127.0.0.1: a porta é a interface com o Caddy, não com a
+# rede. As portas 3006/8006 estão anotadas no mapa daquele módulo; mudar aqui
+# exige mudar lá.
 #
 # `restart: "no"` em tudo é deliberado no dev: containers NUNCA devem
 # ressuscitar sozinhos depois de reboot ou restart do daemon, senão viram órfãos
 # rodando sem ninguém pedir.
-#
-# Só existe este arquivo de compose (sem .prod.yml) porque o escopo hoje é local.
 # ═══════════════════════════════════════════════════════════════════════════════
 name: grad-radar
 
@@ -48,6 +54,10 @@ services:
     # `uv sync` a cada start é rápido (no-op quando o lock não mudou) e garante
     # que o venv do volume acompanhe mudanças no uv.lock sem rebuild da imagem.
     command: sh -c "uv sync --frozen --no-dev && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    # Só no loopback: quem publica é o Caddy central. A 8006 está anotada no mapa
+    # de portas em dotfiles/system/services/caddy.nix — mudar aqui exige mudar lá.
+    ports:
+      - "127.0.0.1:8006:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -72,27 +82,12 @@ services:
       - frontend_node_modules:/app/node_modules
       - frontend_next:/app/.next
     command: sh -c "corepack enable pnpm && pnpm install --frozen-lockfile && pnpm exec next dev --hostname 0.0.0.0 --port 3000"
+    # Só no loopback: quem publica é o Caddy central (porta 3006 no mapa).
+    ports:
+      - "127.0.0.1:3006:3000"
     depends_on:
       backend:
         condition: service_started
-    restart: "no"
-
-  caddy:
-    image: caddy:2-alpine
-    # Sem prefixo 127.0.0.1 de propósito: assim o Docker publica em IPv4 E IPv6,
-    # e o browser — que resolve grad-radar.localhost para ::1 primeiro — conecta
-    # de primeira. O firewall do host já mantém 80/443 fechadas para fora
-    # (dotfiles/system/net/network.nix abre só 2222), então isto não expõe nada.
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data # abriga a CA interna (ver `just trust-ca`) — NÃO apagar sem necessidade
-      - caddy_config:/config
-    depends_on:
-      - backend
-      - frontend
     restart: "no"
 
 volumes:

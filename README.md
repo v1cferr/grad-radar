@@ -25,7 +25,7 @@ cp .env.example .env         # then change POSTGRES_PASSWORD
 just dev                     # builds and starts the whole stack
 ```
 
-Open <https://grad-radar.localhost>.
+Open <https://pos.v1cferr.dev>.
 
 Run `just` with no arguments to list every recipe. The most useful ones:
 
@@ -33,25 +33,25 @@ Run `just` with no arguments to list every recipe. The most useful ones:
 | --- | --- |
 | `just dev` | Start the stack with hot reload, in the foreground |
 | `just up` | Same, detached |
-| `just logs [service]` | Follow logs — all services, or one (`just logs caddy`) |
+| `just logs [service]` | Follow logs — all services, or one (`just logs backend`) |
 | `just down` | Tear down, preserving volumes |
 | `just fresh` | **Destructive** — drop volumes (database included) and rebuild |
 | `just psql` | Open `psql` against the project database |
-| `just validate` | Validate `deploy/Caddyfile` without starting anything |
-| `just trust-ca` | Extract Caddy's internal root CA and print how to trust it |
+| `just ingress` | Show where the reverse proxy lives and its current status |
 
 ### Things worth knowing
 
-- **Certificate warning on first load.** Caddy terminates TLS with its own internal CA, because `.localhost`
-  cannot be validated by ACME. The warning is harmless in development and click-through; run `just trust-ca`
-  to get rid of it (it prints the `security.pki.certificateFiles` snippet to add to your NixOS config), or use
-  `curl -k` from the CLI.
+- **The reverse proxy is not part of this repo.** `pos.v1cferr.dev` is served by the central Caddy declared in
+  the dotfiles (`system/services/caddy.nix`), which owns the TLS certificate and the loopback port map for
+  every self-hosted project on the machine. See [`deploy/README.md`](deploy/README.md). Its logs are in
+  `journalctl -u caddy`, not in `just logs`.
+- **From outside the home network you get an HTTP basic auth prompt.** GradRadar has no login of its own yet,
+  so Caddy gates external access; on the LAN it opens directly. Repeated failures are banned by fail2ban.
 - **PostgreSQL is published on `127.0.0.1:5433`, not 5432.** Port 5432 on this host already belongs to another
   project's container. Inside the compose network the database still listens on 5432, which is the port that
   goes in `DATABASE_URL`.
-- **`grad-radar.localhost` needs no `/etc/hosts` entry.** `nss-myhostname` resolves any `*.localhost` name to
-  `127.0.0.1`/`::1` automatically. To reach the app from other devices on the LAN or over Tailscale, change the
-  site address in `deploy/Caddyfile` to a real hostname and publish a matching DNS record.
+- **The published ports are `3006` (frontend) and `8006` (API), loopback only.** They are the interface with
+  Caddy, not with the network. Changing them requires changing the port map in the dotfiles module too.
 - **`.env` is not optional.** The compose file loads it via `env_file`, and `just` refuses to start without it.
 
 ---
