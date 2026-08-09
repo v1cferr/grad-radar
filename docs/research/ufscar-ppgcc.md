@@ -288,6 +288,48 @@ an official page states it.
 
 ---
 
+## Internal regulation (Regimento)
+
+Retrieved from [`regimento.pdf`](https://www.ppgcc.ufscar.br/pt-br/assets/arquivos/regimentos-e-normas/regimento.pdf)
+— the document that settles three of the open questions.
+
+**Credits from aluno especial DO transfer** — Art. 21, parágrafo único, verbatim:
+
+> "A critério da CPG, poderão ser reconhecidas **todas** as disciplinas cursadas no próprio Programa, como
+> Aluno Especial, desde que cursadas no máximo **dois anos** antes da matrícula como aluno regular no curso."
+
+Two conditions matter and neither was visible on the admission pages: it is **at the CPG's discretion**, and
+there is a **two-year window**. Disciplines taken at *another* institution are capped at 40% of the required
+credits (Art. 21, caput); disciplines taken *here* as aluno especial have no such cap.
+
+This resolves the assumption carried in `MOTIVACOES.md` — but qualifies it. "Créditos aproveitam" is true only
+inside two years and only if the CPG agrees.
+
+**Credits and deadlines** — Art. 19:
+
+> "Para a conclusão do curso de Mestrado serão exigidos 100 (cem) créditos, sendo 50 (cinqüenta) créditos em
+> disciplinas e 50 (cinqüenta) créditos integralizados com a homologação pela CPG de aprovação na defesa da
+> Dissertação."
+>
+> "A integralização dos créditos em disciplinas deve ser feita no prazo máximo de 18 (dezoito) meses, contados
+> a partir do ingresso como aluno regular."
+
+One credit = 15 hours. So **50 credits in disciplines ≈ 750 hours**, and since most disciplines carry 8
+credits, that is **roughly 6–7 disciplines inside 18 months** — about two per semester, every semester, all of
+them inside the 08–12 / 14–18 bands. This turns the timetable finding from a scheduling annoyance into an
+arithmetic problem.
+
+**Aluno especial for a graduate** — Art. 13, §2º: open to a holder of a higher-education diploma not enrolled
+in the programme, at the responsible lecturer's discretion, for candidates whose interest is
+*"aprimoramento profissional"*. That is the applicable route here; §3º (Aluno Especial **Graduando**) applies
+to undergraduates and additionally requires a letter of intent from an advisor.
+
+**Attendance:** the word *frequência* does not appear in the regimento. Grading is per-discipline, by the
+lecturer (Art. 22, levels A–E). So the minimum-attendance rule is **still unresolved** — but the semester grid
+carries a note that does bear on it: *"Todas as avaliações são integralmente presenciais no departamento."*
+
+---
+
 ## Modeling implications
 
 What the discovered reality demands of the schema. These are the decisions F1B should implement.
@@ -358,12 +400,11 @@ entry date. Which disciplines are valid depends on when the student entered.
 
 Ordered by how much each blocks the project's core question. Items resolved in this pass are struck through.
 
-1. **Attendance policy** — the timetable is known, but whether attendance is mandatory, and whether any
-   remote participation is allowed, is not stated. Matters because the two time bands are otherwise
-   disqualifying.
-2. **Whether aluno especial credits transfer** to the regular program. Assumed in this project's docs;
-   *not stated* by the source.
-3. **Tuition-free status** — near-certain by Brazilian law, unverified on-site.
+1. **Attendance policy** — the regimento does not use the word *frequência* at all; grading is left to each
+   lecturer (Art. 22). The only nearby fact is the grid's note that **all assessments are fully in person at
+   the department**. Whether a minimum attendance exists remains unresolved, and it is the last question
+   standing between the timetable finding and a decision.
+2. **Tuition-free status** — near-certain by Brazilian law, unverified on-site.
 4. **Scholarship detail** — the edital says classification does not imply a scholarship, but funding source
    (CAPES/CNPq/FAPESP), value, and whether employment is permitted are all unstated. Decisive for anyone
    holding a job.
@@ -377,8 +418,9 @@ Ordered by how much each blocks the project's core question. Items resolved in t
 9. **Next cycle (2027/1)** — no page yet. Based on the archive URL pattern and the observed March–April
    window, a cycle is *expected* rather than known.
 
-Resolved in this pass: ~~course timetables~~ · ~~2026/2 cycle specifics~~ · ~~English proficiency~~ ·
-~~prior advisor contact~~ · ~~seat counts per line~~
+Resolved so far: ~~course timetables~~ · ~~2026/2 cycle specifics~~ · ~~English proficiency~~ ·
+~~prior advisor contact~~ · ~~seat counts per line~~ · ~~aluno especial credit transfer~~ ·
+~~credits required~~ · ~~time limit to complete disciplines~~
 
 ---
 

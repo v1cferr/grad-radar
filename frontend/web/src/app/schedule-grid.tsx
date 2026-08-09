@@ -98,16 +98,31 @@ export function ScheduleGrid({
             const [start, end] = band.split("|");
             return (
               <div key={band} className="contents">
-                <div className="flex items-start pt-2 font-mono text-xs" style={{ color: "var(--ink-secondary)" }}>
-                  {hhmm(start)}–{hhmm(end)}
+                <div
+                  className="flex items-start gap-2 pt-2 font-mono text-xs"
+                  style={{ color: "var(--ink-secondary)" }}
+                >
+                  {/* The band is the argument, so it gets a solid edge marker as
+                      well as a fill — a 7% tint alone disappears on dark. */}
+                  <span
+                    aria-hidden
+                    className="mt-0.5 h-4 w-1 rounded-full"
+                    style={{ background: "var(--status-critical)" }}
+                  />
+                  <span>
+                    {hhmm(start)}–{hhmm(end)}
+                  </span>
                 </div>
                 {DAYS.map((d) => {
                   const cells = offerings.filter((o) => o.weekday === d.key && o.starts_at === start);
                   return (
                     <div
                       key={d.key + band}
-                      className="space-y-2 rounded-md p-1"
-                      style={{ background: "color-mix(in oklab, var(--status-critical) 7%, transparent)" }}
+                      className="space-y-2 rounded-md border border-dashed p-1.5"
+                      style={{
+                        background: "color-mix(in oklab, var(--status-critical) 16%, transparent)",
+                        borderColor: "color-mix(in oklab, var(--status-critical) 45%, transparent)",
+                      }}
                     >
                       {cells.map((o) => (
                         <Cell key={o.id} o={o} />

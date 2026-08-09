@@ -41,6 +41,13 @@ package = false
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+# Session-scoped async fixtures (the seed) need a session-scoped loop, otherwise
+# pytest-asyncio tears the loop down between tests and the engine dies with it.
+asyncio_default_fixture_loop_scope = "session"
+# ...and the TESTS must share that loop. Default is function scope, which means
+# each test gets a fresh loop while the module-level engine still holds
+# connections created in the old one — asyncpg then fails deep in its protocol.
+asyncio_default_test_loop_scope = "session"
 testpaths = ["tests"]
 
 [tool.ruff]
