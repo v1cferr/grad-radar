@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 /**
  * What only a browser can prove.
@@ -53,11 +53,33 @@ test("the weekly grid renders both bands and neither is in the evening", async (
   await expect(grid.getByText("Sábado")).toHaveCount(0);
 });
 
+/** The offering card itself. Selecting on the trigger slot matters: a plain
+ *  `div` with hasText also matches the day-column container, and hovering THAT
+ *  opens whichever sibling happens to sit under the cursor. */
+const card = (page: Page, code: string) =>
+  page.locator('[data-slot="tooltip-trigger"]', { hasText: code });
+
 test("the only AI offering of the term is visible with its professor", async ({ page }) => {
-  const cell = page.locator("div", { hasText: /^CCO-724/ }).first();
+  const cell = card(page, "CCO-724");
   await expect(cell).toContainText("Aprendizado de Máquina");
   await expect(cell).toContainText("Tiago Agostinho de Almeida");
-  await expect(cell).toContainText("AMPLN");
+});
+
+test("hovering an offering reveals the detail the card omits", async ({ page }) => {
+  // The card shows code, name and professor; everything else lives in the
+  // tooltip, so this is the only place that proves the rest reaches the user.
+  await card(page, "CCO-724").hover();
+
+  // Base UI does not set role="tooltip" — the popup is identified by its slot.
+  const tip = page.locator('[data-slot="tooltip-content"]');
+  await expect(tip).toBeVisible();
+  await expect(tip).toContainText("Machine Learning"); // the English name
+  await expect(tip).toContainText("AMPLN");
+  await expect(tip).toContainText("14:00–18:00");
+  // Two rooms, because the same class runs at both campuses — and this one
+  // ORIGINATES in Sorocaba.
+  await expect(tip).toContainText("CCGT-1001");
+  await expect(tip).toContainText("Conflita integralmente");
 });
 
 test("research lines are listed with their faculty counts", async ({ page }) => {
