@@ -233,6 +233,39 @@ Casos de fronteira, deliberadamente **fora**:
 
 ---
 
+## A decisão de agosto de 2026, com data
+
+Duas coisas estão em jogo ao mesmo tempo, e os prazos **não** forçam escolher uma:
+
+| | PPGPEP | PPGCC |
+| --- | --- | --- |
+| Inscrição | **14/09/2026** — verificado | edital previsto para outubro/2026 |
+| Resultado | 18/12/2026 | ~março/2027, pelo calendário de 2026/1 |
+| Horário | ✅ noturno verificado | ❓ o Art. 5 permite; a grade lida não entrega |
+| Área | engenharia de produção (TOTI) | computação (AMPLN — ML, PLN, LLM) |
+
+O resultado do PPGPEP sai **antes** de o processo do PPGCC terminar. Ou seja: dá
+para se inscrever nos dois e decidir depois, sem que um feche a porta do outro.
+
+**A regra de decisão, com data:**
+
+- Se o PPGCC responder **até o começo de setembro** que haverá oferta noturna em
+  2027 e que dá para integralizar nela — aí vale considerar pular o PPGPEP e guardar
+  o esforço do projeto de pesquisa para o programa que de fato se quer.
+- **Sem resposta, ou resposta negativa, até ~05/09** — inscreva-se no PPGPEP. É a
+  única opção com os quatro requisitos verificados, e a alternativa é ficar sem
+  nenhuma até outubro apostando em algo que seis semestres de grade não entregaram.
+
+O que pesa contra tratar o PPGPEP como plano B descartável: **não há rota de aluno
+especial nele** (verificado — as páginas de processo seletivo e de informações
+acadêmicas não oferecem essa entrada), então não existe jeito barato de testar o
+encaixe antes. E o Anexo II exige declaração de vínculo com um docente, o que
+significa achar orientador na engenharia de produção em cinco semanas.
+
+O que pesa a favor: é um mestrado stricto sensu gratuito, noturno, presencial em São
+Carlos, cuja linha TOTI descreve quase literalmente o trabalho que já é feito na
+FAI. Não é consolação — é a opção que existe.
+
 ## O que falta, em ordem de valor
 
 1. **MECAI: dá para integralizar assistindo só ao período noturno das sextas?**

@@ -1,5 +1,8 @@
 # E-mail para a secretaria do MECAI
 
+> **Enviado em 10/08/2026.** Aguardando resposta. A pergunta 1 é a que decide se o
+> MECAI passa nos quatro requisitos.
+
 Não tenho como enviar — escrito para você copiar e mandar. Confira o texto antes:
 sai com o seu nome.
 
