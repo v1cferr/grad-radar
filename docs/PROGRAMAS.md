@@ -73,27 +73,33 @@ Aderência: **forte nos sinais 2 e 3.** É o que o PPGPEP não tem.
 | Público | ✅ | USP |
 | Gratuito | ✅ **verificado** | "Os cursos de Pós-Graduação oferecidos pelo ICMC são gratuitos"; "Não há taxa de matrícula para alunos regulares" ([FAQ](https://www.icmc.usp.br/pos-graduacao/mecai/perguntas-frequentes)) |
 | Presencial em São Carlos | ✅ **verificado** | "As aulas presenciais são oferecidas na cidade de São Carlos – SP" (FAQ) |
-| Aula compatível com 08–18 | ⚠️ **NÃO — pelo menos não como está** | ver abaixo |
+| Aula compatível com 08–18 | ⚠️ **plausível — o edital permite noturno** | ver abaixo |
 
-#### O problema do horário
+#### O horário: o edital contempla noturno
 
-A FAQ oficial diz, verbatim:
+O **Edital SVPG/ICMC/USP 002/2026, item 7.1**, diz verbatim:
 
-> As aulas serão oferecidas semanalmente, **preferencialmente às sextas feiras
-> (períodos da manhã, tarde e noite)**, em São Carlos.
+> As aulas da ênfase "Ciência de Dados" poderão ser oferecidas de segunda à
+> quinta-feira no período **noturno** ou às sextas-feiras (períodos da manhã, tarde
+> e noite). Caso haja disponibilidade de docentes, [...] poderão ser oferecidas
+> aulas aos sábados (período da manhã).
 
-Isso **não** é oferta noturna. É a semana concentrada em um dia, atravessando o
-horário comercial. Manhã e tarde de sexta batem de frente com a jornada na FAI.
+> **Correção.** Um veredito anterior deste documento dizia que o MECAI estava
+> eliminado por horário, com base na FAQ do site — que menciona apenas as sextas.
+> A FAQ está desatualizada: **o edital vigente contempla noturno de segunda a
+> quinta**. O requisito passou de "não atende" para "não verificado", e o programa
+> saiu de eliminado para pendente.
 
-O formato é diferente do PPGPEP, não melhor nem pior: em vez de espalhar aulas
-noturnas pela semana, concentra tudo numa sexta. Para quem trabalha 08–18 de
-segunda a sexta, exige **acordo para se ausentar às sextas** — o que é uma
-conversa com a FAI, não um detalhe de grade.
+O que continua em aberto é o "poderão": permissão não é oferta. A pergunta precisa
+é sobre **integralizar** — se as disciplinas OBRIGATÓRIAS da ênfase cabem no
+período noturno, ou se parte delas sai necessariamente em horário comercial.
+Perguntar "tem aula à noite?" receberia um "sim" que não resolve nada.
 
-Pergunta aberta e específica: **dá para integralizar os créditos assistindo só ao
-período da noite das sextas?** O "preferencialmente" sugere flexibilidade, e a
-resposta muda o veredito de "inviável" para "aprovado com o melhor encaixe
-técnico de todos". É a verificação mais valiosa pendente neste projeto.
+#### O ciclo atual já fechou
+
+Inscrições do Edital 002/2026: **14/04 a 14/05/2026**. Encerrado. O MECAI é
+candidato para o **próximo** ciclo, e as três fontes dele entraram no monitor
+exatamente para pegar a abertura.
 
 #### Elegibilidade: resolvida
 

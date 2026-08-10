@@ -290,6 +290,20 @@ PPGPEP_DOCS = [
 # Não descrevem um programa: listam TODOS os de uma instituição. Uma mudança
 # aqui pode ser um programa novo, e é o único jeito de descobrir uma opção sem
 # alguém ir procurar à mão.
+# ── MECAI/ICMC — o candidato do próximo ciclo ────────────────────────────────
+# O processo 002/2026 fechou em 14/05/2026. Vigiado para pegar o próximo: é o
+# programa de maior aderência técnica que ainda pode passar nos quatro requisitos.
+MECAI_SOURCES = [
+    ("https://www.icmc.usp.br/pos-graduacao/mecai/ingresso", SourceType.ADMISSION_PAGE,
+     "MECAI — ingresso e processo seletivo", None),
+    ("https://web2.icmc.usp.br/SVPGRAD/portal/mecai/editalmecai.pdf", SourceType.EDITAL_PDF,
+     "MECAI — edital vigente (002/2026)", None),
+    ("https://www.icmc.usp.br/pos-graduacao/mecai/perguntas-frequentes",
+     SourceType.GRADUATE_PROGRAM_PAGE, "MECAI — perguntas frequentes", None),
+    ("https://www.ppgads.ufscar.br/pt-br/processos-seletivos", SourceType.ADMISSION_PAGE,
+     "PPGAdS — processos seletivos", None),
+]
+
 INDEX_SOURCES = [
     (
         "https://www.propg.ufscar.br/pt-br/pos-na-ufscar/programas",
@@ -411,10 +425,12 @@ REQUIREMENTS: dict[str, list[tuple[Requirement, RequirementStatus, str]]] = {
         (_PUBLIC, _MET, "UFSCar — universidade federal."),
     ],
     "MECAI": [
-        (_NIGHT, _NO, (
-            "FAQ oficial: aulas 'preferencialmente às sextas feiras (períodos da manhã, "
-            "tarde e noite)'. Não é oferta noturna — é a semana concentrada num dia que "
-            "atravessa o horário comercial. Pendente: dá para integralizar só à noite?"
+        (_NIGHT, _UNK, (
+            "Edital 002/2026 item 7.1: as aulas da ênfase Ciência de Dados 'poderão ser "
+            "oferecidas de segunda à quinta-feira no período NOTURNO ou às sextas-feiras "
+            "(períodos da manhã, tarde e noite)', com possibilidade de sábado pela manhã. "
+            "O edital vigente CONTEMPLA noturno — a FAQ do site, que só citava sextas, "
+            "está desatualizada. Falta saber a oferta real de um semestre."
         )),
         (_LOCAL, _MET, "FAQ: 'As aulas presenciais são oferecidas na cidade de São Carlos – SP'."),
         (_FREE, _MET, (
@@ -873,14 +889,16 @@ async def seed(db: AsyncSession) -> dict[str, int]:
             )
     counts["program_adherence"] = sum(len(r) for r in ADHERENCE.values())
 
-    for url, kind, title, redirect in SOURCES + PPGPEP_SOURCES + INDEX_SOURCES:
+    for url, kind, title, redirect in SOURCES + PPGPEP_SOURCES + MECAI_SOURCES + INDEX_SOURCES:
         await _get_or_create(
             db, Source,
             {"source_type": kind, "title": title, "institution_id": ufscar.id,
              "redirects_to": redirect, "last_checked_at": datetime(2026, 8, 8, tzinfo=UTC)},
             url=url,
         )
-    counts["sources"] = len(SOURCES) + len(PPGPEP_SOURCES) + len(INDEX_SOURCES)
+    counts["sources"] = (
+        len(SOURCES) + len(PPGPEP_SOURCES) + len(MECAI_SOURCES) + len(INDEX_SOURCES)
+    )
 
     victor = await _get_or_create(
         db, Candidate,

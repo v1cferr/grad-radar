@@ -63,8 +63,9 @@ pesos, porém, são **por candidato** — o modelo nunca assumiu um ranking glob
 | UFSCar | PPGEE | ❌ requisito 1 | eliminado |
 | UFSCar | PIPGEs | ❌ requisito 1 | eliminado — apesar de ter linha de Aprendizado de Máquina |
 | UFSCar | **PPGPEP** (profissional) | ✅ **todos** | **INSCRIÇÕES ABERTAS: 20/08 a 14/09/2026** |
-| UFSCar | PPGCTS, PPGCI, PPGEP, PPGAdS | ⏳ horário não olhado | aderentes ao edital da FAI — ver [`PROGRAMAS.md`](PROGRAMAS.md) |
-| USP/ICMC | **MECAI** (profissional) | ⚠️ aulas às **sextas**, manhã a noite | gratuito e presencial verificados; o horário atravessa a jornada |
+| UFSCar | PPGCTS, PPGCI, PPGEP | ❌ requisito 1 | eliminados com grade lida — e são os de MAIOR aderência (70%, 50%, 60%) |
+| UFSCar | **PPGAdS** (profissional) | ⏳ edital permite noite | último candidato vivo além do PPGPEP e do MECAI |
+| USP/ICMC | **MECAI** (profissional) | ⏳ edital permite **noturno** seg–qui | gratuito e presencial verificados; ciclo 002/2026 já fechou — monitorado |
 | USP/ICMC | CCMC (acadêmico) | ⏳ horário não olhado | o programa técnico de referência em IA da região |
 
 > **Edital PPGPEP 001/2026 — ingresso em 2027.** 25 vagas, sem distribuição por linha, sem bolsa.
