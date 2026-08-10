@@ -1,0 +1,18 @@
+<!-- Favicon: um radar (arco de varredura + eco). SVG e não .ico de propósito —
+     escala de 16px na aba até 512px sem arquivo por tamanho, e o Next emite
+     sizes="any" automaticamente.
+
+     Fundo sólido em vez de glifo transparente: a 16px, um traço fino sobre
+     barra de abas clara OU escura desaparece em uma das duas. O quadrado azul
+     resolve as duas de uma vez. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" rx="7" fill="#2a78d6" />
+  <g fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round">
+    <!-- arco: três quartos de círculo, deixando a abertura onde entra o eco -->
+    <path d="M16 26.5A10.5 10.5 0 1 1 26.5 16" />
+    <!-- linha de varredura, do centro para fora -->
+    <path d="M16 16 23.4 8.6" />
+  </g>
+  <!-- o eco: o achado que o monitor existe para encontrar -->
+  <circle cx="23.5" cy="22.5" r="3.1" fill="#ffffff" />
+</svg>

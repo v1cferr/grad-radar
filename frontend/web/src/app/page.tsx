@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   AlertTriangle,
   Ban,
@@ -36,6 +37,7 @@ import {
   type ResearchLine,
 } from "@/lib/api";
 import { daysUntil, fmt, fmtLong } from "@/lib/format";
+import { OG_BASE, SITE_DESCRIPTION, SITE_NAME, TWITTER_BASE } from "@/lib/site";
 
 import { NextSteps, Timeline } from "./next-steps";
 import { OptionsTable } from "./options-table";
@@ -44,6 +46,44 @@ import { ScheduleGrid } from "./schedule-grid";
 import { Sources } from "./sources";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Título e descrição seguem o edital, não um texto fixo.
+ *
+ * Pela MESMA razão da imagem de OG, aqui também não entra contagem de dias:
+ * clientes de chat cacheiam o preview inteiro — título, descrição e imagem —, e
+ * um "faltam 36 dias" congelado em outubro é uma afirmação falsa entregue com
+ * confiança. A data absoluta não envelhece errado.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const cycles = await getCycles();
+  const today = new Date().toISOString().slice(0, 10);
+  const open = cycles
+    .filter((c) => c.applications_close_on && c.applications_close_on >= today)
+    .sort((a, b) => (a.applications_close_on! < b.applications_close_on! ? -1 : 1))[0];
+
+  if (!open) {
+    return {
+      title: { absolute: `${SITE_NAME} — nenhum processo aberto` },
+      description: `Nenhum processo seletivo aberto atende aos quatro requisitos. ${SITE_DESCRIPTION}`,
+    };
+  }
+
+  const headline = `${open.program} — inscrições até ${fmtLong(open.applications_close_on)}`;
+  const description =
+    `${open.total_seats} vagas. A seleção é inteiramente um projeto de pesquisa, ` +
+    `que precisa estar escrito antes de a inscrição abrir em ` +
+    `${fmtLong(open.applications_open_on)}.`;
+
+  return {
+    title: { absolute: `${headline} · ${SITE_NAME}` },
+    description,
+    // Spread obrigatório: o merge do Next é raso, e um `openGraph` parcial aqui
+    // apagaria type/locale/siteName/url declarados no layout.
+    openGraph: { ...OG_BASE, title: headline, description },
+    twitter: { ...TWITTER_BASE, title: headline, description },
+  };
+}
 
 const CANDIDATE = "Victor";
 const WORK = "08:00–18:00";
