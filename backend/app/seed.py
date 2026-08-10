@@ -304,6 +304,15 @@ MECAI_SOURCES = [
      "PPGAdS — processos seletivos", None),
 ]
 
+# ── PPGCC: o próximo ciclo, e a página que revela quando ele sai ─────────────
+# O PPGCC publica editais SEMESTRAIS. O Edital 01/2026 (ingresso 2026/1) tem datas
+# de 06/10/2025 a 16/03/2026 — ou seja, saiu no começo de outubro. O de 2027/1
+# deve sair em outubro de 2026, e é essa página que vai anunciá-lo.
+PPGCC_NEXT_SOURCES = [
+    ("https://www.ppgcc.ufscar.br/pt-br/processo-seletivo/mestrado",
+     SourceType.ADMISSION_PAGE, "PPGCC — índice dos processos de mestrado", None),
+]
+
 INDEX_SOURCES = [
     (
         "https://www.propg.ufscar.br/pt-br/pos-na-ufscar/programas",
@@ -458,7 +467,11 @@ REQUIREMENTS: dict[str, list[tuple[Requirement, RequirementStatus, str]]] = {
     "PPGCC": [
         (_NIGHT, _NO, (
             "Grade 2026/2 publica apenas 08:00–12:00 e 14:00–18:00 — as 13 disciplinas "
-            "do semestre estão no banco e nenhuma começa às 18h."
+            "do semestre estão no banco e nenhuma começa às 18h. ATENÇÃO: o Art. 5 do "
+            "Edital 01/2026 diz que as aulas PODEM ser oferecidas de segunda a sexta "
+            "(manhã, tarde e noite) e sábados. O veredito vale para a grade LIDA, não "
+            "para o programa — uma grade futura pode abrir noturno, e o `just verify` "
+            "detecta isso sozinho."
         )),
         (_LOCAL, _MET, "Presencial em São Carlos; parte das disciplinas é espelhada em Sorocaba."),
         (_FREE, _UNK, (
@@ -842,6 +855,29 @@ async def seed(db: AsyncSession) -> dict[str, int]:
             acronym=acronym,
         )
 
+    # ── O ciclo que ainda não existe, mas é previsível ──────────────────────
+    # `applications_open_on` NULO de propósito: é o que faz `status_on` devolver
+    # EXPECTED em vez de inventar uma data. O padrão histórico vai na nota, onde
+    # não pode ser confundido com fato — o Edital 01/2026 (ingresso 2026/1) correu
+    # de 06/10/2025 a 16/03/2026, então o de 2027/1 deve sair em outubro de 2026.
+    expected = await _get_or_create(
+        db, AdmissionCycle,
+        {
+            "site_label": None,
+            "official_url": "https://www.ppgcc.ufscar.br/pt-br/processo-seletivo/mestrado",
+            "notes": (
+                "PREVISTO, não anunciado. O PPGCC publica editais semestrais; o Edital "
+                "01/2026 (ingresso 2026/1) tem datas de 06/10/2025 a 16/03/2026, logo o "
+                "de 2027/1 deve ser publicado em outubro de 2026. Art. 5 do edital: as "
+                "aulas PODEM ser oferecidas de segunda a sexta de manhã, tarde e noite, "
+                "e sábados — então a eliminação por horário vale para a grade de 2026/2 "
+                "lida, não para o programa em definitivo."
+            ),
+        },
+        program_id=ppgcc.id, year=2027, semester=1, entry_mode=EntryMode.REGULAR,
+    )
+    expected.degree_level = "master"
+
     # ── Programas da varredura de 10/08/2026 ────────────────────────────────
     institutions = {"UFSCar": (ufscar, sc)}
     for acronym, inst_acr, dep_name, dep_acr, name, site in SWEPT_PROGRAMS:
@@ -912,7 +948,7 @@ async def seed(db: AsyncSession) -> dict[str, int]:
         "mecai": "MECAI",
     }
 
-    for url, kind, title, redirect in SOURCES + PPGPEP_SOURCES + MECAI_SOURCES + INDEX_SOURCES:
+    for url, kind, title, redirect in SOURCES + PPGPEP_SOURCES + MECAI_SOURCES + PPGCC_NEXT_SOURCES + INDEX_SOURCES:
         await _get_or_create(
             db, Source,
             {
@@ -934,7 +970,11 @@ async def seed(db: AsyncSession) -> dict[str, int]:
             url=url,
         )
     counts["sources"] = (
-        len(SOURCES) + len(PPGPEP_SOURCES) + len(MECAI_SOURCES) + len(INDEX_SOURCES)
+        len(SOURCES)
+        + len(PPGPEP_SOURCES)
+        + len(MECAI_SOURCES)
+        + len(PPGCC_NEXT_SOURCES)
+        + len(INDEX_SOURCES)
     )
 
     victor = await _get_or_create(

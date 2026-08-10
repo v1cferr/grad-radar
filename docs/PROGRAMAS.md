@@ -146,6 +146,25 @@ grade real de um semestre, que é o que separa permissão de oferta.
 Aderência: sinal 1 forte (Linha 1 Instituições, Organizações e Estratégias; Linha 2
 Gestão e Inovação), sinal 2 ausente. Perfil parecido com o do PPGPEP.
 
+### PPGCC — o próximo edital sai em outubro de 2026
+
+Não é uma opção hoje, mas é a que o Victor mais quer e vale saber quando olhar.
+
+O que confunde na [página de processo seletivo](https://www.ppgcc.ufscar.br/pt-br/processo-seletivo/mestrado):
+ela lista **"Processo vigente: 2º Semestre de 2026"** — que é o Edital 02/2026,
+com inscrições encerradas em **26/04/2026**. Não há cronograma futuro ali porque
+não há processo futuro publicado; o rótulo "vigente" só não foi atualizado. É o
+mesmo descasamento entre rótulo e datas que o sistema já sinaliza.
+
+**Quando esperar o próximo.** O PPGCC publica editais semestrais. O Edital 01/2026,
+para ingresso em 2026/1, tem datas de **06/10/2025 a 16/03/2026** — ou seja, foi
+publicado no começo de outubro. Pelo mesmo calendário, o edital de **2027/1 deve
+sair em outubro de 2026**.
+
+Está registrado no banco como ciclo `expected` com `applications_open_on` nulo: a
+previsão vive na nota, onde não pode ser confundida com data confirmada. A página
+índice dos processos entrou no monitor para anunciar a publicação.
+
 ### CCMC — Ciências de Computação e Matemática Computacional (ICMC/USP)
 
 O programa técnico de referência da região em IA/ML. Acadêmico, então o risco de
@@ -167,11 +186,21 @@ Verificados, com grade lida. Registrados para que a varredura não seja refeita.
 | **PIPGEs** (UFSCar/USP) | `08:00–09:40` a `16:00–17:40` | 40% — linha explícita de Aprendizado de Máquina |
 | **PPGEE** (UFSCar) | `8–10`, `10–12`, `14–16`, `16–18` | 20% |
 
-O padrão é estrutural e agora está medido: **os três programas de maior aderência
-da varredura — PPGCTS 70%, PPGEP 60%, PPGCI 50% — estão todos eliminados por
-horário.** IA técnica e pesquisa sobre organizações moram nos programas
-acadêmicos; aula fora do horário comercial mora nos profissionais. Não é azar, é
-como os dois formatos são desenhados.
+O padrão está medido: **os três programas de maior aderência da varredura —
+PPGCTS 70%, PPGEP 60%, PPGCI 50% — estão todos eliminados por horário.**
+
+> **Correção importante sobre esse padrão.** Eu havia escrito que a ausência de
+> oferta noturna é "estrutural" dos programas acadêmicos. É forte demais. O
+> **Art. 5 do Edital 01/2026 do PPGCC** diz, verbatim, que as aulas "podendo ser
+> oferecidas de segunda a sexta-feira (manhã, tarde e noite) e/ou sábados pela
+> manhã e tarde". O regulamento **permite** noturno e sábado; a grade de 2026/2
+> simplesmente não entregou.
+>
+> A diferença é grande na prática: um programa eliminado por regra está fora para
+> sempre; um eliminado pela grade de um semestre pode voltar. O veredito NOT_MET
+> continua correto — ele descreve a grade que foi lida —, mas descreve um semestre,
+> não o programa. E é justamente isso que o `just verify` detecta sozinho quando a
+> próxima grade sair.
 
 ---
 

@@ -42,9 +42,13 @@ exatamente o erro que a régua acima tenta evitar. O levantamento está pendente
 
 Do outro lado, o **PPGCC** e o **PIPGEs** são fortes no sinal 2 — o PIPGEs tem
 linha explícita de Aprendizado de Máquina — e ambos morreram no requisito de
-horário. Isto não é coincidência: a oferta noturna é estrutural dos programas
-**profissionais**, e a IA técnica se concentra nos **acadêmicos**. É a tensão
-central do projeto, e é o motivo de valer varrer a USP.
+horário.
+
+Isso correlaciona com o formato: aula fora do horário comercial aparece nos
+programas **profissionais**, e a IA técnica se concentra nos **acadêmicos**. Mas
+correlação não é regra, e vale não confundir: o Art. 5 do edital do PPGCC PERMITE
+aula à noite e no sábado — quem não entregou foi a grade de 2026/2. Ver a correção
+em [`PROGRAMAS.md`](PROGRAMAS.md).
 
 ## O que isto pede da USP
 

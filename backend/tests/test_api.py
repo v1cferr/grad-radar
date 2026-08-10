@@ -33,14 +33,20 @@ class TestPrograms:
         assert (await client.get("/api/programs/999999")).status_code == 404
 
 
-async def _cycle(client: AsyncClient, program: str) -> dict:
-    """Look a cycle up by programme, never by position.
+async def _cycle(client: AsyncClient, program: str, year: int, semester: int) -> dict:
+    """Look a cycle up by programme AND term, never by position.
 
-    Indexing [0] passed for months and then broke the moment a second programme
-    was seeded — and it would have broken *silently* if the two happened to agree.
+    Indexing [0] broke when a second programme was seeded. Filtering by programme
+    alone broke again when the PPGCC got a second cycle — the 2027/1 `expected`
+    one, which has no dates. Um programa tem vários ciclos por definição; só o
+    termo identifica um.
     """
     cycles = (await client.get("/api/admission-cycles")).json()
-    return next(c for c in cycles if c["program"] == program)
+    return next(
+        c
+        for c in cycles
+        if c["program"] == program and c["year"] == year and c["semester"] == semester
+    )
 
 
 class TestAdmissionCycles:
@@ -50,12 +56,12 @@ class TestAdmissionCycles:
         The PPGCC site labels this cycle "Processo vigente" while its window
         closed on 26/04/2026. The API must report it closed anyway.
         """
-        cycle = await _cycle(client, "PPGCC")
+        cycle = await _cycle(client, "PPGCC", 2026, 2)
         assert cycle["site_label"] == "Processo vigente"
         assert cycle["status"] == "concluded"
 
     async def test_seats_are_per_research_line(self, client: AsyncClient):
-        cycle = await _cycle(client, "PPGCC")
+        cycle = await _cycle(client, "PPGCC", 2026, 2)
         seats = {s["research_line"]: s["seats"] for s in cycle["seats"]}
         assert seats == {"AMPLN": 4, "VC": 7, "SDARC": 7, "SAR": 2, "BD": 1, "ES": 1, "CCH": 1}
         # The edital says "23 (vinte e três)". A first reading of the PDF said 21;
@@ -63,7 +69,7 @@ class TestAdmissionCycles:
         assert cycle["total_seats"] == 23
 
     async def test_stages_are_ordered_and_dated(self, client: AsyncClient):
-        cycle = await _cycle(client, "PPGCC")
+        cycle = await _cycle(client, "PPGCC", 2026, 2)
         assert [s["ordinal"] for s in cycle["stages"]] == [1, 2]
         assert cycle["stages"][0]["starts_on"] == "2026-05-13"
 
@@ -83,7 +89,7 @@ class TestPpgpep:
 
     async def test_the_2027_call_is_open_for_applications(self, client: AsyncClient):
         """The reason the monitor exists. If this ever regresses, nobody applies."""
-        cycle = await _cycle(client, "PPGPEP")
+        cycle = await _cycle(client, "PPGPEP", 2027, 1)
         assert cycle["applications_open_on"] == "2026-08-20"
         assert cycle["applications_close_on"] == "2026-09-14"
         assert cycle["status"] in {"announced", "open"}
@@ -91,13 +97,13 @@ class TestPpgpep:
     async def test_it_says_when_we_will_actually_know(self, client: AsyncClient):
         """Não derivável das etapas: a última publica SUAS notas em 04/12 e o
         resultado definitivo sai em 18/12, depois do prazo de recurso."""
-        cycle = await _cycle(client, "PPGPEP")
+        cycle = await _cycle(client, "PPGPEP", 2027, 1)
         assert cycle["final_result_on"] == "2026-12-18"
         assert cycle["stages"][-1]["result_on"] == "2026-12-04"
 
     async def test_seats_are_not_split_by_research_line(self, client: AsyncClient):
         """Edital 3.6, and the opposite of PPGCC — the model had to allow both."""
-        cycle = await _cycle(client, "PPGPEP")
+        cycle = await _cycle(client, "PPGPEP", 2027, 1)
         assert cycle["total_seats"] == 25
         assert [s["research_line"] for s in cycle["seats"]] == [None]
 
