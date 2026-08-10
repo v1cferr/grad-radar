@@ -94,6 +94,14 @@ verify:
 verify-apply:
     {{compose}} exec backend sh -c 'cd /app && python -m app.verify --apply'
 
+# Mostra o que seria notificado, sem enviar nem gravar.
+notify-dry:
+    {{compose}} exec backend sh -c 'cd /app && python -m app.notify --dry-run'
+
+# Envia de verdade. O timer já faz isso 2x/dia; útil para testar o canal.
+notify:
+    {{compose}} exec backend sh -c 'cd /app && python -m app.notify'
+
 # testes + lint do backend
 test:
     {{compose}} exec backend sh -c 'cd /app && python -m pytest -q && python -m ruff check app tests'

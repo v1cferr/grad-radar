@@ -49,6 +49,7 @@ from app.models.eligibility import (
     adherence_index,
     verdict_for,
 )
+from app.models.notification import Notification, NotificationKind
 from app.models.provenance import Source, SourceSnapshot, SourceType
 
 __all__ = [
@@ -77,6 +78,8 @@ __all__ = [
     "Institution",
     "Language",
     "LinkKind",
+    "Notification",
+    "NotificationKind",
     "OfferingLocation",
     "OfferingScope",
     "ProgramAdherence",

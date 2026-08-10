@@ -80,15 +80,72 @@ não confirmada é a mesma ideia.
 ## A ordem que eu faria
 
 1. ~~**Extrator de faixas horárias, determinístico.**~~ **Feito** — ver abaixo.
-2. **Notificação (F4).** O `.env.example` já reserva as variáveis. Sem isso, o
-   monitor detecta a mudança e ninguém fica sabendo — o que é quase o problema
-   original de volta.
+2. ~~**Notificação (F4).**~~ **Feito** — ver abaixo.
 3. **Extração de edital por LLM, como proposta.** Só depois de 1 e 2: é a peça mais
    complexa e a única que pode errar de forma perigosa.
 4. **Playwright como fallback por fonte.** Quando alguma fonte pedir.
 
-O item 2 vale mais que o 3. Um monitor que detecta e não avisa é um monitor que
-ninguém lê.
+O item 2 valia mais que o 3, e foi feito primeiro por isso.
+
+## A notificação, e o que ela se recusa a mandar
+
+`app/notify.py`, rodando no fim da cadeia do timer: coleta → reavalia horário →
+avisa. Por último de propósito, porque lê o que os dois anteriores acabaram de
+gravar.
+
+**Não existe evento "conteúdo mudou".** Essa é a decisão central. O hash de uma
+página muda por motivo nenhum — contador de visitas, PDF regerado, banner rotativo
+— e um canal que avisa disso ensina a ignorar o canal. Depois do terceiro alerta
+inútil, o quarto não é lido, e o que estava no quarto era o edital.
+
+São cinco eventos, e cada um responde a "isso faz alguém agir?":
+
+| Evento | Faz agir porque |
+| --- | --- |
+| `cycle_open` | apareceu processo que dá para fazer |
+| `deadline_soon` | o prazo está chegando e o projeto leva semanas |
+| `notice_changed` | o **edital** mudou — retificação muda regra |
+| `source_blind` | paramos de conseguir ver uma fonte; o silêncio virou cegueira |
+| `schedule_verdict` | a grade mudou o veredito de horário |
+
+O último é o mais valioso do projeto: é ele que avisa se o PPGCC abrir aula à noite.
+
+### Três detalhes que decidem se o canal é lido
+
+**Lembretes são marcos, não diários.** 30, 14, 7, 3 e 1 dia. Um alerta por dia
+durante cinco semanas treina a pessoa a arquivar sem ler, e o dia que importa fica
+indistinguível dos vinte anteriores. E é o marco **mais apertado já cruzado** que
+dispara — um bug real pego por teste: iterar a tupla decrescente e parar no
+primeiro `left <= marco` casava sempre o 30, então com sete dias restantes o aviso
+diria "faltam 30 dias".
+
+**A deduplicação é do banco, não da lógica.** `dedupe_key` é UNIQUE. Um `if` pode
+ficar de fora de um caminho novo; uma constraint não. E o marco sobrevive à máquina
+desligada: com `Persistent = true` no timer, uma checagem perdida roda atrasada e o
+marco não é nem perdido nem repetido.
+
+**Entregue só quando algum canal aceitou.** `delivered_at` fica nulo se todos
+falharem, e a nota registra o erro por canal. Gravar entregue sem entrega tornaria
+a tabela um registro de mentiras — e o dedupe garantiria que nunca mais se
+tentasse.
+
+### Canais
+
+**ntfy primeiro**, porque já é o padrão do host: os dotfiles usam ntfy para o
+duo-streak-daemon, então o app está no celular e o hábito existe. Zero papelada —
+o tópico é a credencial.
+
+**Telegram** como segundo, também sem custo.
+
+**WhatsApp continua não implementado**, e o motivo é atrito e não código: exige um
+número **dedicado** (um número registrado na Cloud API não pode mais ser usado no
+app) e todo alerta é business-initiated, então cada mensagem precisa vir de um
+template `utility` pré-aprovado. O adaptador entra como um `_send_whatsapp` ao lado
+dos outros quando houver número.
+
+Um canal só conta como ativo se as credenciais dele existirem. Canal declarado sem
+credencial falharia calado a cada execução, e o sintoma — "não recebo nada" — é
+idêntico a "não houve novidade".
 
 ## O extrator, já em pé
 
