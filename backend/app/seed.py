@@ -421,7 +421,11 @@ REQUIREMENTS: dict[str, list[tuple[Requirement, RequirementStatus, str]]] = {
             "compromete — falta a grade real de um semestre."
         )),
         (_LOCAL, _MET, "Edital 2.2: campus São Carlos, Rod. Washington Luís km 235."),
-        (_FREE, _UNK, "Não verificado."),
+        (_FREE, _MET, (
+            "Edital 2025/1: a única cobrança é taxa de inscrição de R$ 170,00 (preço "
+            "público, via GRU). 'Mensalidade' não aparece em nenhum dos 46 mil "
+            "caracteres do edital, que é o documento obrigado a declarar encargos."
+        )),
         (_PUBLIC, _MET, "UFSCar — universidade federal."),
     ],
     "MECAI": [
@@ -441,7 +445,12 @@ REQUIREMENTS: dict[str, list[tuple[Requirement, RequirementStatus, str]]] = {
         (_PUBLIC, _MET, "USP — universidade pública estadual."),
     ],
     "CCMC": [
-        (_NIGHT, _UNK, "Não olhado. Programa acadêmico — mesmo perfil de risco do PPGCC."),
+        (_NIGHT, _UNK, (
+            "A grade NÃO é publicada na web: o ICMC não tem página de disciplinas do "
+            "programa (as URLs candidatas devolvem página de erro) e a USP publica "
+            "oferta pelo Janus, com login. Programa acadêmico — mesmo perfil de risco "
+            "do PPGCC. Só resolve perguntando à secretaria."
+        )),
         (_LOCAL, _MET, "ICMC, campus USP São Carlos."),
         (_FREE, _MET, "FAQ do ICMC: os cursos de pós-graduação do instituto são gratuitos."),
         (_PUBLIC, _MET, "USP — universidade pública estadual."),

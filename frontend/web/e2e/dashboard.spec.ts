@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 /**
  * What only a browser can prove.
@@ -11,8 +11,34 @@ import { expect, test, type Page } from "@playwright/test";
  */
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
+  /**
+   * `networkidle` e não o default: um `hover()` disparado ANTES da hidratação é
+   * perdido — o Base UI ainda não anexou os handlers —, e como o ponteiro não se
+   * move de novo, o `expect` seguinte espera cinco segundos por uma tooltip que
+   * nunca vai abrir. Isso passava por sorte no Next 15 e quebrou quatro testes no
+   * 16, todos os que fazem hover no primeiro paint em vez de depois de um clique.
+   */
+  await page.goto("/", { waitUntil: "networkidle" });
 });
+
+/**
+ * Faz hover até a tooltip abrir, e devolve o conteúdo dela.
+ *
+ * Um `hover()` único é uma corrida perdida: se ele acontece antes da hidratação,
+ * o Base UI não tem handler para receber o evento, e como o ponteiro não se move
+ * de novo a tooltip nunca abre — o `expect` seguinte espera cinco segundos por
+ * algo que já foi decidido. Passava por sorte no Next 15 e quebrou quatro testes
+ * no 16. Esperar mais não resolve; repetir o HOVER resolve.
+ */
+async function tooltipOf(page: Page, target: Locator): Promise<Locator> {
+  const tip = page.locator('[data-slot="tooltip-content"]');
+  await expect(async () => {
+    await page.mouse.move(2, 2);
+    await target.hover();
+    await expect(tip.first()).toBeVisible({ timeout: 1000 });
+  }).toPass({ timeout: 15_000 });
+  return tip.first();
+}
 
 /** O PPGCC está atrás de uma aba porque está eliminado: quem abre a página
  *  precisa ver primeiro o que tem prazo. Os testes dele passam por aqui. */
@@ -106,11 +132,8 @@ test("hovering an offering reveals the detail the card omits", async ({ page }) 
   // The card shows code, name and professor; everything else lives in the
   // tooltip, so this is the only place that proves the rest reaches the user.
   await openPpgcc(page);
-  await card(page, "CCO-724").hover();
-
   // Base UI does not set role="tooltip" — the popup is identified by its slot.
-  const tip = page.locator('[data-slot="tooltip-content"]');
-  await expect(tip).toBeVisible();
+  const tip = await tooltipOf(page, card(page, "CCO-724"));
   await expect(tip).toContainText("Machine Learning"); // the English name
   await expect(tip).toContainText("AMPLN");
   await expect(tip).toContainText("14:00–18:00");
@@ -126,10 +149,7 @@ test("every research-line acronym explains itself on hover", async ({ page }) =>
   // line actually taught.
   await openPpgcc(page);
   const row = page.getByRole("row", { name: /AMPLN/ });
-  await row.getByText("AMPLN").hover();
-
-  const tip = page.locator('[data-slot="tooltip-content"]');
-  await expect(tip).toBeVisible();
+  const tip = await tooltipOf(page, row.getByText("AMPLN"));
   await expect(tip).toContainText("Aprendizado de Máquina e Processamento de Língua Natural");
   await expect(tip).toContainText("Ensinar computadores a aprender padrões");
   await expect(tip).toContainText("Docentes");
@@ -140,10 +160,8 @@ test("a line with no offering this term says so instead of showing nothing", asy
   // the absence is itself the information.
   await openPpgcc(page);
   const row = page.getByRole("row", { name: /Banco de Dados/ });
-  await row.getByText("BD", { exact: true }).hover();
-  await expect(page.locator('[data-slot="tooltip-content"]')).toContainText(
-    "nenhuma disciplina ofertada",
-  );
+  const tip = await tooltipOf(page, row.getByText("BD", { exact: true }));
+  await expect(tip).toContainText("nenhuma disciplina ofertada");
 });
 
 test("research lines are listed with their faculty counts", async ({ page }) => {
@@ -190,10 +208,7 @@ test("the PPGPEP acronyms explain themselves too", async ({ page }) => {
   // .last(): "TOTI" passou a aparecer também no bloco de próximos passos, então
   // a linha da TABELA de linhas de pesquisa é a última ocorrência.
   const row = page.getByRole("row", { name: /TOTI/ }).last();
-  await row.getByText("TOTI", { exact: true }).hover();
-
-  const tip = page.locator('[data-slot="tooltip-content"]');
-  await expect(tip).toBeVisible();
+  const tip = await tooltipOf(page, row.getByText("TOTI", { exact: true }));
   await expect(tip).toContainText("Trabalho, Organizações, Tecnologia e Inovação");
   await expect(tip).toContainText("adoção institucional de IA");
   // Não afirmar oferta que ninguém leu.
@@ -228,10 +243,7 @@ test("the options table shows every programme investigated, eliminated included"
 test("a verdict carries the evidence that produced it", async ({ page }) => {
   // Um veredito sem o porquê obriga a refazer a pesquisa a cada dúvida.
   const row = page.getByRole("row", { name: /PIPGEs/ });
-  await row.locator('[data-slot="tooltip-trigger"]').first().hover();
-
-  const tip = page.locator('[data-slot="tooltip-content"]');
-  await expect(tip).toBeVisible();
+  const tip = await tooltipOf(page, row.locator('[data-slot="tooltip-trigger"]').first());
   await expect(tip).toContainText("não atende");
   await expect(tip).toContainText("16:00–17:40");
 });
@@ -239,8 +251,7 @@ test("a verdict carries the evidence that produced it", async ({ page }) => {
 test("an unverified requirement reads as pending work, never as a no", async ({ page }) => {
   const row = page.getByRole("row", { name: /PPGEE/ });
   // Terceiro requisito: gratuidade, não verificada porque o horário já eliminou.
-  await row.locator('[data-slot="tooltip-trigger"]').nth(2).hover();
-  const tip = page.locator('[data-slot="tooltip-content"]');
+  const tip = await tooltipOf(page, row.locator('[data-slot="tooltip-trigger"]').nth(2));
   await expect(tip).toContainText("não verificado");
 });
 
@@ -283,10 +294,7 @@ test("a aderência abre a evidência de cada um dos cinco sinais", async ({ page
   const row = page.getByRole("row", { name: /PPGCTS/ });
   // O último trigger da linha é o da coluna de aderência (os quatro primeiros
   // são os requisitos).
-  await row.locator('[data-slot="tooltip-trigger"]').last().hover();
-
-  const tip = page.locator('[data-slot="tooltip-content"]');
-  await expect(tip).toBeVisible();
+  const tip = await tooltipOf(page, row.locator('[data-slot="tooltip-trigger"]').last());
   await expect(tip).toContainText("Aderência ao trabalho na FAI");
   await expect(tip).toContainText("Restrições e governança");
   // "plausível" marca o que vem do escopo declarado e não de algo lido — a

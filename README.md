@@ -62,6 +62,10 @@ Run `just` with no arguments to list every recipe. The most useful ones:
 - **The published ports are `3006` (frontend) and `8006` (API), loopback only.** They are the interface with
   Caddy, not with the network. Changing them requires changing the port map in the dotfiles module too.
 - **`.env` is not optional.** The compose file loads it via `env_file`, and `just` refuses to start without it.
+- **Hover tests must retry the hover, not wait longer.** A `hover()` fired before hydration is lost: Base UI
+  has no handler yet, and since the pointer never moves again the tooltip never opens — the assertion then waits
+  out its timeout for something already decided. This passed by luck on Next 15 and broke four tests on 16. The
+  `tooltipOf` helper in `e2e/dashboard.spec.ts` retries the hover itself.
 - **Changing a frontend dependency? Use `just rebuild-frontend`, not a plain restart.** The container is
   Alpine (musl) and the host is glibc; installing over an existing `node_modules` volume after the dependency
   graph changes leaves a mixed tree, and the symptom is an opaque `Cannot find module
@@ -208,7 +212,7 @@ simplified:
 
 | Layer | Choice |
 | --- | --- |
-| Frontend | Next.js 15 (App Router), TypeScript, Tailwind v4 |
+| Frontend | Next.js 16 (App Router, Turbopack), React 19, TypeScript, Tailwind v4 |
 | Backend | FastAPI, SQLAlchemy 2.0 (async), Python 3.13 |
 | Database | PostgreSQL 17, self-hosted in a container |
 | Reverse proxy | Caddy 2 (central, in the dotfiles), wildcard Let's Encrypt cert |

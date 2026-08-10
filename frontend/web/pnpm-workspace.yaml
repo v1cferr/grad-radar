@@ -23,3 +23,7 @@ allowBuilds:
   playwright: false
   playwright-core: false
   "@playwright/test": false
+  # Resolver nativo que vem com o eslint-config-next. Precisa compilar, e o pnpm 11
+  # FALHA em vez de avisar quando um build fica ignorado — o que mata o
+  # `pnpm install && next dev` do container sem mensagem óbvia. Mesma lição do sharp.
+  unrs-resolver: true

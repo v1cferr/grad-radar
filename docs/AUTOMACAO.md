@@ -93,6 +93,22 @@ não confirmada é a mesma ideia.
 O item 2 vale mais que o 3. Um monitor que detecta e não avisa é um monitor que
 ninguém lê.
 
+## Uma armadilha achada na varredura: o soft 404
+
+O ICMC responde **HTTP 200 com uma página de erro** para URLs que não existem
+(`/pos-graduacao/ccmc` e `/pos-graduacao/ccmc/disciplinas` fazem isso). O coletor
+registra sucesso, extrai o texto da página de erro e segue.
+
+Consequência real: se uma fonte vigiada começar a soft-404 — reorganização de
+site, URL renomeada —, o monitor vai reportar "mudou" uma vez e "igual" para
+sempre. **Nunca "falhou".** É a falha silenciosa clássica, e o painel de
+monitoramento mostraria tudo verde.
+
+Correção sugerida, junto com o extrator: uma heurística de sanidade por fonte —
+tamanho mínimo de texto esperado, ou ausência de marcadores como "Erro 404" /
+"Page not found" no conteúdo extraído. Não precisa de modelo; precisa de uma
+asserção.
+
 ## O que continua humano
 
 - **Julgar aderência.** Os cinco sinais de [`ADERENCIA.md`](ADERENCIA.md) são leitura

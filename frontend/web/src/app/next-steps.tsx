@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Cycle, ResearchLine } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { daysUntil, fmt, fmtLong } from "@/lib/format";
 
 import { LineTooltip } from "./research-line";
@@ -153,9 +154,11 @@ export function NextSteps({
             <AccordionItem key={s.id} value={s.id}>
               <AccordionTrigger className="gap-3 text-left">
                 <span className="flex min-w-0 flex-1 items-center gap-3">
+                  {/* Sem `style={{color: undefined}}`: passar undefined rende um
+                      atributo vazio que só serve de alvo para extensão de tema
+                      reescrever, e apareceu no diff de hidratação do Dark Reader. */}
                   <s.icon
-                    className="size-4 shrink-0"
-                    style={{ color: s.urgent ? "var(--status-warning)" : undefined }}
+                    className={cn("size-4 shrink-0", s.urgent && "text-[var(--status-warning)]")}
                     aria-hidden
                   />
                   <span className="min-w-0 flex-1">{s.title}</span>

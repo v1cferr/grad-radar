@@ -13,7 +13,14 @@ const attr = (name: string) =>
   `meta[property="${name}"], meta[name="${name}"]`;
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
+  /**
+   * `networkidle` e não o default: um `hover()` disparado ANTES da hidratação é
+   * perdido — o Base UI ainda não anexou os handlers —, e como o ponteiro não se
+   * move de novo, o `expect` seguinte espera cinco segundos por uma tooltip que
+   * nunca vai abrir. Isso passava por sorte no Next 15 e quebrou quatro testes no
+   * 16, todos os que fazem hover no primeiro paint em vez de depois de um clique.
+   */
+  await page.goto("/", { waitUntil: "networkidle" });
 });
 
 test("o título e a descrição carregam o prazo real do edital", async ({ page }) => {
