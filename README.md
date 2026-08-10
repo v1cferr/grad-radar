@@ -10,7 +10,8 @@ Intelligence, Machine Learning, Natural Language Processing, Large Language Mode
 related fields in São Carlos, Brazil — especially programs connected to the UFSCar Department of Computing and
 the USP Institute of Mathematics and Computer Sciences (ICMC).
 
-**Status:** F1 — domain model, verified PPGCC/UFSCar data and a read API. See [Roadmap](#roadmap).
+**Status:** the domain model, a read API, the dashboard and automated monitoring are all running. Ten
+programmes swept, one open call tracked, notifications still pending. See [Roadmap](#roadmap).
 
 ---
 
@@ -38,7 +39,8 @@ Run `just` with no arguments to list every recipe. The most useful ones:
 | `just fresh` | **Destructive** — drop volumes (database included) and rebuild |
 | `just psql` | Open `psql` against the project database |
 | `just migrate` | Apply pending Alembic migrations |
-| `just seed` | Load the verified PPGCC data (idempotent) |
+| `just seed` | Load every verified fact (idempotent) |
+| `just monitor` | Run one collection pass by hand — the timer does this twice a day |
 | `just test` | Backend tests + lint (unit + integration) |
 | `just e2e` | Browser tests against the running stack (Playwright) |
 | `just ingress` | Show where the reverse proxy lives and its current status |
@@ -83,13 +85,126 @@ does.
 
 ## Architecture
 
-A single Caddy host is the only entry point; neither the backend nor the frontend publishes a port. Frontend
-and API therefore share an origin, which removes CORS entirely and keeps the backend port out of the JS bundle.
+### The backend has two front doors, not one
 
+Most of this kind of system is a request/response API. This one also runs on a **schedule**, and the scheduled
+half is the reason the project exists: an admission call that nobody notices is indistinguishable from an
+admission call that never happened.
+
+```mermaid
+flowchart LR
+    subgraph read["Read path — someone opened the page"]
+        direction LR
+        B["browser"] --> C["caddy :443<br/>TLS, one origin"]
+        C -->|"/*"| N["frontend<br/>Next.js :3000"]
+        C -->|"/api/*"| A["api.py<br/>FastAPI :8000"]
+        N -->|"server-side render"| A
+    end
+
+    subgraph collect["Collection path — nobody is watching"]
+        direction LR
+        T["systemd timer<br/>08:00 and 20:00"] --> M["monitor.py<br/>one pass, never a daemon"]
+        M --> CO["collector.py<br/>fetch, extract, hash"]
+        CO --> EXT["19 official sources<br/>HTML, PDF, SEI redirects"]
+    end
+
+    A --> DB[("PostgreSQL<br/>23 tables")]
+    M --> DB
+    A -.->|"/api/notices/id/pdf<br/>proxies the edital"| EXT
+
+    style collect fill:transparent,stroke-dasharray: 4 4
 ```
-browser ──► caddy :443 ──┬── /api/*  ──► backend  (FastAPI, :8000) ──► db (PostgreSQL, :5432)
-                         └── /*      ──► frontend (Next.js, :3000) ──┘
+
+Two things in that picture are deliberate and easy to get wrong:
+
+- **The monitor is a single pass, not a daemon.** The schedule lives outside the process, in a systemd timer
+  declared in the dotfiles. A scheduler inside the API process would die with the container, and `restart: "no"`
+  in the compose file means it would stay dead. `Persistent = true` on the timer matters too: this is a desktop
+  that spends nights powered off, and a missed check must run late rather than vanish.
+- **`/api/notices/{id}/pdf` exists because of `X-Frame-Options`.** UFSCar serves its editais with
+  `SAMEORIGIN`, so an `<iframe>` pointing at the original URL renders blank with no error. Served through our
+  own origin, it embeds. The URL always comes from the database row, never from a parameter — a URL parameter
+  would make this an open proxy.
+
+### How a fact becomes a decision
+
+Every verdict in the system is derived, never typed in. The two axes are kept apart on purpose: one decides
+whether a programme is *possible*, the other whether it is *worth it*.
+
+```mermaid
+flowchart TD
+    S["source_snapshot<br/>text + hash + retrieved_at"] --> E["evidence<br/>one sentence, quoted"]
+
+    E --> R["program_requirement<br/>4 eliminatory requirements"]
+    E --> AD["program_adherence<br/>5 signals from the FAI edital"]
+
+    R --> V{"verdict_for"}
+    V -->|"any NOT_MET"| EL["eliminated"]
+    V -->|"all 4 MET"| AP["approved"]
+    V -->|"otherwise"| PE["pending"]
+
+    AD --> IX["adherence_index<br/>0-100 over 5 signals"]
+    IX --> COV["signals_assessed<br/>travels with the number"]
+
+    EL --> O["/api/options"]
+    AP --> O
+    PE --> O
+    COV --> O
+
+    style EL stroke:#d03b3b
+    style AP stroke:#0ca30c
 ```
+
+The asymmetry is the core rule: **one proven failure eliminates, but the absence of failures does not
+approve.** Only four verified requirements approve. And `unknown` is never treated as `no` — the PPGCC was
+eliminated by evidence, while its tuition status remains unverified, and collapsing those two would erase the
+difference between a fact and a gap. Gaps are what turn into work.
+
+The index deliberately keeps a **fixed denominator** of five signals with `unknown` worth zero. Normalising by
+what is already known would score a programme with one strong signal at 100%, and a number like that invites
+the wrong decision. `signals_assessed` therefore travels with the index everywhere it is displayed.
+
+### The domain model
+
+```mermaid
+erDiagram
+    INSTITUTION ||--o{ CAMPUS : has
+    CAMPUS ||--o{ DEPARTMENT : has
+    DEPARTMENT ||--o{ GRADUATE_PROGRAM : offers
+    GRADUATE_PROGRAM ||--o{ RESEARCH_LINE : has
+    GRADUATE_PROGRAM ||--o{ PROGRAM_REQUIREMENT : "is judged by"
+    GRADUATE_PROGRAM ||--o{ PROGRAM_ADHERENCE : "is scored by"
+    GRADUATE_PROGRAM ||--o{ ADMISSION_CYCLE : "opens"
+
+    RESEARCH_LINE }o--o{ FACULTY_MEMBER : "many-to-many"
+    FACULTY_MEMBER ||--o{ FACULTY_LINK : has
+
+    ADMISSION_CYCLE ||--o{ ADMISSION_STAGE : "ordered steps"
+    ADMISSION_CYCLE ||--o{ ADMISSION_SEAT : "per line or not at all"
+    ADMISSION_CYCLE ||--o{ REQUIRED_DOCUMENT : requires
+    ADMISSION_CYCLE ||--o{ ADMISSION_NOTICE : "published as"
+    ADMISSION_NOTICE ||--o{ ADMISSION_NOTICE_VERSION : "gets rectified"
+
+    DISCIPLINE ||--o{ COURSE_OFFERING : "taught as"
+    COURSE_OFFERING ||--o{ OFFERING_LOCATION : "in one or two rooms"
+    RESEARCH_LINE ||--o{ COURSE_OFFERING : "attributed to"
+
+    SOURCE ||--o{ SOURCE_SNAPSHOT : "watched over time"
+    SOURCE_SNAPSHOT ||--o{ ADMISSION_NOTICE_VERSION : "evidences"
+    SOURCE ||--o{ PROGRAM_REQUIREMENT : "evidences"
+
+    CANDIDATE ||--o{ CANDIDATE_INTEREST : has
+```
+
+Four shapes here were forced by something observed on a real page, and each would silently lose information if
+simplified:
+
+| Shape | Why it cannot be simpler |
+| --- | --- |
+| `discipline` separate from `course_offering` | a course exists for years; its weekday and time belong to one semester |
+| `admission_seat.research_line_id` nullable | the PPGCC allocates seats per line; the PPGPEP explicitly does not |
+| `faculty_research_line` as many-to-many | one member appears under two lines, another under none |
+| `source_snapshot` as its own table | a fact belongs to a *retrieved document*, at a *moment*, with a *hash* — not to a `source_url` column |
 
 | Layer | Choice |
 | --- | --- |
@@ -106,17 +221,20 @@ containers. This keeps the host machine clean and the environment reproducible p
 
 ### Layout
 
-```
-backend/app/models/ Domain models — academic, curriculum, admission, provenance
-backend/app/api.py  Read-only endpoints over the seeded domain
-backend/app/seed.py Verified PPGCC data, idempotent
-backend/alembic/    Migrations (the app never calls create_all)
-frontend/web/       Next.js dashboard — cycles, cronograma, weekly grid
-deploy/README.md    Points at the central Caddy in the dotfiles
-docs/research/      Domain discovery, with a source URL per fact
-flake.nix           Host dev shell
-justfile            Development shortcuts
-```
+| Path | What lives there |
+| --- | --- |
+| `backend/app/collector.py` | fetch one URL and reduce it to comparable text. Follows redirects, extracts PDFs, hashes the **text** and not the bytes |
+| `backend/app/monitor.py` | one pass over every active source; `python -m app.monitor` |
+| `backend/app/api.py` | read endpoints, plus the edital PDF proxy |
+| `backend/app/models/` | `academic`, `curriculum`, `admission`, `provenance`, `eligibility`, `candidate` |
+| `backend/app/seed.py` | every verified fact, idempotent, with the evidence sentence attached |
+| `backend/alembic/` | 7 migrations. The app never calls `create_all` |
+| `frontend/web/src/app/` | dashboard — deadline hero, options table, next steps, weekly grid, monitoring |
+| `docs/` | the decisions: `GOAL`, `ADERENCIA`, `PROGRAMAS`, `AUTOMACAO`, `SEM-LOGIN`, `METADADOS`, `research/` |
+| `deploy/README.md` | points at the central Caddy in the dotfiles |
+
+The dotfiles own two units for this project: `grad-radar.service` brings the stack up at boot, and
+`grad-radar-monitor.timer` runs the collector twice a day.
 
 ---
 
@@ -138,8 +256,11 @@ GradRadar centralizes this into a structured decision-making system, tracked per
 
 ## Scope
 
-The first tracked programs are the UFSCar Computer Science graduate program (PPGCC) and the ICMC-USP Computer
-Science and Computational Mathematics program (PPG-CCMC), covering both regular and special-student admissions.
+Ten programmes have been swept and judged so far — the full UFSCar catalogue of 47 was screened, and the
+São Carlos candidates that touch the target work were investigated one by one. Exactly **one** passes all four
+eliminatory requirements. The uncomfortable finding, now measured rather than asserted: the three most adherent
+programmes in the sweep are all eliminated on schedule, because technical AI lives in the *academic* programmes
+and classes outside business hours live in the *professional* ones. See [`docs/PROGRAMAS.md`](docs/PROGRAMAS.md).
 
 Planned modules: program catalog, research lines, faculty and laboratories, admissions notices with version
 diffing, courses and schedules, costs and scholarships, document checklists, a per-candidate application
@@ -154,16 +275,27 @@ checklist, application history and scores.
 
 ## Roadmap
 
-| Phase | Contents |
-| --- | --- |
-| F0 | Infrastructure foundation — dev shell, compose stack, Caddy, PostgreSQL |
-| **F1** | Data model, Alembic, verified PPGCC seed, read API ← **current** |
-| F2 | REST API — CRUD, filters, opportunity scoring |
-| F3 | UI — program list and filters, program detail, deadline calendar, pipeline board, checklists |
-| F4 | Notifications — deadline and change alerts |
-| F5 | Automated monitoring — registered official sources, page and PDF change detection, extraction |
+| Phase | Contents | State |
+| --- | --- | --- |
+| F0 | Dev shell, compose stack, central Caddy, PostgreSQL, boot unit | done |
+| F1 | Domain model, Alembic, verified seed, read API | done |
+| F2 | Filters and opportunity scoring — the adherence index | done; CRUD not needed yet |
+| F3 | UI — options table, deadline lead, next steps, weekly grid, edital viewer | done |
+| F5 | Monitoring — 19 registered sources, page and PDF change detection, systemd timer | done |
+| **F4** | **Notifications — deadline and change alerts** | **next** |
+| F6 | Extraction — turn a schedule document into a verdict without a human reading it | planned |
 
-Automated scraping is deliberately last: the manual workflow and the data model have to be validated first.
+F5 was originally planned last, on the principle that the manual workflow had to be validated first. It moved
+up because the validation produced its own conclusion: the manual sweep works but does not repeat itself, and
+the deadline that matters can appear on any Tuesday.
+
+What F6 means concretely: reading `8h às 12h` and `14h às 17h` out of a PDF and concluding *no evening class*
+is mechanical, and it was done by hand six times. Six real documents with known answers already exist as
+regression fixtures. Judging **adherence**, by contrast, is reading comprehension and stays human.
+
+[`docs/AUTOMACAO.md`](docs/AUTOMACAO.md) argues where a local model helps and where it makes things worse —
+including why the schedule detection should stay a regex, and the one rule that does not bend: **a model is
+never the source of a date.**
 
 ## Development principles
 
