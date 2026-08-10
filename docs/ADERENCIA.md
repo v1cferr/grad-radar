@@ -27,6 +27,8 @@ noturna derrubou tudo).
 Um programa que atende 1 e 3 serve para pesquisar o trabalho. Um que atende 2
 serve para fazer o trabalho. O ideal atende os dois, e é essa a busca.
 
+O veredito aplicado, programa por programa, está em [`PROGRAMAS.md`](PROGRAMAS.md).
+
 ## A tensão que já existe
 
 O único programa aprovado nos quatro requisitos, o **PPGPEP**, é forte no sinal 1

@@ -63,15 +63,21 @@ pesos, porém, são **por candidato** — o modelo nunca assumiu um ranking glob
 | UFSCar | PPGEE | ❌ requisito 1 | eliminado |
 | UFSCar | PIPGEs | ❌ requisito 1 | eliminado — apesar de ter linha de Aprendizado de Máquina |
 | UFSCar | **PPGPEP** (profissional) | ✅ **todos** | **INSCRIÇÕES ABERTAS: 20/08 a 14/09/2026** |
-| USP/ICMC | — | — | não investigado |
+| UFSCar | PPGCTS, PPGCI, PPGEP, PPGAdS | ⏳ horário não olhado | aderentes ao edital da FAI — ver [`PROGRAMAS.md`](PROGRAMAS.md) |
+| USP/ICMC | **MECAI** (profissional) | ⚠️ aulas às **sextas**, manhã a noite | gratuito e presencial verificados; o horário atravessa a jornada |
+| USP/ICMC | CCMC (acadêmico) | ⏳ horário não olhado | o programa técnico de referência em IA da região |
 
 > **Edital PPGPEP 001/2026 — ingresso em 2027.** 25 vagas, sem distribuição por linha, sem bolsa.
 > A seleção é 100% sobre um **projeto de pesquisa**: etapa 1 avalia o projeto escrito, etapa 2 é a
 > defesa oral dele. Ou seja, o trabalho real acontece **antes** de 20/08.
 > Ver [`research/ufscar-ppgpep-edital-001-2026.md`](research/ufscar-ppgpep-edital-001-2026.md).
 
-O PPGPEP passa nos quatro, mas tem aderência fraca a IA técnica. É a tensão central da busca hoje, e o
-motivo de o ICMC-USP ainda valer a pena investigar.
+O PPGPEP passa nos quatro, mas tem aderência fraca a IA técnica. O MECAI/ICMC é o oposto — forte no eixo
+técnico, e com as aulas concentradas numa sexta que atravessa o horário comercial. O veredito programa por
+programa, com nível de evidência, está em [`PROGRAMAS.md`](PROGRAMAS.md).
+
+O padrão que a varredura de 47 programas expôs: **IA técnica mora nos programas acadêmicos; aula fora do
+horário comercial mora nos profissionais.** Não é azar — é como os dois formatos são desenhados.
 
 ## O que falta o sistema fazer
 
