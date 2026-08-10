@@ -424,9 +424,18 @@ export default async function Home() {
   // é perdida por não ser vista a tempo.
   const today = new Date();
   const iso = today.toISOString().slice(0, 10);
-  const actionable = cycles
+  // Todos os processos que ainda dá para fazer, do prazo mais curto ao mais longo.
+  // Era `[0]` direto, e a manchete afirmava "o único processo aberto" — virou
+  // mentira no minuto em que o monitor achou o segundo.
+  const openCycles = cycles
     .filter((c) => c.applications_close_on && c.applications_close_on >= iso)
-    .sort((a, b) => (a.applications_close_on! < b.applications_close_on! ? -1 : 1))[0];
+    .sort((a, b) => (a.applications_close_on! < b.applications_close_on! ? -1 : 1));
+  const actionable = openCycles[0];
+  const others = openCycles.slice(1);
+  // "Verificado" significa os quatro requisitos com evidência lida, não apenas
+  // ausência de impedimento. Só isso justifica a palavra na manchete.
+  const verified = (acronym: string) =>
+    options.find((o) => o.acronym === acronym)?.verdict === "approved";
   const daysLeft = daysUntil(actionable?.applications_close_on, today);
   const daysToOpen = daysUntil(actionable?.applications_open_on, today);
   const ppgpepCycle = cyclesOf("PPGPEP")[0];
@@ -456,10 +465,26 @@ export default async function Home() {
                 {fmtLong(actionable.applications_close_on)}
               </p>
               <p className="text-sm text-muted-foreground">
-                É o único processo aberto que atende aos quatro requisitos. A seleção é inteiramente
-                sobre um <strong className="text-foreground">projeto de pesquisa</strong> — não há
-                prova de conteúdo —, e ele precisa estar escrito antes de a inscrição abrir.
+                {verified(actionable.program)
+                  ? "É o único processo aberto com os quatro requisitos verificados. "
+                  : "Processo aberto, com o requisito de horário ainda não verificado. "}
+                A seleção é inteiramente sobre um{" "}
+                <strong className="text-foreground">projeto de pesquisa</strong> — não há prova de
+                conteúdo —, e ele precisa estar escrito antes de a inscrição abrir.
               </p>
+              {others.length > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Também aberto:{" "}
+                  {others.map((c, i) => (
+                    <span key={c.id}>
+                      {i > 0 && " · "}
+                      <strong className="text-foreground">{c.program}</strong> até{" "}
+                      {fmtLong(c.applications_close_on)}
+                      {!verified(c.program) && " (horário a verificar)"}
+                    </span>
+                  ))}
+                </p>
+              )}
             </div>
             <div className="shrink-0 text-right">
               <div className="text-3xl font-semibold tabular-nums">{daysLeft}</div>

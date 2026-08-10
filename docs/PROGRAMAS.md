@@ -133,18 +133,37 @@ elegibilidade já está resolvida. Restou **uma** pergunta, não duas.
 
 ### PPGAdS — Mestrado Profissional em Administração e Sociedade (UFSCar)
 
-**O último candidato vivo além do PPGPEP e do MECAI.** É mestrado *profissional*,
-o formato que já provou ter noturno, e o edital 2025/1 item 2.2 diz verbatim:
+> **INSCRIÇÕES ABERTAS: 26/08 a 09/10/2026** — Edital 01/2026, ingresso em 2027.
+>
+> **Este edital foi encontrado pelo monitor, não por uma pessoa.** Em 10/08/2026 a
+> página de processos seletivos mudou entre 18:56 e 19:56, acrescentando "Processo
+> Seletivo 2026 — Para a turma que iniciará as atividades em 2027". Foi a primeira
+> detecção real do sistema.
+
+Até **13 vagas anuais**, distribuídas conforme disponibilidade de orientação
+(Apêndice I) — ou seja, podem ser aprovados menos candidatos que o total se não
+houver classificados para um orientador. Taxa de inscrição **R$ 170,00**, com
+isenção para servidores técnico-administrativos da UFSCar (a FAI é fundação de
+apoio, então provavelmente não se aplica — vale conferir). Exige **anteprojeto de
+pesquisa**.
+
+O item 2.2 diz verbatim:
 
 > As aulas serão ministradas nas dependências da UFSCar, em seu campus São Carlos
 > [...] podendo ser oferecidas **de segunda a sexta-feira (manhã, tarde ou
 > noite)**.
 
-Permite noite explicitamente — mas "podendo ser" não compromete com nada. Falta a
-grade real de um semestre, que é o que separa permissão de oferta.
+Permite noite explicitamente — mas "podendo ser" não compromete, e o **item 2.3**
+fecha a porta de saber antes: o calendário letivo "será disponibilizado no site do
+Programa no início de cada semestre letivo". Não existe grade publicada antes da
+matrícula. A única forma de resolver isso é perguntar à coordenação.
 
-Aderência: sinal 1 forte (Linha 1 Instituições, Organizações e Estratégias; Linha 2
-Gestão e Inovação), sinal 2 ausente. Perfil parecido com o do PPGPEP.
+Aderência: 50%, sinal 1 forte (Linha 1 Instituições, Organizações e Estratégias;
+Linha 2 Gestão e Inovação), sinal 2 ausente. Perfil parecido com o do PPGPEP.
+
+**Compensa:** provavelmente, e o prazo é quase um mês mais longo que o do PPGPEP.
+Mas o horário é a mesma incógnita, com o agravante de que aqui não há nem grade
+antiga para consultar.
 
 ### PPGCC — o próximo edital sai em outubro de 2026
 
@@ -204,6 +223,21 @@ PPGCTS 70%, PPGEP 60%, PPGCI 50% — estão todos eliminados por horário.**
 
 ---
 
+## IFSP — investigado e fora
+
+O **IFSP campus São Carlos não oferece mestrado.** A página de cursos do campus tem
+zero ocorrências de "Mestrado" ou "Stricto sensu" — só técnico, graduação
+(Bacharelado em Engenharia de Software, Processos Gerenciais) e especialização
+(lato sensu).
+
+O IFSP **tem** stricto sensu, mas em outros campi — o de São Paulo concentra os
+programas (PROFMAT, Ensino de Ciências e Matemática). Isso falha no requisito 2, e
+por um motivo que não tem contorno: não é horário, é geografia.
+
+Registrado aqui para não ser reinvestigado. Se algum dia o campus de São Carlos
+abrir um programa stricto sensu, o catálogo institucional do IFSP seria a fonte a
+vigiar — mas não vale adicioná-la ao monitor antes de haver o que monitorar.
+
 ## Não aderentes — decidido, não pendente
 
 A maior parte do catálogo. Não têm relação com o item 4.1 do edital da FAI, e
@@ -244,8 +278,13 @@ Duas coisas estão em jogo ao mesmo tempo, e os prazos **não** forçam escolher
 | Horário | ✅ noturno verificado | ❓ o Art. 5 permite; a grade lida não entrega |
 | Área | engenharia de produção (TOTI) | computação (AMPLN — ML, PLN, LLM) |
 
+E desde 10/08 há um terceiro: o **PPGAdS**, com inscrições de 26/08 a **09/10/2026**
+— quase um mês depois do PPGPEP, e antes de o edital do PPGCC sequer sair.
+
 O resultado do PPGPEP sai **antes** de o processo do PPGCC terminar. Ou seja: dá
-para se inscrever nos dois e decidir depois, sem que um feche a porta do outro.
+para se inscrever em mais de um e decidir depois, sem que um feche a porta do outro.
+O que não escala é o **anteprojeto**: cada programa quer um, compatível com as
+linhas dele. Três projetos em seis semanas não é plano; dois já é apertado.
 
 **A regra de decisão, com data:**
 

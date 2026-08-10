@@ -286,6 +286,33 @@ PPGPEP_DOCS = [
     ("Declaração de vínculo com membros do corpo docente (Anexo II)", True),
 ]
 
+# ── PPGAdS — edital 01/2026, DETECTADO PELO MONITOR em 10/08/2026 ────────────
+# A primeira detecção real do sistema: a página de processos seletivos mudou entre
+# 18:56 e 19:56, acrescentando "Processo Seletivo 2026 — Para a turma que iniciará
+# as atividades em 2027".
+PPGADS_EDITAL = (
+    "https://www.ppgads.ufscar.br/pt-br/assets/arquivos/"
+    "processo-seletivo-2026-inicio-em-2027/edital-processo-seletivo-ppgads-2026-final.pdf"
+)
+
+PPGADS_SOURCES = [
+    (PPGADS_EDITAL, SourceType.EDITAL_PDF, "PPGAdS — Edital 01/2026 (ingresso 2027)", None),
+]
+
+PPGADS_STAGES = [
+    (1, "Análise do anteprojeto de pesquisa", None, None, None),
+    (2, "Arguição do anteprojeto", None, None, None),
+]
+
+PPGADS_DOCS = [
+    ("Anteprojeto de pesquisa", True),
+    ("Diploma de graduação ou certificado de conclusão", True),
+    ("Histórico escolar", True),
+    ("Currículo", True),
+    ("Documento de identidade", True),
+    ("Comprovante de recolhimento da taxa de inscrição (R$ 170,00)", True),
+]
+
 # ── Índices de descoberta ────────────────────────────────────────────────────
 # Não descrevem um programa: listam TODOS os de uma instituição. Uma mudança
 # aqui pode ser um programa novo, e é o único jeito de descobrir uma opção sem
@@ -425,15 +452,17 @@ REQUIREMENTS: dict[str, list[tuple[Requirement, RequirementStatus, str]]] = {
     ],
     "PPGAdS": [
         (_NIGHT, _UNK, (
-            "Edital 2025/1 item 2.2: aulas 'podendo ser oferecidas de segunda a "
-            "sexta-feira (manhã, tarde ou noite)'. PERMITE noite, mas 'podendo ser' não "
-            "compromete — falta a grade real de um semestre."
+            "Edital 01/2026 (ingresso 2027), item 2.2: aulas 'podendo ser oferecidas de "
+            "segunda a sexta-feira (manhã, tarde ou noite)'. PERMITE noite, mas 'podendo "
+            "ser' não compromete, e o item 2.3 diz que o calendário letivo só é divulgado "
+            "no início de cada semestre — ou seja, a grade não existe antes da matrícula."
         )),
         (_LOCAL, _MET, "Edital 2.2: campus São Carlos, Rod. Washington Luís km 235."),
         (_FREE, _MET, (
-            "Edital 2025/1: a única cobrança é taxa de inscrição de R$ 170,00 (preço "
-            "público, via GRU). 'Mensalidade' não aparece em nenhum dos 46 mil "
-            "caracteres do edital, que é o documento obrigado a declarar encargos."
+            "Edital 01/2026: a única cobrança é taxa de inscrição de R$ 170,00 (preço "
+            "público, via GRU), com isenção para servidores da UFSCar. 'Mensalidade' não "
+            "aparece em nenhum dos 43 mil caracteres do edital, que é o documento "
+            "obrigado a declarar encargos."
         )),
         (_PUBLIC, _MET, "UFSCar — universidade federal."),
     ],
@@ -878,6 +907,7 @@ async def seed(db: AsyncSession) -> dict[str, int]:
     )
     expected.degree_level = "master"
 
+    # ── O ciclo do PPGAdS, achado pelo monitor ──────────────────────────────
     # ── Programas da varredura de 10/08/2026 ────────────────────────────────
     institutions = {"UFSCar": (ufscar, sc)}
     for acronym, inst_acr, dep_name, dep_acr, name, site in SWEPT_PROGRAMS:
@@ -900,6 +930,49 @@ async def seed(db: AsyncSession) -> dict[str, int]:
             {"department_id": d.id, "name": name, "website": site},
             acronym=acronym,
         )
+
+    # ── O ciclo aberto do PPGAdS (Edital 01/2026, ingresso 2027) ────────────
+    all_programs = {
+        p.acronym: p for p in (await db.scalars(select(GraduateProgram))).all()
+    }
+    ppgads = all_programs["PPGAdS"]
+    ads_cycle = await _get_or_create(
+        db, AdmissionCycle,
+        {
+            "applications_open_on": date(2026, 8, 26),
+            "applications_close_on": date(2026, 10, 9),
+            "site_label": "Processo Seletivo 2026 — turma que inicia em 2027",
+            "official_url": "https://www.ppgads.ufscar.br/pt-br/processos-seletivos",
+            "notes": (
+                "Até 13 vagas anuais, distribuídas conforme disponibilidade de orientação "
+                "(Apêndice I). Taxa de inscrição R$ 170,00; servidores técnico-"
+                "administrativos da UFSCar são isentos. Exige ANTEPROJETO de pesquisa. "
+                "Item 2.2: aulas 'podendo ser oferecidas de segunda a sexta-feira (manhã, "
+                "tarde ou noite)' — permite noturno sem se comprometer."
+            ),
+        },
+        program_id=ppgads.id, year=2027, semester=1, entry_mode=EntryMode.REGULAR,
+    )
+    ads_cycle.degree_level = "master"
+    for ordinal, name, starts, ends, result in PPGADS_STAGES:
+        await _get_or_create(
+            db, AdmissionStage,
+            {"name": name, "starts_on": starts, "ends_on": ends, "result_on": result},
+            cycle_id=ads_cycle.id, ordinal=ordinal,
+        )
+    await _get_or_create(
+        db, AdmissionSeat, {"seats": 13}, cycle_id=ads_cycle.id, research_line_id=None
+    )
+    ads_existing = {d.name for d in (await db.scalars(
+        select(RequiredDocument).where(RequiredDocument.cycle_id == ads_cycle.id))).all()}
+    for name, mandatory in PPGADS_DOCS:
+        if name not in ads_existing:
+            db.add(RequiredDocument(cycle_id=ads_cycle.id, name=name, mandatory=mandatory))
+    await _get_or_create(
+        db, AdmissionNotice,
+        {"title": "Edital PPGAdS n. 01/2026 — ingresso em 2027", "url": PPGADS_EDITAL},
+        cycle_id=ads_cycle.id, number="01/2026-PPGAdS",
+    )
 
     # ── Os quatro requisitos, com a evidência de cada um ────────────────────
     all_programs = {
@@ -948,7 +1021,15 @@ async def seed(db: AsyncSession) -> dict[str, int]:
         "mecai": "MECAI",
     }
 
-    for url, kind, title, redirect in SOURCES + PPGPEP_SOURCES + MECAI_SOURCES + PPGCC_NEXT_SOURCES + INDEX_SOURCES:
+    all_sources = (
+        SOURCES
+        + PPGPEP_SOURCES
+        + MECAI_SOURCES
+        + PPGCC_NEXT_SOURCES
+        + PPGADS_SOURCES
+        + INDEX_SOURCES
+    )
+    for url, kind, title, redirect in all_sources:
         await _get_or_create(
             db, Source,
             {
@@ -969,13 +1050,7 @@ async def seed(db: AsyncSession) -> dict[str, int]:
             },
             url=url,
         )
-    counts["sources"] = (
-        len(SOURCES)
-        + len(PPGPEP_SOURCES)
-        + len(MECAI_SOURCES)
-        + len(PPGCC_NEXT_SOURCES)
-        + len(INDEX_SOURCES)
-    )
+    counts["sources"] = len(all_sources)
 
     victor = await _get_or_create(
         db, Candidate,

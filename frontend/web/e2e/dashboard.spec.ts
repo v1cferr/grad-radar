@@ -223,6 +223,20 @@ test("the process timeline says when we will actually know", async ({ page }) =>
   await expect(timeline).toContainText("18 de dez.");
 });
 
+test("a manchete não afirma ser o único quando não é", async ({ page }) => {
+  /**
+   * O card dizia "É o único processo aberto que atende aos quatro requisitos", e
+   * isso virou mentira no minuto em que o monitor achou o segundo edital. Manchete
+   * que afirma exclusividade tem de ser derivada, não escrita.
+   */
+  const banner = page.locator("main > div").first();
+  await expect(banner).toContainText("quatro requisitos verificados");
+  await expect(banner).toContainText("Também aberto");
+  await expect(banner).toContainText("PPGAdS");
+  // O segundo tem o horário não verificado, e a página diz isso.
+  await expect(banner).toContainText("horário a verificar");
+});
+
 test("o ciclo previsto do PPGCC aparece, com a previsão e sem datas falsas", async ({
   page,
 }) => {
