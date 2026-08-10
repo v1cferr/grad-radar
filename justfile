@@ -84,6 +84,16 @@ e2e:
 monitor:
     {{compose}} exec backend sh -c 'cd /app && python -m app.monitor'
 
+# Re-deriva o requisito de horário do que o monitor já baixou, comparando com o
+# banco. Só RELATA: divergência pode ser grade nova (ótimo) ou o extrator errando
+# num formato inédito (ruim), e sobrescrever calado impediria de distinguir.
+verify:
+    {{compose}} exec backend sh -c 'cd /app && python -m app.verify'
+
+# Grava as divergências. Rode depois de ler a evidência do `just verify`.
+verify-apply:
+    {{compose}} exec backend sh -c 'cd /app && python -m app.verify --apply'
+
 # testes + lint do backend
 test:
     {{compose}} exec backend sh -c 'cd /app && python -m pytest -q && python -m ruff check app tests'

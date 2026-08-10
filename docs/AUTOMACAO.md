@@ -79,10 +79,7 @@ não confirmada é a mesma ideia.
 
 ## A ordem que eu faria
 
-1. **Extrator de faixas horárias, determinístico.** Recebe o texto de um documento e
-   devolve as faixas + veredito do requisito 1. Já existem **seis fixtures reais com
-   resposta conhecida** — PPGCC, PPGEE, PIPGEs, PPGCTS, PPGEP e PPGCI —, então o
-   teste de regressão nasce junto. É o passo que tira a leitura manual do circuito.
+1. ~~**Extrator de faixas horárias, determinístico.**~~ **Feito** — ver abaixo.
 2. **Notificação (F4).** O `.env.example` já reserva as variáveis. Sem isso, o
    monitor detecta a mudança e ninguém fica sabendo — o que é quase o problema
    original de volta.
@@ -92,6 +89,53 @@ não confirmada é a mesma ideia.
 
 O item 2 vale mais que o 3. Um monitor que detecta e não avisa é um monitor que
 ninguém lê.
+
+## O extrator, já em pé
+
+`app/extract.py` recebe o texto de um documento e devolve as faixas horárias mais
+o veredito do requisito 1, com a frase que o sustenta. Nenhum modelo envolvido.
+
+Testado contra **oito documentos reais**, cada um com a resposta que uma pessoa
+produziu lendo o mesmo texto: PPGCC, PPGEE, PIPGEs, PPGCTS, PPGEP, PPGCI, o edital
+do MECAI e a página de erro do ICMC. Se o extrator discordar da leitura humana em
+qualquer um, o teste falha.
+
+Três regras que ele codifica, e que foram as decisões difíceis da varredura manual:
+
+- **A regra é sobre o INÍCIO da aula, não o fim.** Uma disciplina de 14h às 18h
+  conflita integralmente com quem trabalha até as 18h. Foi assim que o PPGEP e o
+  PPGEE caíram — a última faixa deles termina quando a jornada termina, e olhar o
+  fim os teria aprovado por engano.
+- **Permissão não é oferta.** "As aulas poderão ser oferecidas no período noturno"
+  devolve `unknown`, não `met`. Foi exatamente essa distinção que separou o veredito
+  certo do errado no MECAI, e ela está numa lista de hedges — "poderão",
+  "podendo", "preferencialmente".
+- **Faixa numérica ganha de prosa.** A palavra "noturno" num rodapé não sobrepõe
+  uma grade que mostra 8h–12h e 14h–17h.
+
+### O laço fechado: `just verify`
+
+`app/verify.py` relê as grades que o monitor já baixou, roda o extrator e compara
+com o veredito gravado no banco. Roda junto do monitor, duas vezes por dia, pelo
+mesmo timer.
+
+Quando a grade de 2027/1 sair, isto responde "o PPGCC passou a ter faixa às 19h"
+sem ninguém abrir PDF. É a pergunta que custou seis leituras manuais.
+
+**Relata, não grava.** Divergência pode ser grade nova — o que se quer saber — ou o
+extrator falhando num formato inédito. Gravar em silêncio apagaria a diferença, e o
+segundo caso é o que corrompe a decisão. `just verify-apply` grava, depois de
+alguém ler a evidência.
+
+Uma coisa que só apareceu quando o verificador rodou: `unknown` do extrator **não é
+discordância**. Um catálogo que lista disciplinas sem horário não contradiz um
+veredito verificado — só não tem o que dizer. Tratar como divergência enchia o
+relatório de ruído e escondia a única linha que importava. É a regra do projeto
+("desconhecido ≠ não") aplicada à própria ferramenta.
+
+Para isso funcionar, `Source` ganhou `program_id`: era o elo que faltava entre um
+documento e uma decisão. 17 das 19 fontes estão ligadas a um programa; as duas
+restantes são catálogos institucionais, que falam de todos.
 
 ## Uma armadilha achada na varredura: o soft 404
 
@@ -104,10 +148,11 @@ site, URL renomeada —, o monitor vai reportar "mudou" uma vez e "igual" para
 sempre. **Nunca "falhou".** É a falha silenciosa clássica, e o painel de
 monitoramento mostraria tudo verde.
 
-Correção sugerida, junto com o extrator: uma heurística de sanidade por fonte —
-tamanho mínimo de texto esperado, ou ausência de marcadores como "Erro 404" /
-"Page not found" no conteúdo extraído. Não precisa de modelo; precisa de uma
-asserção.
+**Corrigido.** `is_error_page()` casa marcadores explícitos — "Erro 404", "página
+não encontrada" — e apenas nos primeiros 400 caracteres, para que um edital que
+mencione "não encontrado" na página 12 não seja confundido com uma página de erro.
+O monitor agora marca essas coletas como suspeitas e as conta separadamente; o
+`verify` se recusa a derivar veredito delas.
 
 ## O que continua humano
 

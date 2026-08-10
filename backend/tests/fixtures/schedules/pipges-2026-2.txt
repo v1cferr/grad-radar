@@ -1,0 +1,38 @@
+Código Disiciplina Docente Dia(s)
+(semana) Horário Forma do
+Oferecimento
+Local
+(Sala)
+Limite para
+cancelamento Créditos
+EST5102 Inferência Estatística (*) Rafael Izbicki (UFSCar) Segunda-feira
+Quarta-feira 08:00 - 09:40 Presencial UFSCar
+Lab.5-CINA 09/09/2026 7
+EST5106 Tópicos de Pesquisa II (***) Vera Lucia Damasceno Tomazela (UFSCar) Quarta-feira
+Sexta-feira 08:00 - 09:40 Presencial UFSCar
+Lab.5-CINA 11/09/2026 7
+EST5507 Modelos de Regressão (*) Cibele Maria Russo (ICMC) Terça-feira
+Sexta-feira 10:00 - 11:40 Presencial ICMC/USP
+Sl. 5-101 10/09/2026 10
+EST5514 Simulação Estocástica (***) Daiane Aparecida Zuanetti (UFSCar) Segunda-feira
+Quarta-feira 14:00 - 15:40 Presencial UFSCar
+Sl.67-AT4 09/09/2026 10
+EST5519 Capacitação Docente em Estatística I (**) Gustavo Henrique de Araujo Pereira (UFSCar) Segunda-feira 16:00 - 17:40 Não Presencial -//- 08/09/2026 2
+EST5521 Capacitação Docente em Estatística II (**) Gustavo Henrique de Araujo Pereira (UFSCar) Terça-feira 16:00 - 17:40 Não Presencial -//- 09/09/2026 2
+EST5523 Confiabilidade e Análise de Sobrevivência Vicente Garibay Cancho (ICMC) Terça-feira 14:00 - 17:40 Presencial ICMC/USP
+Sl. 3-104 10/09/2026 10
+EST5525 Processos Estocásticos (*) (***) Alexsandro Giacomo Grimbert Gallo (UFSCar) Quarta-feira
+Quinta-feira 10:00 - 11:40 Presencial UFSCar
+Sl.67-AT4 11/09/2026 10
+EST5802 Inferência Avançada (*) Mário de Castro Andrade Filho (ICMC) Terça-feira
+Quinta-feira 08:00 - 09:40 Presencial ICMC/USP
+Sl. 3-012 10/09/2026 10
+EST5804 Tópicos Avançados de Pesquisa I (**) Francisco Louzada Neto (ICMC) Sexta-feira 13:00 - 17:00 Presencial ICMC/USP
+Sl. 5-004 12/09/2026 10
+(*) Observação I: EST5802 - Inferência Avançada, EST5525 - Processos Estocásticos, EST5507 - Modelos de Regressão e EST5102 - Inferência Estatística são obrigatórias do programa.
+(**) Observação II: EST5519 - Capacitação Docente em Estatística I, EST5521 - Capacitação Docente em Estatística II e EST5804 - Tópicos Avançados de Pesquisa I, não aceitarão alunos especiais.
+(**) Observação III: As aulas das disciplinas EST5514 - Simulação Estocástica e EST5525 - Processos Estocásticos, serão ministradas na UFSCAR Sala 67 do AT4 na primeira semana de aula, depois poderá ser
+alterada pela DIGRA; As aulas da disciplina EST5106 - Tópicos de Pesquisa II será ministrada na UFSCAR, Laboratório 5 - CINA na primeira semana de aula, após a primeira semana, será combinada com os
+alunos a continuidade de utilização da sala.
+Programa Interinstitucional de Pós-Graduação em Estatística - PIPGES
+Horário do 2º semestre de 2026

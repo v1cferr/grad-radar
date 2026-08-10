@@ -25,7 +25,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.collector import TIMEOUT, USER_AGENT, Fetched, fetch
 from app.db import Session
+from app.extract import is_error_page
 from app.models import Source, SourceSnapshot
+
+
+def _note(result: Fetched) -> str | None:
+    """O que houve de estranho nesta coleta, se houve.
+
+    A página de erro com HTTP 200 é a pior das duas: o fetch "deu certo", então
+    sem esta nota a fonte apareceria verde para sempre. O ICMC faz isso.
+    """
+    if result.ok and result.text and is_error_page(result.text):
+        return "página de erro servida com HTTP 200 — a URL provavelmente mudou"
+    if not result.text_extractable:
+        return "hash sobre bytes (PDF sem camada de texto)"
+    return None
 
 
 async def _previous_hash(db: AsyncSession, source_id: int) -> str | None:
@@ -58,7 +72,7 @@ async def check_source(db: AsyncSession, source: Source, client: httpx.AsyncClie
         error=result.error,
         # Recorded, not hidden: a change flagged on a byte hash deserves a human
         # look before anyone acts on it.
-        notes=None if result.text_extractable else "hash sobre bytes (PDF sem camada de texto)",
+        notes=_note(result),
     )
     db.add(snapshot)
 
@@ -94,12 +108,15 @@ async def main() -> None:
 
     changed = [s for _, s in results if s.changed]
     failed = [(src, s) for src, s in results if s.error]
+    suspect = [(src, s) for src, s in results if s.notes and "página de erro" in s.notes]
 
     for source, snap in results:
-        if args.quiet and not snap.changed and not snap.error:
+        if args.quiet and not snap.changed and not snap.error and not snap.notes:
             continue
         if snap.error:
             mark, detail = "ERRO ", snap.error[:70]
+        elif snap.notes and "página de erro" in snap.notes:
+            mark, detail = "SUSPEITO", snap.notes
         elif snap.changed:
             basis = " (bytes)" if snap.notes else ""
             mark, detail = "MUDOU", f"{len(snap.text or '')} chars{basis} · {snap.content_hash[:12]}"
@@ -109,6 +126,7 @@ async def main() -> None:
 
     print(
         f"\n  {len(results)} fonte(s) · {len(changed)} mudança(s) · {len(failed)} falha(s)"
+        f" · {len(suspect)} suspeita(s)"
     )
 
 

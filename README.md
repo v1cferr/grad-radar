@@ -41,6 +41,7 @@ Run `just` with no arguments to list every recipe. The most useful ones:
 | `just migrate` | Apply pending Alembic migrations |
 | `just seed` | Load every verified fact (idempotent) |
 | `just monitor` | Run one collection pass by hand — the timer does this twice a day |
+| `just verify` | Re-derive the schedule requirement from what was collected, and report disagreements |
 | `just test` | Backend tests + lint (unit + integration) |
 | `just e2e` | Browser tests against the running stack (Playwright) |
 | `just ingress` | Show where the reverse proxy lives and its current status |
@@ -110,6 +111,8 @@ flowchart LR
         T["systemd timer<br/>08:00 and 20:00"] --> M["monitor.py<br/>one pass, never a daemon"]
         M --> CO["collector.py<br/>fetch, extract, hash"]
         CO --> EXT["19 official sources<br/>HTML, PDF, SEI redirects"]
+        M --> V["verify.py<br/>re-derive the schedule verdict"]
+        V --> X["extract.py<br/>time bands, no model"]
     end
 
     A --> DB[("PostgreSQL<br/>23 tables")]
@@ -287,15 +290,18 @@ checklist, application history and scores.
 | F3 | UI — options table, deadline lead, next steps, weekly grid, edital viewer | done |
 | F5 | Monitoring — 19 registered sources, page and PDF change detection, systemd timer | done |
 | **F4** | **Notifications — deadline and change alerts** | **next** |
-| F6 | Extraction — turn a schedule document into a verdict without a human reading it | planned |
+| F6 | Extraction — turn a schedule document into a verdict without a human reading it | done for schedules |
 
 F5 was originally planned last, on the principle that the manual workflow had to be validated first. It moved
 up because the validation produced its own conclusion: the manual sweep works but does not repeat itself, and
 the deadline that matters can appear on any Tuesday.
 
-What F6 means concretely: reading `8h às 12h` and `14h às 17h` out of a PDF and concluding *no evening class*
-is mechanical, and it was done by hand six times. Six real documents with known answers already exist as
-regression fixtures. Judging **adherence**, by contrast, is reading comprehension and stays human.
+F6 landed for the requirement that eliminates almost everything: `app/extract.py` reads a schedule document and
+returns the verdict, tested against **eight real documents** whose answers a human produced first. `just verify`
+re-derives it from what the collector already stored and reports disagreements — it never writes silently,
+because a disagreement can be a new grid (what you want to know) or the extractor failing on an unseen format.
+
+Judging **adherence**, by contrast, is reading comprehension and stays human.
 
 [`docs/AUTOMACAO.md`](docs/AUTOMACAO.md) argues where a local model helps and where it makes things worse —
 including why the schedule detection should stay a regex, and the one rule that does not bend: **a model is

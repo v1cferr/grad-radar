@@ -1,0 +1,19 @@
+PPGCC - Disciplinas do Semestre 2 / 2026Segunda-feira Terça-feira Quarta-feira Quinta-feira Sexta-feira
+08h - 12h
+CCO-310 - Metodologia de Pesquisa (Research Methodology)CCO-129-7 - Introdução À Computação de Alto Desempenho (Introduction To High Performance Computing)CCO-740 - Reconhecimento de Padrões (Pattern Recognition)CCO-410 - Aspectos Formais da ComputaçãoCCO-04.1.02 - Tópicos em Sistemas Distribuídos e Redes: Computação Ubíqua, Computação Pervasiva e Internet das Coisas (Topics in Distributed Systems and Networks: Ubiquitous Computing, Pervasive Computing, and Internet of Things) CCO-04.2.01 - Segurança Cibernética (Cybersecurity)
+Docente ministranteHeloisa de Arruda CamargoDocente ministranteHelio Crestana GuardiaDocente ministranteAlexandre Luis Magalhães Levada Docente ministranteWanderley Lopes de SouzaDocente ministranteWanderley Lopes de SouzaDocente ministrante Docente ministrantePaulo Matias
+Linha Básica Linha Específica SDARCLinha Específica VCLinha Básica Linha Específica SDARCLinha Linha Específica SDARC
+Tipo Grupo IV Tipo Grupo IIITipo Grupo IITipo Grupo I Tipo Grupo IIITipo Tipo Grupo III
+** **
+Local no campus de origemSão Carlos: AuditórioLocal no campus de origemSão Carlos: LE 6Local no campus de origemSão Carlos: AuditórioLocal no campus de origemSão Carlos: Sala 2Local no campus de origemSão Carlos: Sala 2Local no campus de origem Local no campus de origemSão Carlos: Auditório
+Local no outro campusSorocaba - CCGT-1001Local no outro campusSorocaba - CCGT-1001Local no outro campusSorocaba - CCGT-1001Local no outro campusSorocaba - CCGT-1001Local no outro campusSorocaba - CCGT-1001Local no outro campus Local no outro campusSorocaba - CCGT-1001
+Idioma Inglês Idioma Inglês Idioma Inglês Idioma PortuguêsIdioma PortuguêsIdioma Idioma Português
+14h - 18h
+CCO-741 - Processamento Digital de Imagens (Digital Imagen Processing)CCO-724 - Aprendizado de Máquina (Machine Learning)CCO-00.2.01 - Projeto e Análise de Algoritmos (Design and Analysis of Algorithms)CCO-00.2.03 - Seminários II (Seminars II)CCO-220 - Desenvolvimento de Software Orientado a Objetos (Object Oriented Software Development)CCO-03.2.02 - Aprendizado Profundo para Reconhecimento Visual (Deep Learning for Visual Recognition)CCO-03.2.01 - Filtragem: Princípios e Aplicações (Filtering: Principles and Applications)
+Docente ministranteRicardo José FerrariDocente ministranteTiago Agostinho de AlmeidaDocente ministranteAlan Demétrius Baria ValejoDocente ministranteFabiano Cutigi FerrariDocente ministranteValter Vieira de CamargoDocente ministranteJurandy Gomes de Almeida Junior Docente ministranteRoberto Santos Inoue
+Linha Específica VCLinha Específica AMPLNLinha Básica Linha Básica Linha Específica ESLinha Específica VCLinha Específica SAR
+Tipo Grupo II Tipo Grupo IITipo Grupo I Tipo Grupo IV Tipo Grupo II Tipo Grupo IITipo Grupo II
+**Todas as avaliações são integralmente presenciais no departamento** ** **
+Local no campus de origemSão Carlos: LE 6Local no campus de origemSorocaba - CCGT-1001Local no campus de origemSão Carlos: AuditórioLocal no campus de origemSão Carlos: AuditórioLocal no campus de origemSão Carlos: LE 6Local no campus de origemSorocaba - CCGT-1001Local no campus de origemSão Carlos: LE 6
+Local no outro campusSorocaba - CCGT-1001Local no outro campusSão Carlos: Sala 2Local no outro campusSorocaba - CCGT-1001Local no outro campusSorocaba - CCGT-1001Local no outro campusSorocaba - CCGT-1001Local no outro campusSão Carlos: Sala 2Local no outro campusSorocaba - CCGT-1001
+Idioma PortuguêsIdioma PortuguêsIdioma PortuguêsIdioma Inglês Idioma Inglês Idioma PortuguêsIdioma Inglês

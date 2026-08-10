@@ -21,6 +21,7 @@ from sqlalchemy import DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base, pg_enum
+from app.models.academic import GraduateProgram
 
 
 class SourceType(enum.StrEnum):
@@ -55,6 +56,12 @@ class Source(Base):
     url: Mapped[str] = mapped_column(Text, unique=True)
     source_type: Mapped[SourceType] = mapped_column(pg_enum(SourceType, "source_type"))
     institution_id: Mapped[int | None] = mapped_column(ForeignKey("institution.id"))
+
+    # De qual PROGRAMA esta fonte fala. Nulo para catálogos institucionais, que
+    # falam de todos. Sem isso não há como fechar o laço: o extrator lê a grade,
+    # deriva o veredito de horário e não tem onde escrevê-lo. Era o elo que
+    # faltava entre um documento e uma decisão.
+    program_id: Mapped[int | None] = mapped_column(ForeignKey("graduate_program.id"))
     title: Mapped[str | None] = mapped_column(String(300))
 
     # A 302 to SEI is not an incidental detail: it is why naive scraping of the
@@ -66,6 +73,7 @@ class Source(Base):
     last_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     notes: Mapped[str | None] = mapped_column(Text)
 
+    program: Mapped[GraduateProgram | None] = relationship()
     snapshots: Mapped[list[SourceSnapshot]] = relationship(
         back_populates="source", cascade="all, delete-orphan"
     )

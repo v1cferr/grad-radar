@@ -898,11 +898,39 @@ async def seed(db: AsyncSession) -> dict[str, int]:
             )
     counts["program_adherence"] = sum(len(r) for r in ADHERENCE.values())
 
+    # A qual programa cada fonte pertence, por prefixo de URL. Derivado e não
+    # digitado: uma fonte nova do PPGPEP entra ligada sem ninguém lembrar.
+    BY_HOST = {
+        "ppgcc.ufscar.br": "PPGCC",
+        "ppgpep.ufscar.br": "PPGPEP",
+        "ppgads.ufscar.br": "PPGAdS",
+        "ppgcts.ufscar.br": "PPGCTS",
+        "ppgci.ufscar.br": "PPGCI",
+        "ppgep.ufscar.br": "PPGEP",
+        "ppgee.ufscar.br": "PPGEE",
+        "pipges.ufscar.br": "PIPGEs",
+        "mecai": "MECAI",
+    }
+
     for url, kind, title, redirect in SOURCES + PPGPEP_SOURCES + MECAI_SOURCES + INDEX_SOURCES:
         await _get_or_create(
             db, Source,
-            {"source_type": kind, "title": title, "institution_id": ufscar.id,
-             "redirects_to": redirect, "last_checked_at": datetime(2026, 8, 8, tzinfo=UTC)},
+            {
+                "source_type": kind,
+                "title": title,
+                "institution_id": ufscar.id,
+                "redirects_to": redirect,
+                "last_checked_at": datetime(2026, 8, 8, tzinfo=UTC),
+                # Catálogo institucional fica sem programa: ele fala de todos.
+                "program_id": next(
+                    (
+                        all_programs[a].id
+                        for host, a in BY_HOST.items()
+                        if host in url and a in all_programs
+                    ),
+                    None,
+                ),
+            },
             url=url,
         )
     counts["sources"] = (
