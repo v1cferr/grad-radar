@@ -8,11 +8,10 @@ são testados como código de produção, em
 
 ## A decisão central: pública, mas fora de índice
 
-A página é aberta, sem autenticação, porque o login vai morar na aplicação e uma
-senha de proxy na frente significaria digitar duas
-([`dotfiles/system/services/caddy.nix`](https://github.com/v1cferr/dotfiles)).
-Aberta não é o mesmo que indexável: é a busca de pós-graduação de três pessoas
-específicas, e um resultado de pesquisa sobreviveria ao projeto.
+A página é aberta, sem autenticação, e isso é decisão fechada — ver
+[`SEM-LOGIN.md`](SEM-LOGIN.md). Aberta não é o mesmo que indexável: é a busca de
+pós-graduação de três pessoas específicas, e um resultado de pesquisa
+sobreviveria ao projeto.
 
 Então: **`noindex, nofollow` + `robots.txt` com `Disallow: /`**.
 

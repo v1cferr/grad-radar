@@ -49,8 +49,11 @@ Run `just` with no arguments to list every recipe. The most useful ones:
   the dotfiles (`system/services/caddy.nix`), which owns the TLS certificate and the loopback port map for
   every self-hosted project on the machine. See [`deploy/README.md`](deploy/README.md). Its logs are in
   `journalctl -u caddy`, not in `just logs`.
-- **From outside the home network you get an HTTP basic auth prompt.** GradRadar has no login of its own yet,
-  so Caddy gates external access; on the LAN it opens directly. Repeated failures are banned by fail2ban.
+- **There is no login, and that is a decision, not a gap.** The page is open from anywhere. Nothing on it is
+  private — it shows public admission calls and our reading of them, and no candidate's name is ever rendered.
+  A login would also kill the link preview, which is the whole delivery mechanism: a crawler that hits a
+  password wall reads the password wall. See [`docs/SEM-LOGIN.md`](docs/SEM-LOGIN.md) for the trip-wire that
+  would reverse this.
 - **PostgreSQL is published on `127.0.0.1:5433`, not 5432.** Port 5432 on this host already belongs to another
   project's container. Inside the compose network the database still listens on 5432, which is the port that
   goes in `DATABASE_URL`.

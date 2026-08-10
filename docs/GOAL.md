@@ -28,7 +28,8 @@ não estava dito em lugar nenhum. Ver [`research/ufscar-oferta-noturna.md`](rese
 
 Aplicam-se **apenas** ao que passou pelos eliminatórios:
 
-- aderência a IA, ML, PLN, LLMs e adoção institucional de IA;
+- aderência ao trabalho na FAI — cinco sinais derivados do edital, em
+  [`ADERENCIA.md`](ADERENCIA.md);
 - docentes e laboratórios com atividade real na área — não o nome da linha;
 - possibilidade de entrar antes como aluno especial;
 - existência de bolsa compatível com vínculo empregatício;

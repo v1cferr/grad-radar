@@ -85,6 +85,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// ⚠️ ESTE É O LIMITE DA PÁGINA SEM LOGIN. Hoje o candidato só serve para calcular
+// conflito de horário contra 08–18, que é público (docs/GOAL.md). No momento em
+// que algo AQUI passar a ser sobre uma PESSOA e não sobre um PROGRAMA — anotação
+// pessoal, ranking de preferência, rascunho de projeto, conversa com orientador —,
+// a página deixa de poder ser aberta. Ver docs/SEM-LOGIN.md antes de adicionar.
 const CANDIDATE = "Victor";
 const WORK = "08:00–18:00";
 
