@@ -9,26 +9,33 @@ from __future__ import annotations
 from datetime import UTC, date, datetime, time
 from typing import Annotated
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.collector import TIMEOUT, USER_AGENT
 from app.db import Session
 from app.models import (
+    AdherenceSignal,
     AdmissionCycle,
+    AdmissionNotice,
     Campus,
     Candidate,
     CourseOffering,
     Department,
     FacultyMember,
     GraduateProgram,
+    ProgramAdherence,
     ProgramRequirement,
     Requirement,
     RequirementStatus,
     ResearchLine,
     Source,
+    adherence_index,
     verdict_for,
 )
 
@@ -171,6 +178,27 @@ class RequirementOut(BaseModel):
     evidence: str | None
 
 
+class AdherenceOut(BaseModel):
+    signal: AdherenceSignal
+    level: str
+    evidence: str | None
+    # False quando o nível vem do escopo declarado e não de algo lido.
+    verified: bool
+
+
+class NoticeOut(BaseModel):
+    id: int
+    number: str
+    title: str | None
+    # A URL original, para abrir na fonte.
+    url: str | None
+    # A NOSSA rota, que serve o mesmo PDF pela nossa origem. Existe porque os
+    # sites da UFSCar mandam `X-Frame-Options: SAMEORIGIN` — um <iframe> apontando
+    # para o PDF original é bloqueado pelo navegador, e o preview embutido sairia
+    # em branco sem nenhum erro visível.
+    pdf_url: str | None
+
+
 class OptionOut(BaseModel):
     """Uma linha da tabela de opções: um programa e por que ele entra ou sai."""
 
@@ -183,7 +211,14 @@ class OptionOut(BaseModel):
     capes_rating: int | None
     verdict: str
     requirements: list[RequirementOut]
+    # 0–100 sobre os cinco sinais de docs/ADERENCIA.md. `signals_assessed` anda
+    # junto de propósito: um índice calculado sobre dois sinais não é comparável
+    # a um calculado sobre cinco, e o número sozinho esconde isso.
+    adherence: int | None
+    signals_assessed: int
+    adherence_signals: list[AdherenceOut]
     research_lines: list[str]
+    notices: list[NoticeOut]
     # Só o ciclo que ainda pode ser feito. Um processo encerrado não é opção, e
     # mostrá-lo na coluna de prazo faria a tabela mentir.
     applications_open_on: date | None
@@ -268,6 +303,13 @@ async def list_options(db: Db) -> list[OptionOut]:
     for r in (await db.scalars(select(ProgramRequirement))).all():
         reqs.setdefault(r.program_id, []).append(r)
 
+    adh: dict[int, list[ProgramAdherence]] = {}
+    for a in (await db.scalars(select(ProgramAdherence))).all():
+        adh.setdefault(a.program_id, []).append(a)
+
+    notices: dict[int, list[AdmissionNotice]] = {}
+    cycle_program: dict[int, int] = {}
+
     cycles: dict[int, AdmissionCycle] = {}
     stmt = select(AdmissionCycle).options(
         selectinload(AdmissionCycle.seats), selectinload(AdmissionCycle.stages)
@@ -277,15 +319,22 @@ async def list_options(db: Db) -> list[OptionOut]:
         # o mais recente, para que a coluna não fique vazia sem explicação.
         current = cycles.get(c.program_id)
         alive = c.applications_close_on is not None and c.applications_close_on >= today
+        cycle_program[c.id] = c.program_id
         if current is None or (alive and not (
             current.applications_close_on is not None
             and current.applications_close_on >= today
         )):
             cycles[c.program_id] = c
 
+    for n in (await db.scalars(select(AdmissionNotice))).all():
+        pid = cycle_program.get(n.cycle_id)
+        if pid is not None:
+            notices.setdefault(pid, []).append(n)
+
     out: list[OptionOut] = []
     for p in programs:
         rows = sorted(reqs.get(p.id, []), key=lambda r: list(Requirement).index(r.requirement))
+        signals = sorted(adh.get(p.id, []), key=lambda a: list(AdherenceSignal).index(a.signal))
         cycle = cycles.get(p.id)
         close = cycle.applications_close_on if cycle else None
         out.append(
@@ -302,7 +351,28 @@ async def list_options(db: Db) -> list[OptionOut]:
                     RequirementOut(requirement=r.requirement, status=r.status, evidence=r.evidence)
                     for r in rows
                 ],
+                adherence=adherence_index(signals),
+                signals_assessed=sum(1 for s in signals if s.level.value != "unknown"),
+                adherence_signals=[
+                    AdherenceOut(
+                        signal=s.signal,
+                        level=s.level.value,
+                        evidence=s.evidence,
+                        verified=s.verified,
+                    )
+                    for s in signals
+                ],
                 research_lines=sorted(x.acronym for x in p.research_lines),
+                notices=[
+                    NoticeOut(
+                        id=n.id,
+                        number=n.number,
+                        title=n.title,
+                        url=n.url,
+                        pdf_url=f"/api/notices/{n.id}/pdf" if n.url else None,
+                    )
+                    for n in notices.get(p.id, [])
+                ],
                 applications_open_on=cycle.applications_open_on if cycle else None,
                 applications_close_on=close,
                 cycle_status=cycle.status_on(today).value if cycle else None,
@@ -314,6 +384,47 @@ async def list_options(db: Db) -> list[OptionOut]:
     # da tabela é a ordem em que alguém deve gastar atenção.
     rank = {"approved": 0, "pending": 1, "eliminated": 2}
     return sorted(out, key=lambda o: (rank.get(o.verdict, 9), o.acronym))
+
+
+@router.get("/notices/{notice_id}/pdf")
+async def notice_pdf(notice_id: int, db: Db) -> Response:
+    """Serve o PDF do edital pela NOSSA origem.
+
+    Existe por um motivo concreto: os sites da UFSCar respondem
+    `X-Frame-Options: SAMEORIGIN` nos PDFs. Um `<iframe>` apontando para o edital
+    original é bloqueado pelo navegador, e o resultado é um painel em branco sem
+    erro visível — o pior tipo de falha. Servido daqui, é mesma origem e embute.
+
+    A URL NUNCA vem de parâmetro: vem da linha do banco identificada pelo id.
+    Aceitar uma URL do cliente transformaria isto num proxy aberto, com o servidor
+    buscando qualquer endereço que alguém pedisse.
+    """
+    notice = await db.get(AdmissionNotice, notice_id)
+    if notice is None or not notice.url:
+        raise HTTPException(status_code=404, detail="notice has no document")
+
+    try:
+        async with httpx.AsyncClient(
+            follow_redirects=True, timeout=TIMEOUT, headers={"User-Agent": USER_AGENT}
+        ) as client:
+            upstream = await client.get(notice.url)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"upstream failed: {exc}") from exc
+
+    if upstream.status_code != 200:
+        raise HTTPException(status_code=502, detail=f"upstream HTTP {upstream.status_code}")
+
+    return Response(
+        content=upstream.content,
+        media_type=upstream.headers.get("content-type", "application/pdf"),
+        headers={
+            # inline: abrir no visualizador, não baixar.
+            "Content-Disposition": f'inline; filename="edital-{notice.number.replace("/", "-")}.pdf"',
+            # Editais mudam por RETIFICAÇÃO, não de hora em hora — e o monitor
+            # detecta a mudança. Uma hora de cache poupa a UFSCar sem atrasar aviso.
+            "Cache-Control": "public, max-age=3600",
+        },
+    )
 
 
 @router.get("/research-lines", response_model=list[ResearchLineOut])

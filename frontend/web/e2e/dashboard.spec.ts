@@ -187,7 +187,9 @@ test("the edital is shown as actions, not as a wall of dates", async ({ page }) 
 test("the PPGPEP acronyms explain themselves too", async ({ page }) => {
   // O Victor pediu isto explicitamente: nem ele conhece as siglas, e o JP e o
   // César vão abrir a mesma página.
-  const row = page.getByRole("row", { name: /TOTI/ });
+  // .last(): "TOTI" passou a aparecer também no bloco de próximos passos, então
+  // a linha da TABELA de linhas de pesquisa é a última ocorrência.
+  const row = page.getByRole("row", { name: /TOTI/ }).last();
   await row.getByText("TOTI", { exact: true }).hover();
 
   const tip = page.locator('[data-slot="tooltip-content"]');
@@ -243,14 +245,21 @@ test("an unverified requirement reads as pending work, never as a no", async ({ 
 });
 
 test("the eliminated rows can be hidden without losing them", async ({ page }) => {
+  // Contagens são derivadas da página, nunca fixas: a varredura cresce, e um
+  // número literal aqui falharia por SUCESSO da pesquisa.
   const table = page.locator("table").filter({ hasText: "Veredito" });
-  await expect(table.locator("tbody tr")).toHaveCount(4);
+  const total = await table.locator("tbody tr").count();
+  expect(total).toBeGreaterThan(4);
 
-  await page.getByRole("button", { name: /Ocultar 3 eliminados/ }).click();
-  await expect(table.locator("tbody tr")).toHaveCount(1);
+  const hide = page.getByRole("button", { name: /Ocultar \d+ eliminados/ });
+  const hidden = Number((await hide.textContent())!.match(/\d+/)![0]);
+  await hide.click();
+
+  await expect(table.locator("tbody tr")).toHaveCount(total - hidden);
+  await expect(table.getByText("eliminado")).toHaveCount(0);
 
   await page.getByRole("button", { name: /Mostrando só viáveis/ }).click();
-  await expect(table.locator("tbody tr")).toHaveCount(4);
+  await expect(table.locator("tbody tr")).toHaveCount(total);
 });
 
 test("the table filters by programme and by institution", async ({ page }) => {
@@ -258,6 +267,54 @@ test("the table filters by programme and by institution", async ({ page }) => {
   await page.getByLabel("Filtrar opções").fill("PIPGEs");
   await expect(table.locator("tbody tr")).toHaveCount(1);
   await expect(table.locator("tbody tr")).toContainText("Estatística");
+});
+
+test("o índice de aderência mostra a cobertura junto do número", async ({ page }) => {
+  /**
+   * Um índice sobre dois sinais não é comparável a um sobre cinco. Mostrar só a
+   * porcentagem convidaria exatamente a comparação errada.
+   */
+  const row = page.getByRole("row", { name: /PPGCTS/ });
+  await expect(row).toContainText("%");
+  await expect(row).toContainText("/5");
+});
+
+test("a aderência abre a evidência de cada um dos cinco sinais", async ({ page }) => {
+  const row = page.getByRole("row", { name: /PPGCTS/ });
+  // O último trigger da linha é o da coluna de aderência (os quatro primeiros
+  // são os requisitos).
+  await row.locator('[data-slot="tooltip-trigger"]').last().hover();
+
+  const tip = page.locator('[data-slot="tooltip-content"]');
+  await expect(tip).toBeVisible();
+  await expect(tip).toContainText("Aderência ao trabalho na FAI");
+  await expect(tip).toContainText("Restrições e governança");
+  // "plausível" marca o que vem do escopo declarado e não de algo lido — a
+  // distinção que evita repetir o erro da AMPLN.
+  await expect(tip).toContainText("plausível");
+});
+
+test("o edital abre embutido, pela NOSSA origem", async ({ page }) => {
+  /**
+   * O iframe TEM que apontar para /api/notices/{id}/pdf. Os PDFs da UFSCar
+   * respondem X-Frame-Options: SAMEORIGIN — apontar para a URL original deixa o
+   * painel em branco sem nenhum erro visível.
+   */
+  const row = page.getByRole("row", { name: /PPGPEP/ }).first();
+  await row.getByRole("button", { name: /001\/2026/ }).click();
+
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toContainText("Edital PPGPEP");
+  await expect(dialog.getByRole("link", { name: /abrir na fonte/ })).toBeVisible();
+
+  const frame = dialog.locator("iframe");
+  const src = await frame.getAttribute("src");
+  expect(src).toMatch(/^\/api\/notices\/\d+\/pdf$/);
+
+  // E o PDF tem que responder de verdade, senão o painel abre vazio.
+  const res = await page.request.get(src!);
+  expect(res.ok()).toBe(true);
+  expect(res.headers()["content-type"]).toContain("application/pdf");
 });
 
 test("shows what the monitor watches, and when it last looked", async ({ page }) => {

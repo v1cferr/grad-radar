@@ -90,3 +90,75 @@ def verdict_for(requirements: list[ProgramRequirement]) -> ProgramVerdict:
     if all(seen.get(r) is RequirementStatus.MET for r in Requirement):
         return ProgramVerdict.APPROVED
     return ProgramVerdict.PENDING
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Aderência ao trabalho na FAI
+# ─────────────────────────────────────────────────────────────────────────────
+# Os cinco sinais de docs/ADERENCIA.md, derivados do item 4.1 do Edital FAI
+# 001/2026. Separados dos requisitos porque respondem a perguntas diferentes:
+# requisito decide SE dá para cursar, aderência decide se VALE A PENA. Misturar
+# os dois foi o que fez o PPGCC ser investigado a fundo estando eliminado.
+
+
+class AdherenceSignal(enum.StrEnum):
+    ORGANIZATIONAL_ADOPTION = "organizational_adoption"  # 4.1b, 4.1f
+    TECHNICAL_AI = "technical_ai"  # 4.1a
+    DATA_AND_PROCESS = "data_and_process"  # 2.2, 4.1c
+    GOVERNANCE = "governance"  # 4.1d
+    TRAINING = "training"  # 4.1e
+
+
+class AdherenceLevel(enum.StrEnum):
+    STRONG = "strong"
+    PARTIAL = "partial"
+    ABSENT = "absent"
+    UNKNOWN = "unknown"
+
+
+_POINTS = {
+    AdherenceLevel.STRONG: 2,
+    AdherenceLevel.PARTIAL: 1,
+    AdherenceLevel.ABSENT: 0,
+    AdherenceLevel.UNKNOWN: 0,
+}
+
+
+class ProgramAdherence(Base):
+    __tablename__ = "program_adherence"
+    __table_args__ = (UniqueConstraint("program_id", "signal"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    program_id: Mapped[int] = mapped_column(ForeignKey("graduate_program.id"))
+    signal: Mapped[AdherenceSignal] = mapped_column(pg_enum(AdherenceSignal, "adherence_signal"))
+    level: Mapped[AdherenceLevel] = mapped_column(pg_enum(AdherenceLevel, "adherence_level"))
+
+    evidence: Mapped[str | None] = mapped_column(Text)
+
+    # False quando o nível vem do ESCOPO DECLARADO do programa e não de algo
+    # lido — docente, disciplina ofertada, projeto. A régua em ADERENCIA.md diz
+    # que nome de linha de pesquisa nunca conta como verificado, e foi assim que
+    # a AMPLN do PPGCC pareceu perfeita.
+    verified: Mapped[bool] = mapped_column(default=False)
+
+    source_id: Mapped[int | None] = mapped_column(ForeignKey("source.id"))
+    verified_on: Mapped[date | None] = mapped_column()
+
+    program: Mapped[GraduateProgram] = relationship()
+    source: Mapped[Source | None] = relationship()
+
+
+def adherence_index(rows: list[ProgramAdherence]) -> int | None:
+    """0–100 sobre os CINCO sinais, sempre.
+
+    O denominador é fixo (5 sinais x 2 pontos) e `unknown` vale zero. Isso faz um
+    programa pouco investigado pontuar baixo, o que é o comportamento correto:
+    "não sabemos" não é elogio. Quem quiser saber se o índice é confiável olha
+    quantos sinais foram avaliados — daí `signals_assessed` andar sempre junto.
+
+    Normalizar pelo que já se sabe daria 100 a um programa com um único sinal
+    forte, e um número desses convida a decisão errada.
+    """
+    if not rows:
+        return None
+    return round(100 * sum(_POINTS[r.level] for r in rows) / (2 * len(AdherenceSignal)))

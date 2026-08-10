@@ -39,15 +39,21 @@ from app.models.curriculum import (
     Weekday,
 )
 from app.models.eligibility import (
+    AdherenceLevel,
+    AdherenceSignal,
+    ProgramAdherence,
     ProgramRequirement,
     ProgramVerdict,
     Requirement,
     RequirementStatus,
+    adherence_index,
     verdict_for,
 )
 from app.models.provenance import Source, SourceSnapshot, SourceType
 
 __all__ = [
+    "AdherenceLevel",
+    "AdherenceSignal",
     "AdmissionCycle",
     "AdmissionNotice",
     "AdmissionNoticeVersion",
@@ -73,6 +79,7 @@ __all__ = [
     "LinkKind",
     "OfferingLocation",
     "OfferingScope",
+    "ProgramAdherence",
     "ProgramRequirement",
     "ProgramVerdict",
     "RequiredDocument",
@@ -83,5 +90,6 @@ __all__ = [
     "SourceSnapshot",
     "SourceType",
     "Weekday",
+    "adherence_index",
     "verdict_for",
 ]

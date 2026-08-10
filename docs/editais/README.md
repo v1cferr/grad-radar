@@ -4,6 +4,13 @@ Estes PDFs descrevem **o trabalho** que motiva a busca por pós-graduação. Nã
 editais de pós: são o processo seletivo pelo qual a FAI contratou para trabalhar
 com adoção de IA na própria fundação. É o que a pós precisa conversar com.
 
+> **Sobre o vínculo, para não haver confusão.** Este edital é de 2026 e é por ele
+> que o Victor entrou, como estagiário. **Hoje ele e o JP são contratados CLT,
+> 08–18.** O edital continua aqui porque descreve o trabalho que os dois seguem
+> fazendo até hoje — é documento de ESCOPO, não de vínculo atual. Isso importa
+> onde um programa exige experiência profissional: quem é CLT satisfaz
+> "atuação profissional atual" direto, sem precisar contar tempo de estágio.
+
 Os nomes dos arquivos são hashes do protocolo de assinatura da FAI
 (`assina.fai.ufscar.br`) — não dá para saber o que é o quê pelo nome, e os três
 são **digitalizados, sem camada de texto**: `pdftotext` funciona no primeiro

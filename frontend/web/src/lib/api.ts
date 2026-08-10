@@ -39,7 +39,30 @@ export type Option = {
     /** O texto que sustenta o veredito. Sem ele, "eliminado" é só uma opinião. */
     evidence: string | null;
   }[];
+  /** 0–100 sobre os cinco sinais de docs/ADERENCIA.md. */
+  adherence: number | null;
+  /** Quantos dos cinco sinais foram avaliados. Anda junto do índice de propósito:
+   *  um índice sobre dois sinais não é comparável a um sobre cinco. */
+  signals_assessed: number;
+  adherence_signals: {
+    signal: string;
+    level: "strong" | "partial" | "absent" | "unknown";
+    evidence: string | null;
+    /** False quando o nível vem do escopo declarado, não de algo lido. */
+    verified: boolean;
+  }[];
   research_lines: string[];
+  notices: {
+    id: number;
+    number: string;
+    title: string | null;
+    /** A URL original, na fonte. */
+    url: string | null;
+    /** A nossa rota, que serve o mesmo PDF pela nossa origem — necessária porque
+     *  a UFSCar manda X-Frame-Options: SAMEORIGIN e o iframe do original é
+     *  bloqueado. */
+    pdf_url: string | null;
+  }[];
   applications_open_on: string | null;
   applications_close_on: string | null;
   cycle_status: string | null;

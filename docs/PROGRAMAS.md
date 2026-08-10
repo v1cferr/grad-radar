@@ -95,22 +95,21 @@ período da noite das sextas?** O "preferencialmente" sugere flexibilidade, e a
 resposta muda o veredito de "inviável" para "aprovado com o melhor encaixe
 técnico de todos". É a verificação mais valiosa pendente neste projeto.
 
-#### O problema de elegibilidade, que pode ser pior
+#### Elegibilidade: resolvida
 
-A FAQ também diz:
+A FAQ diz:
 
-> Para ser elegível, dentre outras exigências, é necessário comprovar atuação
-> profissional atual ou experiência, de no mínimo, dois anos no mercado de
+> Para ser elegível, dentre outras exigências, é necessário comprovar **atuação
+> profissional atual** ou experiência, de no mínimo, dois anos no mercado de
 > trabalho.
 
-> **O estágio, para o processo seletivo do programa, não é contabilizado como
-> experiência profissional válida.**
+São duas alternativas, e a primeira basta. **Victor e JP são CLT na FAI**, o que
+satisfaz "atuação profissional atual" diretamente — sem precisar somar dois anos
+nem invocar tempo de estágio.
 
-O edital da FAI em [`editais/`](editais/README.md) é de **seleção de estagiários**.
-Se o vínculo atual de algum dos três é de estágio, o tempo na FAI **não conta**
-para o MECAI, e a exigência teria de ser satisfeita por emprego anterior ou outro
-vínculo. Isso vale por candidato e independe de horário — pode eliminar antes de a
-grade importar.
+A cláusula de que "o estágio não é contabilizado como experiência profissional
+válida" só morderia quem dependesse do tempo de estágio para fechar os dois anos.
+Não é o caso.
 
 Outras exigências: graduação em Ciência da Computação, Engenharia da Computação,
 Matemática, Estatística ou afins. Seleção por formação acadêmica + currículo +
@@ -118,46 +117,55 @@ Matemática, Estatística ou afins. Seleção por formação acadêmica + currí
 dissertação: 36 meses. Não oferece bolsas, o que é irrelevante para quem mantém o
 vínculo.
 
-**Compensa:** provavelmente sim, se as duas perguntas acima tiverem resposta boa.
-É o melhor casamento entre o trabalho e formação técnica encontrado até aqui.
+**Compensa:** sim, se — e só se — der para integralizar assistindo somente à noite.
+É o melhor casamento entre o trabalho e formação técnica encontrado, e a
+elegibilidade já está resolvida. Restou **uma** pergunta, não duas.
 
 ---
 
-## Aderentes, horário não olhado
+## Ainda em aberto
 
-Nenhum destes teve grade horária verificada. Estão aqui porque o **escopo bate com
-o edital da FAI** — e por isso valem a checagem de horário, que é o próximo passo.
-Todos são de São Carlos.
+### PPGAdS — Mestrado Profissional em Administração e Sociedade (UFSCar)
 
-| Programa | Sinais | Por que é aderente |
-| --- | --- | --- |
-| **PPGCTS** — Ciência, Tecnologia e Sociedade (UFSCar) | 1, 4, 5 | O melhor casamento fora da computação. Estuda tecnologia em contexto social e organizacional, o que cobre 4.1b, e **restrições ao uso de tecnologia**, que é o item 4.1d — o único sinal que nenhum outro programa endereça diretamente |
-| **PPGCI** — Ciência da Informação (UFSCar) | 3, 5 | "Organização de informações" é literalmente o texto do item 2.2 do edital da FAI. Também cobre governança de dados e formação de usuários |
-| **PPGEP** — Engenharia de Produção **acadêmico** (UFSCar) | 1, 3 | Mesmo departamento do PPGPEP, mas acadêmico e distinto dele. Não estava no radar: o nome quase idêntico o escondeu |
-| **CCMC** — Ciências de Computação e Matemática Computacional (ICMC/USP) | 2 | O programa técnico de referência da região em IA/ML. Acadêmico, então o risco de ser diurno é alto — mesmo perfil do PPGCC |
-| **PPGAdS** — Administração e Sociedade (UFSCar) | 1 | Adoção de tecnologia em organizações pelo lado da gestão |
+**O último candidato vivo além do PPGPEP e do MECAI.** É mestrado *profissional*,
+o formato que já provou ter noturno, e o edital 2025/1 item 2.2 diz verbatim:
 
-Prioridade de checagem: **PPGCTS primeiro** (cobre o sinal 4, que está órfão), depois
-**PPGEP** (profissional-adjacente, mesmo departamento que já provou ter noturno),
-depois **PPGCI**.
+> As aulas serão ministradas nas dependências da UFSCar, em seu campus São Carlos
+> [...] podendo ser oferecidas **de segunda a sexta-feira (manhã, tarde ou
+> noite)**.
+
+Permite noite explicitamente — mas "podendo ser" não compromete com nada. Falta a
+grade real de um semestre, que é o que separa permissão de oferta.
+
+Aderência: sinal 1 forte (Linha 1 Instituições, Organizações e Estratégias; Linha 2
+Gestão e Inovação), sinal 2 ausente. Perfil parecido com o do PPGPEP.
+
+### CCMC — Ciências de Computação e Matemática Computacional (ICMC/USP)
+
+O programa técnico de referência da região em IA/ML. Acadêmico, então o risco de
+ser diurno é alto — mesmo perfil do PPGCC, que morreu exatamente assim. Horário
+não olhado.
 
 ---
 
 ## Eliminados por horário — não reabrir
 
-Verificados, com grade lida. Estão registrados para que a varredura não seja
-refeita. Detalhe em
-[`research/ufscar-oferta-noturna.md`](research/ufscar-oferta-noturna.md).
+Verificados, com grade lida. Registrados para que a varredura não seja refeita.
 
-| Programa | Grade 2026/2 | Aderência que se perdeu |
+| Programa | Grade verificada | Aderência que se perdeu |
 | --- | --- | --- |
-| **PPGCC** (UFSCar) | 08–12 e 14–18, 13 disciplinas, nenhuma após 18h | Sinal 2 forte — a linha AMPLN é de ML e PLN. É a perda mais dolorosa |
-| **PIPGEs** (UFSCar/USP) | 08:00–09:40 a 16:00–17:40 | Sinal 2 forte — linha explícita de Aprendizado de Máquina |
-| **PPGEE** (UFSCar) | 8–10, 10–12, 14–16, 16–18 | Sinal 2 fraco |
+| **PPGCTS** (UFSCar) | Quadro 2026/2 (Ofício 96/2026, SEI 2345246): 11 disciplinas em `8h–12h` e `14h–17h`, zero menção a noite | **70% — a MAIOR de todas.** É o único programa cujo escopo cobre o item 4.1d, restrições ao uso de tecnologia. A perda mais dolorosa da varredura |
+| **PPGEP** acadêmico (UFSCar) | Horário 2026/2: `08h–12h`, `10h–12h`, `14h–18h` em 10 disciplinas. A última TERMINA às 18h | 60% — Governança e Organizações, Economia e Estratégia Empresarial estavam na grade |
+| **PPGCI** (UFSCar) | Oferta 2026/1 (Deliberação 6/2025, SEI 2200336): as seis disciplinas em "Manhã e Tarde", em blocos concentrados de dias seguidos | 50% — "organização de informações" é o texto literal do item 2.2. Pior que os outros: exige dias INTEIROS de ausência |
+| **PPGCC** (UFSCar) | `08–12` e `14–18`, 13 disciplinas | 30% — mas sinal 2 **verificado forte**: AMPLN com 9 docentes e CCO-724 Aprendizado de Máquina na grade |
+| **PIPGEs** (UFSCar/USP) | `08:00–09:40` a `16:00–17:40` | 40% — linha explícita de Aprendizado de Máquina |
+| **PPGEE** (UFSCar) | `8–10`, `10–12`, `14–16`, `16–18` | 20% |
 
-O padrão é estrutural e vale registrar: **IA técnica mora nos programas
-acadêmicos; aula fora do horário comercial mora nos profissionais.** Não é azar,
-é como os dois formatos são desenhados.
+O padrão é estrutural e agora está medido: **os três programas de maior aderência
+da varredura — PPGCTS 70%, PPGEP 60%, PPGCI 50% — estão todos eliminados por
+horário.** IA técnica e pesquisa sobre organizações moram nos programas
+acadêmicos; aula fora do horário comercial mora nos profissionais. Não é azar, é
+como os dois formatos são desenhados.
 
 ---
 
@@ -192,14 +200,13 @@ Casos de fronteira, deliberadamente **fora**:
 
 ## O que falta, em ordem de valor
 
-1. **MECAI: dá para fazer só o período noturno das sextas?** Uma resposta da
-   secretaria do programa decide se existe um segundo aprovado — o mais aderente
-   de todos no eixo técnico.
-2. **MECAI: o vínculo de vocês na FAI conta como experiência profissional?** O
-   estágio explicitamente não conta. Isso é por pessoa.
-3. **PPGCTS: grade horária.** É o único candidato que cobre o sinal 4.
-4. **TOTI/PPGPEP: docentes e projetos reais.** Confirma ou derruba a aderência do
-   único programa aprovado hoje.
-5. **PPGEP acadêmico e PPGCI: grade horária.**
+1. **MECAI: dá para integralizar assistindo só ao período noturno das sextas?**
+   Uma resposta da secretaria decide se existe um segundo aprovado — e o mais
+   aderente de todos no eixo técnico.
+2. **PPGAdS: a grade de um semestre real.** O edital permite noite; falta saber
+   se oferece.
+3. **TOTI/PPGPEP: docentes e projetos reais.** Confirma ou derruba os 50% do
+   único programa aprovado hoje, que hoje são "plausíveis" e não verificados.
+4. **CCMC: grade horária.**
 
-As duas primeiras são as únicas que podem mudar a decisão antes de 14/09.
+Só a primeira pode mudar a decisão antes de 14/09.

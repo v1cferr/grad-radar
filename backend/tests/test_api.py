@@ -166,7 +166,12 @@ class TestOptions:
         options = (await client.get("/api/options")).json()
         assert options[0]["acronym"] == "PPGPEP"
         assert options[0]["verdict"] == "approved"
-        assert [o["verdict"] for o in options].count("eliminated") == 3
+        # Sem contagem literal: a varredura cresce, e um número fixo aqui falharia
+        # por sucesso da pesquisa. O que importa é a ORDEM.
+        rank = {"approved": 0, "pending": 1, "eliminated": 2}
+        ranks = [rank[o["verdict"]] for o in options]
+        assert ranks == sorted(ranks)
+        assert options[-1]["verdict"] == "eliminated"
 
     async def test_one_proven_failure_eliminates(self, client: AsyncClient):
         """Assimetria deliberada: para descartar basta uma falha comprovada."""
@@ -201,6 +206,74 @@ class TestOptions:
         assert options["PPGPEP"]["days_left"] is not None
         # O PPGCC tem ciclo, mas encerrado — não pode aparecer como prazo.
         assert options["PPGCC"]["days_left"] is None
+
+
+class TestAdherence:
+    """O índice de aderência ao trabalho na FAI — docs/ADERENCIA.md."""
+
+    async def test_the_index_never_normalises_away_what_we_do_not_know(self, client: AsyncClient):
+        """O denominador é fixo em cinco sinais.
+
+        Normalizar pelo que já se sabe daria 100% a um programa com um único sinal
+        forte, e um número desses convida a decisão errada.
+        """
+        from app.models import AdherenceLevel, AdherenceSignal, adherence_index
+
+        class _A:
+            def __init__(self, level):
+                self.level = level
+
+        one_strong = [_A(AdherenceLevel.STRONG)]
+        assert adherence_index(one_strong) == 20  # 2 de 10 pontos, não 100%
+
+        todos = [_A(AdherenceLevel.STRONG) for _ in AdherenceSignal]
+        assert adherence_index(todos) == 100
+
+    async def test_coverage_travels_with_the_number(self, client: AsyncClient):
+        """Um índice sobre dois sinais não é comparável a um sobre cinco."""
+        for o in (await client.get("/api/options")).json():
+            assert o["adherence"] is not None
+            assert 0 <= o["signals_assessed"] <= 5
+            assert len(o["adherence_signals"]) == 5
+
+    async def test_the_most_adherent_programme_is_eliminated(self, client: AsyncClient):
+        """A tensão central do projeto, agora computada em vez de afirmada.
+
+        O PPGCTS tem a maior aderência de todos e não tem aula à noite. Se este
+        teste passar a falhar, alguma coisa boa aconteceu — ou o horário mudou, ou
+        apareceu programa melhor.
+        """
+        options = {o["acronym"]: o for o in (await client.get("/api/options")).json()}
+        top = max(options.values(), key=lambda o: o["adherence"])
+        assert top["acronym"] == "PPGCTS"
+        assert top["verdict"] == "eliminated"
+        assert options["PPGPEP"]["adherence"] < top["adherence"]
+
+    async def test_declared_scope_is_never_marked_verified(self, client: AsyncClient):
+        """Nome de linha de pesquisa não é evidência. Foi assim que a AMPLN
+        pareceu perfeita e a grade horária derrubou tudo."""
+        options = {o["acronym"]: o for o in (await client.get("/api/options")).json()}
+        toti = next(
+            s for s in options["PPGPEP"]["adherence_signals"]
+            if s["signal"] == "organizational_adoption"
+        )
+        assert toti["level"] == "strong"
+        assert toti["verified"] is False
+
+
+class TestNoticePdf:
+    """A rota que serve o edital pela nossa origem."""
+
+    async def test_it_refuses_a_notice_without_a_document(self, client: AsyncClient):
+        assert (await client.get("/api/notices/999999/pdf")).status_code == 404
+
+    async def test_the_option_points_at_our_route_not_the_original(self, client: AsyncClient):
+        """Os PDFs da UFSCar respondem X-Frame-Options: SAMEORIGIN — um iframe
+        para a URL original abre em branco, sem erro visível."""
+        options = {o["acronym"]: o for o in (await client.get("/api/options")).json()}
+        notice = options["PPGPEP"]["notices"][0]
+        assert notice["url"].startswith("https://www.ppgpep.ufscar.br")
+        assert notice["pdf_url"] == f"/api/notices/{notice['id']}/pdf"
 
 
 class TestHealth:

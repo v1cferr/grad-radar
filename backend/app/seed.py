@@ -19,6 +19,8 @@ from sqlalchemy.orm import selectinload
 
 from app.db import Session
 from app.models import (
+    AdherenceLevel,
+    AdherenceSignal,
     AdmissionCycle,
     AdmissionNotice,
     AdmissionSeat,
@@ -40,6 +42,7 @@ from app.models import (
     LinkKind,
     OfferingLocation,
     OfferingScope,
+    ProgramAdherence,
     ProgramRequirement,
     RequiredDocument,
     Requirement,
@@ -337,6 +340,30 @@ MORE_PROGRAMS: list[tuple[str, str, str, str, str]] = [
     ),
 ]
 
+# ── Varredura de 10/08/2026: os candidatos aderentes ao edital da FAI ────────
+# Departamento, nome, site. Todos de São Carlos; os de Sorocaba/Araras/Lagoa do
+# Sino falham no requisito 2 por definição e não entram.
+SWEPT_PROGRAMS: list[tuple[str, str, str, str, str, str]] = [
+    ("PPGCTS", "UFSCar", "Departamento de Ciência, Tecnologia e Sociedade", "DCTS",
+     "Programa de Pós-Graduação em Ciência, Tecnologia e Sociedade",
+     "https://www.ppgcts.ufscar.br/pt-br"),
+    ("PPGCI", "UFSCar", "Departamento de Ciência da Informação", "DCI",
+     "Programa de Pós-Graduação em Ciência da Informação",
+     "https://www.ppgci.ufscar.br/pt-br"),
+    ("PPGEP", "UFSCar", "Departamento de Engenharia de Produção", "DEP",
+     "Programa de Pós-Graduação em Engenharia de Produção",
+     "https://www.ppgep.ufscar.br/pt-br"),
+    ("PPGAdS", "UFSCar", "Departamento de Administração e Sociedade", "DAdS",
+     "Programa de Pós-Graduação Profissional em Administração e Sociedade",
+     "https://www.ppgads.ufscar.br/pt-br"),
+    ("MECAI", "USP", "Instituto de Ciências Matemáticas e de Computação", "ICMC",
+     "Mestrado Profissional em Matemática, Estatística e Computação Aplicadas à Indústria",
+     "https://www.icmc.usp.br/pos-graduacao/mecai"),
+    ("CCMC", "USP", "Instituto de Ciências Matemáticas e de Computação", "ICMC",
+     "Programa de Pós-Graduação em Ciências de Computação e Matemática Computacional",
+     "https://www.icmc.usp.br/pos-graduacao"),
+]
+
 _NIGHT = Requirement.EVENING_CLASSES
 _LOCAL = Requirement.IN_PERSON_SAO_CARLOS
 _FREE = Requirement.TUITION_FREE
@@ -344,6 +371,65 @@ _PUBLIC = Requirement.PUBLIC_INSTITUTION
 _MET, _NO, _UNK = RequirementStatus.MET, RequirementStatus.NOT_MET, RequirementStatus.UNKNOWN
 
 REQUIREMENTS: dict[str, list[tuple[Requirement, RequirementStatus, str]]] = {
+    "PPGCTS": [
+        (_NIGHT, _NO, (
+            "Quadro de Disciplinas 2026/2 (Ofício 96/2026/PPGCTS, SEI 2345246): 11 "
+            "disciplinas em duas faixas só — 8h às 12h e 14h às 17h. Nenhuma menção a "
+            "noite no documento."
+        )),
+        (_LOCAL, _MET, "Sala Multiuso do PPGCTS, campus São Carlos."),
+        (_FREE, _UNK, "Não verificado — eliminado antes por horário."),
+        (_PUBLIC, _MET, "UFSCar — universidade federal."),
+    ],
+    "PPGCI": [
+        (_NIGHT, _NO, (
+            "Oferta 2026/1 (Deliberação 6/2025/PPGCI, SEI 2200336): as seis disciplinas "
+            "com 'Horário de oferta: Manhã e Tarde', em blocos concentrados de dias "
+            "seguidos. Exige dias inteiros de ausência, não só a tarde."
+        )),
+        (_LOCAL, _MET, "Campus São Carlos, com parte síncrona a distância."),
+        (_FREE, _UNK, "Não verificado — eliminado antes por horário."),
+        (_PUBLIC, _MET, "UFSCar — universidade federal."),
+    ],
+    "PPGEP": [
+        (_NIGHT, _NO, (
+            "Horário de Disciplinas 2026/2: faixas 08h–12h, 10h–12h e 14h–18h em 10 "
+            "disciplinas. A última TERMINA às 18h, quando a jornada acaba."
+        )),
+        (_LOCAL, _MET, "Campus São Carlos, mesmo departamento do PPGPEP."),
+        (_FREE, _UNK, "Não verificado — eliminado antes por horário."),
+        (_PUBLIC, _MET, "UFSCar — universidade federal."),
+    ],
+    "PPGAdS": [
+        (_NIGHT, _UNK, (
+            "Edital 2025/1 item 2.2: aulas 'podendo ser oferecidas de segunda a "
+            "sexta-feira (manhã, tarde ou noite)'. PERMITE noite, mas 'podendo ser' não "
+            "compromete — falta a grade real de um semestre."
+        )),
+        (_LOCAL, _MET, "Edital 2.2: campus São Carlos, Rod. Washington Luís km 235."),
+        (_FREE, _UNK, "Não verificado."),
+        (_PUBLIC, _MET, "UFSCar — universidade federal."),
+    ],
+    "MECAI": [
+        (_NIGHT, _NO, (
+            "FAQ oficial: aulas 'preferencialmente às sextas feiras (períodos da manhã, "
+            "tarde e noite)'. Não é oferta noturna — é a semana concentrada num dia que "
+            "atravessa o horário comercial. Pendente: dá para integralizar só à noite?"
+        )),
+        (_LOCAL, _MET, "FAQ: 'As aulas presenciais são oferecidas na cidade de São Carlos – SP'."),
+        (_FREE, _MET, (
+            "FAQ: 'Os cursos de Pós-Graduação oferecidos pelo ICMC são gratuitos' e 'Não "
+            "há taxa de matrícula para alunos regulares'. Há taxa de INSCRIÇÃO no "
+            "processo (~R$ 214–259), com critérios de isenção — não é mensalidade."
+        )),
+        (_PUBLIC, _MET, "USP — universidade pública estadual."),
+    ],
+    "CCMC": [
+        (_NIGHT, _UNK, "Não olhado. Programa acadêmico — mesmo perfil de risco do PPGCC."),
+        (_LOCAL, _MET, "ICMC, campus USP São Carlos."),
+        (_FREE, _MET, "FAQ do ICMC: os cursos de pós-graduação do instituto são gratuitos."),
+        (_PUBLIC, _MET, "USP — universidade pública estadual."),
+    ],
     "PPGCC": [
         (_NIGHT, _NO, (
             "Grade 2026/2 publica apenas 08:00–12:00 e 14:00–18:00 — as 13 disciplinas "
@@ -382,6 +468,119 @@ REQUIREMENTS: dict[str, list[tuple[Requirement, RequirementStatus, str]]] = {
         (_LOCAL, _MET, "Presencial no campus São Carlos da UFSCar."),
         (_FREE, _MET, "Portfólio oficial: \"Pós-Graduação Stricto Sensu 100% gratuita\"."),
         (_PUBLIC, _MET, "UFSCar — universidade federal."),
+    ],
+}
+
+
+_ORG = AdherenceSignal.ORGANIZATIONAL_ADOPTION
+_TECH = AdherenceSignal.TECHNICAL_AI
+_DATA = AdherenceSignal.DATA_AND_PROCESS
+_GOV = AdherenceSignal.GOVERNANCE
+_TRAIN = AdherenceSignal.TRAINING
+_S, _P, _A, _U = (
+    AdherenceLevel.STRONG,
+    AdherenceLevel.PARTIAL,
+    AdherenceLevel.ABSENT,
+    AdherenceLevel.UNKNOWN,
+)
+
+# Aderência ao item 4.1 do Edital FAI 001/2026. Ver docs/ADERENCIA.md para a régua
+# e docs/PROGRAMAS.md para o veredito. `verified=False` quando o nível vem do
+# escopo declarado e não de docente, disciplina ou projeto lido.
+ADHERENCE: dict[str, list[tuple[AdherenceSignal, AdherenceLevel, bool, str]]] = {
+    "PPGPEP": [
+        (_ORG, _S, False, (
+            "Linha TOTI — Trabalho, Organizações, Tecnologia e Inovação — descreve quase "
+            "literalmente o item 4.1b. Escopo declarado; docentes e projetos não levantados."
+        )),
+        (_TECH, _A, True, (
+            "Engenharia de produção profissional. Nenhuma disciplina de ML, PLN ou LLM "
+            "no catálogo do programa."
+        )),
+        (_DATA, _S, False, "Linha PCsP: planejamento e controle de produção é sistematização de processos."),
+        (_GOV, _U, False, "Não investigado."),
+        (_TRAIN, _P, False, "Mestrado profissional tem transferência para a organização como propósito."),
+    ],
+    "PPGCC": [
+        (_ORG, _A, True, "Programa de computação; nenhuma linha sobre organizações."),
+        (_TECH, _S, True, (
+            "Linha AMPLN com 9 docentes e disciplinas de ML e PLN ofertadas de fato em "
+            "2026/2 — CCO-724 Aprendizado de Máquina está na grade lida."
+        )),
+        (_DATA, _P, True, "Linha BD — Banco de Dados; nenhuma disciplina ofertada em 2026/2."),
+        (_GOV, _A, True, "Nada sobre regulação, LGPD ou risco no catálogo."),
+        (_TRAIN, _A, True, "Nada de formação ou extensão."),
+    ],
+    "PPGCTS": [
+        (_ORG, _S, False, "Ciência, Tecnologia e Sociedade: tecnologia em contexto organizacional é o objeto."),
+        (_TECH, _A, True, "Nenhuma disciplina técnica de IA no quadro 2026/2."),
+        (_DATA, _P, False, "Indicadores de C&T tocam organização de dados."),
+        (_GOV, _S, False, (
+            "O ÚNICO programa varrido cujo escopo cobre restrições ao uso de tecnologia "
+            "— item 4.1d. É o que se perde com a eliminação por horário."
+        )),
+        (_TRAIN, _S, False, "Comunicação e publicação científica, PESCD: formação é parte do programa."),
+    ],
+    "PPGCI": [
+        (_ORG, _P, False, "Gestão da Inovação está na oferta 2026/1."),
+        (_TECH, _A, True, "Nenhuma disciplina de IA técnica na oferta lida."),
+        (_DATA, _S, False, (
+            "'Organização de informações' é o texto literal do item 2.2 do edital da FAI. "
+            "É o núcleo da Ciência da Informação."
+        )),
+        (_GOV, _P, False, "Epistemologia e indicadores tocam governança sem ser o foco."),
+        (_TRAIN, _P, False, "Mediação pedagógica e formação de usuários aparecem no programa."),
+    ],
+    "PPGEP": [
+        (_ORG, _S, False, (
+            "ENP 129 Tópicos Avançados em Governança e Organizações e ENP 191 Economia e "
+            "Estratégia Empresarial estão na grade 2026/2 lida."
+        )),
+        (_TECH, _P, True, (
+            "ENP 188 Ferramentas Computacionais para Planejamento e ENP 190 Métodos "
+            "Estatísticos: computacional aplicado, não IA."
+        )),
+        (_DATA, _S, True, "Sequenciamento da produção, métodos estatísticos, eficiência — na grade."),
+        (_GOV, _P, False, "Governança aparece em ENP 129, mas de organizações, não de tecnologia."),
+        (_TRAIN, _A, False, "Nada de formação no catálogo."),
+    ],
+    "PPGAdS": [
+        (_ORG, _S, False, "Linha 1 Instituições, Organizações e Estratégias; Linha 2 Gestão e Inovação."),
+        (_TECH, _A, False, "Programa de administração; nenhuma disciplina técnica de IA."),
+        (_DATA, _P, False, "Administração da produção e gestão da qualidade tocam processos."),
+        (_GOV, _P, False, "Linha 3 Estado, Burocracia e Gestão de Políticas Públicas."),
+        (_TRAIN, _P, False, "Gestão de pessoas por competências toca capacitação."),
+    ],
+    "MECAI": [
+        (_ORG, _P, False, "Aplicação à indústria implica contexto organizacional, sem ser o objeto."),
+        (_TECH, _S, False, (
+            "Ciência de dados, mineração de dados, inteligência computacional e otimização "
+            "são a área de concentração declarada. CAPES 5. Disciplinas não conferidas."
+        )),
+        (_DATA, _S, False, "Estatística e ciência de dados aplicadas são o núcleo do programa."),
+        (_GOV, _U, False, "Não investigado."),
+        (_TRAIN, _A, False, "Nada de formação organizacional."),
+    ],
+    "CCMC": [
+        (_ORG, _A, False, "Programa de computação; organizações não são objeto."),
+        (_TECH, _S, False, "O programa técnico de referência da região em IA/ML. Grade não conferida."),
+        (_DATA, _S, False, "Computação e matemática computacional cobrem dados amplamente."),
+        (_GOV, _U, False, "Não investigado."),
+        (_TRAIN, _U, False, "Não investigado."),
+    ],
+    "PIPGEs": [
+        (_ORG, _A, True, "Programa de estatística."),
+        (_TECH, _S, True, "Linha explícita de Aprendizado de Máquina."),
+        (_DATA, _S, True, "Estatística é o núcleo."),
+        (_GOV, _A, False, "Nada sobre regulação ou risco."),
+        (_TRAIN, _A, False, "Nada de formação."),
+    ],
+    "PPGEE": [
+        (_ORG, _A, True, "Engenharia elétrica."),
+        (_TECH, _P, True, "Processamento digital de sinais e smart grids: adjacente, não IA."),
+        (_DATA, _P, True, "Sinais e sistemas tocam dados."),
+        (_GOV, _A, False, "Nada."),
+        (_TRAIN, _A, False, "Nada."),
     ],
 }
 
@@ -618,6 +817,29 @@ async def seed(db: AsyncSession) -> dict[str, int]:
             acronym=acronym,
         )
 
+    # ── Programas da varredura de 10/08/2026 ────────────────────────────────
+    institutions = {"UFSCar": (ufscar, sc)}
+    for acronym, inst_acr, dep_name, dep_acr, name, site in SWEPT_PROGRAMS:
+        if inst_acr not in institutions:
+            other = await _get_or_create(
+                db, Institution,
+                {"city": "São Paulo", "state": "SP", "website": "https://www5.usp.br"},
+                name="Universidade de São Paulo", acronym="USP",
+            )
+            institutions[inst_acr] = (
+                other,
+                await _get_or_create(db, Campus, {}, institution_id=other.id, name="São Carlos"),
+            )
+        _, campus = institutions[inst_acr]
+        d = await _get_or_create(
+            db, Department, {"acronym": dep_acr}, campus_id=campus.id, name=dep_name
+        )
+        await _get_or_create(
+            db, GraduateProgram,
+            {"department_id": d.id, "name": name, "website": site},
+            acronym=acronym,
+        )
+
     # ── Os quatro requisitos, com a evidência de cada um ────────────────────
     all_programs = {
         p.acronym: p for p in (await db.scalars(select(GraduateProgram))).all()
@@ -633,6 +855,23 @@ async def seed(db: AsyncSession) -> dict[str, int]:
                 program_id=program.id, requirement=requirement,
             )
     counts["program_requirements"] = sum(len(r) for r in REQUIREMENTS.values())
+
+    for acronym, rows in ADHERENCE.items():
+        program = all_programs.get(acronym)
+        if program is None:
+            continue
+        for signal, level, verified, evidence in rows:
+            await _get_or_create(
+                db, ProgramAdherence,
+                {
+                    "level": level,
+                    "evidence": evidence,
+                    "verified": verified,
+                    "verified_on": date(2026, 8, 10),
+                },
+                program_id=program.id, signal=signal,
+            )
+    counts["program_adherence"] = sum(len(r) for r in ADHERENCE.values())
 
     for url, kind, title, redirect in SOURCES + PPGPEP_SOURCES + INDEX_SOURCES:
         await _get_or_create(
