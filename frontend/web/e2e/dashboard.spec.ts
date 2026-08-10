@@ -223,6 +223,28 @@ test("the process timeline says when we will actually know", async ({ page }) =>
   await expect(timeline).toContainText("18 de dez.");
 });
 
+test("o ciclo previsto do PPGCC aparece, com a previsão e sem datas falsas", async ({
+  page,
+}) => {
+  /**
+   * O PPGCC é o programa que o Victor mais quer, e não tem edital aberto. O que a
+   * página precisa dizer é QUANDO esperar — e não pode inventar data para isso.
+   *
+   * Isto também guarda um bug real: `cycles.find(program === "PPGCC")` mostrava só
+   * o primeiro ciclo, e no dia em que o previsto entrou o encerrado sumiu junto com
+   * o aviso de rótulo contraditório.
+   */
+  await openPpgcc(page);
+
+  const previsto = page.locator("div").filter({ hasText: /^PPGCC · Mestrado 2027\/1/ }).first();
+  await expect(previsto).toContainText("previsto");
+  await expect(previsto).toContainText("Edital ainda não publicado");
+  await expect(previsto).toContainText("outubro de 2026");
+
+  // E o encerrado continua ali, com o aviso.
+  await expect(page.getByText(/O site ainda rotula este processo como/)).toBeVisible();
+});
+
 test("the options table shows every programme investigated, eliminated included", async ({
   page,
 }) => {

@@ -126,6 +126,9 @@ class CycleOut(BaseModel):
     applications_close_on: date | None
     final_result_on: date | None
     site_label: str | None
+    # A nota do ciclo. Para um ciclo PREVISTO é onde vive a previsão — separada
+    # de qualquer campo de data, para não ser lida como fato.
+    notes: str | None
     official_url: str | None
     status: str
     total_seats: int
@@ -493,6 +496,7 @@ async def list_admission_cycles(db: Db) -> list[CycleOut]:
             applications_close_on=c.applications_close_on,
             final_result_on=c.final_result_on,
             site_label=c.site_label,
+            notes=c.notes,
             official_url=c.official_url,
             status=c.status_on(today),
             total_seats=sum(s.seats for s in c.seats),

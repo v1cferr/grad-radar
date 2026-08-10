@@ -203,8 +203,11 @@ function CycleCard({
           <Badge variant={s.variant}>{s.text}</Badge>
         </div>
         <p className="text-sm text-muted-foreground">
-          Inscrições {fmt(c.applications_open_on)} – {fmt(c.applications_close_on)} · {c.total_seats}{" "}
-          vagas
+          {/* Ciclo previsto não tem datas. "— a —" fingiria uma lacuna de dado
+              quando o fato é que o edital ainda não saiu. */}
+          {c.applications_open_on
+            ? `Inscrições ${fmt(c.applications_open_on)} – ${fmt(c.applications_close_on)} · ${c.total_seats} vagas`
+            : "Edital ainda não publicado"}
         </p>
       </CardHeader>
 
@@ -220,7 +223,14 @@ function CycleCard({
           </Alert>
         )}
 
-        {showSchedule && (
+        {c.notes && !c.applications_open_on && (
+          <Alert>
+            <CalendarClock className="size-4" />
+            <AlertDescription>{c.notes}</AlertDescription>
+          </Alert>
+        )}
+
+        {showSchedule && c.stages.length > 0 && (
           <>
             <section>
               <h4 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
@@ -254,6 +264,7 @@ function CycleCard({
           </>
         )}
 
+        {c.seats.length > 0 && (
         <section>
           <h4 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             {seatsByLine ? "Vagas por linha" : "Vagas"}
@@ -298,8 +309,9 @@ function CycleCard({
             ))}
           </div>
         </section>
+        )}
 
-        {showDocuments && (
+        {showDocuments && c.required_documents.length > 0 && (
           <>
             <Separator />
             <section>
@@ -382,11 +394,30 @@ export default async function Home() {
   const ppgpep = programs.find((p) => p.acronym === "PPGPEP");
   const linesOf = (acronym: string) =>
     programs.find((p) => p.acronym === acronym)?.research_lines ?? [];
-  const cycleOf = (acronym: string) => cycles.find((c) => c.program === acronym);
+  /**
+   * TODOS os ciclos de um programa, na ordem em que merecem atenção.
+   *
+   * Era `find`, que devolvia o primeiro — e quebrou no dia em que o PPGCC ganhou
+   * um segundo ciclo: a aba passou a mostrar o previsto de 2027/1 e sumiu com o
+   * encerrado de 2026/2, junto com o aviso de rótulo contraditório. Um programa
+   * tem vários ciclos por definição; escolher um deles é sempre uma decisão, e
+   * `find` a tomava por acidente.
+   */
+  const RANK = { open: 0, announced: 1, in_progress: 2, expected: 3, concluded: 4 };
+  const cyclesOf = (acronym: string) =>
+    cycles
+      .filter((c) => c.program === acronym)
+      .sort(
+        (a, b) =>
+          (RANK[a.status as keyof typeof RANK] ?? 9) - (RANK[b.status as keyof typeof RANK] ?? 9) ||
+          b.year - a.year,
+      );
 
   const conflicts = offerings.filter((o) => o.conflicts_with_work === true).length;
   const ampln = ppgcc?.research_lines.find((l) => l.acronym === "AMPLN");
-  const amplnSeats = cycleOf("PPGCC")?.seats.find((s) => s.research_line === "AMPLN")?.seats;
+  const amplnSeats = cycles
+    .find((c) => c.program === "PPGCC" && c.year === 2026 && c.semester === 2)
+    ?.seats.find((s) => s.research_line === "AMPLN")?.seats;
   const eveningOfferings = offerings.filter((o) => o.starts_at && o.starts_at >= "18:00:00").length;
 
   // A única coisa desta página com prazo. Vem antes de tudo porque é a única que
@@ -398,7 +429,7 @@ export default async function Home() {
     .sort((a, b) => (a.applications_close_on! < b.applications_close_on! ? -1 : 1))[0];
   const daysLeft = daysUntil(actionable?.applications_close_on, today);
   const daysToOpen = daysUntil(actionable?.applications_open_on, today);
-  const ppgpepCycle = cycleOf("PPGPEP");
+  const ppgpepCycle = cyclesOf("PPGPEP")[0];
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
@@ -578,7 +609,9 @@ export default async function Home() {
             />
           </section>
 
-          {cycleOf("PPGCC") && <CycleCard c={cycleOf("PPGCC")!} lines={linesOf("PPGCC")} />}
+          {cyclesOf("PPGCC").map((c) => (
+            <CycleCard key={c.id} c={c} lines={linesOf("PPGCC")} />
+          ))}
 
           <section>
             <h3 className="text-sm font-medium">Grade semanal · 2026/2</h3>

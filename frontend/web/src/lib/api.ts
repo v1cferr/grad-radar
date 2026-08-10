@@ -102,6 +102,8 @@ export type Cycle = {
   /** Quando o candidato finalmente sabe — depois do último prazo de recurso. */
   final_result_on: string | null;
   site_label: string | null;
+  /** Para um ciclo previsto, é onde vive a previsão — nunca num campo de data. */
+  notes: string | null;
   official_url: string | null;
   status: string;
   total_seats: number;
