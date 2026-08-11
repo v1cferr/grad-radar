@@ -378,3 +378,47 @@ test("is legible on a phone", async ({ page }) => {
   );
   expect(overflow).toBe(false);
 });
+
+/**
+ * A aba de aluno especial existe porque o veredito dela é de outra natureza: os
+ * quatro requisitos avaliam o programa, e esta porta muda o que conta como
+ * aprovado sem mudar nada no programa.
+ *
+ * O que estes testes protegem é a INVERSÃO. A resposta intuitiva — "vou me
+ * inscrever como aluno especial no PPGCC" — é a errada, e a certa é um programa
+ * que a página classifica como não-aprovado no processo regular. Se um refactor
+ * fizer os dois cartões dizerem a mesma coisa, ninguém percebe lendo o diff.
+ */
+test("special-student tab inverts the verdict only where evening classes exist", async ({
+  page,
+}) => {
+  await page.getByRole("tab", { name: /Aluno especial/ }).click();
+
+  // Sem projeto de pesquisa é o que a porta resolve; o horário é o que ela não
+  // resolve. As duas metades têm de aparecer, senão a página promete demais.
+  await expect(page.getByText(/mesmas disciplinas da mesma grade/)).toBeVisible();
+  await expect(page.getByText(/uma disciplina.*que caiba/i).first()).toBeVisible();
+
+  const ppgcc = page.locator('[data-slot="card"]', { hasText: "PPGCC · Aluno especial" });
+  await expect(ppgcc.getByText("não resolve o horário")).toBeVisible();
+
+  // A EESC-EP tem 3 faixas noturnas em 18 — reprovada para integralizar, viável
+  // para uma disciplina. É a única porta que abre, e vem antes do PPGCC.
+  const eesc = page.locator('[data-slot="card"]', { hasText: "EESC-EP · Aluno especial" });
+  await expect(eesc.getByText("pode caber")).toBeVisible();
+  await expect(eesc).toContainText("SEP5843");
+
+  // Pelo TÍTULO, não pelo texto do cartão: `hasText` casa o conteúdo inteiro, e
+  // ancorar com `$` nunca fecha num cartão que tem parágrafo e link depois.
+  const titles = page.locator('[data-slot="card-title"]', { hasText: "· Aluno especial" });
+  await expect(titles.first()).toContainText("EESC-EP");
+});
+
+test("does not claim RU access it never verified", async ({ page }) => {
+  await page.getByRole("tab", { name: /Aluno especial/ }).click();
+  const ru = page.getByText(/Restaurante universitário/);
+  await expect(ru).toBeVisible();
+  // "imagino que não" era o palpite dele, "provavelmente sim" é o meu. Nenhum dos
+  // dois é dado, e a página tem de dizer isso em vez de escolher um.
+  await expect(page.getByText(/palpite não é dado/)).toBeVisible();
+});

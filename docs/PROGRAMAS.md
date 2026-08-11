@@ -256,6 +256,69 @@ PPGCTS 70%, PPGEP 60%, PPGCI 50% — estão todos eliminados por horário.**
 
 ---
 
+## Aluno especial — a porta que dispensa projeto
+
+Cursar **disciplina isolada** da pós, com seleção por **análise de documentos**: sem
+projeto de pesquisa, sem prova, sem banca. No PPGCC é semestral e exige diploma em
+computação ou área afim.
+
+É uma porta real, e vale entender exatamente o que ela abre e o que não abre.
+
+**O que ela resolve:** o custo de entrada. Todo processo regular investigado aqui —
+PPGPEP, PPGAdS, MECAI, EESC-EP — exige um **projeto de pesquisa**, que é o trabalho
+inteiro. Aluno especial não exige nada disso.
+
+**O que ela NÃO resolve: o horário.** As disciplinas são as *mesmas* da grade do
+programa. Cursar o PPGCC como aluno especial significa assistir às mesmas aulas de
+08–12 e 14–18 — o muro é idêntico.
+
+**Mas ela muda a UNIDADE do problema**, e é aí que está o valor:
+
+> Um aluno **regular** precisa que a grade **inteira** caiba na jornada, ao longo de
+> anos. Um aluno **especial** precisa de **uma disciplina** que caiba.
+
+Isso inverte o veredito exatamente nos programas com noturno minoritário.
+
+| Programa | Aluno especial? | Serve para vocês? |
+| --- | --- | --- |
+| [**EESC-EP** (USP)](https://posproducao.eesc.usp.br/processo-seletivo/) | ✅ "Processo Seletivo – Disciplinas (Aluno Especial)", com formulário próprio | ✅ **Sim.** `SEP5843 Tópicos Avançados em Servitização`, **18h30–20h30**, remota. Uma disciplina basta |
+| [PPGCC (UFSCar)](https://www.ppgcc.ufscar.br/pt-br/processo-seletivo/aluno-especial) | ✅ semestral, análise de documentos | ❌ **Não hoje.** A grade de 2026/2 não tem nada após as 18h — como especial, o muro é o mesmo |
+| [PPGCTS (UFSCar)](https://www.ppgcts.ufscar.br/pt-br/processos-seletivos/aluno-especial) | ✅ | ❌ 8h–12h e 14h–17h |
+| PPGPEP (UFSCar) | ❌ não oferece | — |
+| PPGAdS (UFSCar) | ❓ não consta na página de processos | — |
+
+### Se a ideia é começar por aí
+
+**A EESC/USP é a porta que existe hoje**, não o PPGCC. É contraintuitivo — o PPGCC é
+o programa que vocês querem —, mas como aluno especial no PPGCC não haveria
+disciplina que coubesse na jornada.
+
+Duas coisas que aluno especial dá de graça e que o processo regular não dá:
+
+- **testar o encaixe** antes de escrever projeto — o custo de errar cai a uma
+  disciplina;
+- **conhecer um orientador** por dentro, o que resolve o Anexo II do PPGPEP e a
+  carta de vínculo que praticamente todo processo pede.
+
+E uma que ela não dá: **crédito garantido**. Disciplina cursada como especial
+costuma poder ser aproveitada depois, mas isso depende do regimento de cada
+programa e precisa ser confirmado antes, não depois.
+
+### Restaurante universitário — não consegui verificar
+
+A página oficial do RU diz apenas que atende "toda a Comunidade Universitária", sem
+enumerar categorias, e a exigência prática é a **carteira de estudante** (a mesma da
+BCo). Se aluno especial de pós tira carteirinha, tem acesso.
+
+Não achei fonte que afirme nem negue para **pós-graduação**. Há um relatório de
+comissão de 2017 dizendo que alunos especiais de **graduação** têm o mesmo direito
+que os regulares — sugestivo, mas é outra categoria e tem oito anos.
+
+Sua intuição foi "imagino que não"; a minha leitura é que **provavelmente sim**,
+porque aluno especial é matriculado. Mas nenhum dos dois é verificado, e isso se
+resolve com uma pergunta à ProACE ou à secretaria do programa no ato da matrícula.
+Ver [página do RU](https://www.proad.ufscar.br/pt-br/servicos/restaurante-universitario).
+
 ## O catálogo completo, para plena visão
 
 Tudo que existe na região, aderente ou não, com link. Um programa fora da lista de

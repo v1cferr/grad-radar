@@ -188,6 +188,10 @@ function CycleCard({
 }) {
   const s = STATUS[c.status] ?? STATUS.expected;
   const mismatch = c.site_label && c.status === "concluded";
+  // "Mestrado" era literal no título. Um ciclo de aluno especial não é mestrado —
+  // é disciplina isolada —, e chamá-lo assim prometeria um diploma que a matrícula
+  // não dá.
+  const special = c.entry_mode === "special_student";
   const maxSeats = Math.max(...c.seats.map((x) => x.seats), 1);
   // O PPGCC distribui vagas por linha; o PPGPEP explicitamente NÃO (edital 3.6).
   // Renderizar uma barra sem rótulo seria pior que dizer que a divisão não existe.
@@ -198,16 +202,20 @@ function CycleCard({
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle className="text-base">
-            {c.program} · Mestrado {c.year}/{c.semester}
+            {c.program} · {special ? "Aluno especial" : `Mestrado ${c.year}/${c.semester}`}
           </CardTitle>
           <Badge variant={s.variant}>{s.text}</Badge>
         </div>
         <p className="text-sm text-muted-foreground">
           {/* Ciclo previsto não tem datas. "— a —" fingiria uma lacuna de dado
-              quando o fato é que o edital ainda não saiu. */}
+              quando o fato é que o edital ainda não saiu. E aluno especial não tem
+              edital nenhum: abre a cada semestre com o calendário acadêmico, então
+              "ainda não publicado" seria esperar um documento que não existe. */}
           {c.applications_open_on
             ? `Inscrições ${fmt(c.applications_open_on)} – ${fmt(c.applications_close_on)} · ${c.total_seats} vagas`
-            : "Edital ainda não publicado"}
+            : special
+              ? "Abre a cada semestre, com o calendário acadêmico"
+              : "Edital ainda não publicado"}
         </p>
       </CardHeader>
 
@@ -403,10 +411,31 @@ export default async function Home() {
    * tem vários ciclos por definição; escolher um deles é sempre uma decisão, e
    * `find` a tomava por acidente.
    */
+  /**
+   * Entrada como aluno especial, avaliada pelo requisito de horário do programa.
+   *
+   * A regra é derivada, não digitada, e o motivo importa: aluno especial cursa as
+   * MESMAS disciplinas da grade, então ele não relaxa o horário — muda a unidade.
+   * O regular precisa que a grade inteira caiba; o especial, que UMA disciplina
+   * caiba. Por isso o veredito do requisito 1 já responde:
+   *
+   *   not_met  → não há NENHUMA faixa noturna. Como especial, o muro é o mesmo.
+   *   unknown  → há faixa noturna, só não em maioria (a regra EVENING_MAJORITY do
+   *              extrator). É exatamente o caso que a matrícula isolada converte
+   *              em viável: o que impedia era integralizar, e não é mais preciso.
+   *   met      → cabe dos dois jeitos.
+   */
+  const eveningOf = (acronym: string) =>
+    options
+      .find((o) => o.acronym === acronym)
+      ?.requirements.find((r) => r.requirement === "evening_classes");
   const RANK = { open: 0, announced: 1, in_progress: 2, expected: 3, concluded: 4 };
+  // Aluno especial sai daqui: as abas por programa são sobre o processo regular, e
+  // o mesmo cartão nas duas seria ruído. Ele tem aba própria.
+  const special = cycles.filter((c) => c.entry_mode === "special_student");
   const cyclesOf = (acronym: string) =>
     cycles
-      .filter((c) => c.program === acronym)
+      .filter((c) => c.program === acronym && c.entry_mode !== "special_student")
       .sort(
         (a, b) =>
           (RANK[a.status as keyof typeof RANK] ?? 9) - (RANK[b.status as keyof typeof RANK] ?? 9) ||
@@ -511,7 +540,11 @@ export default async function Home() {
           encontrar primeiro os números do que não serve. */}
       <h2 className="mt-10 text-lg font-semibold">Detalhe por programa</h2>
       <Tabs defaultValue="PPGPEP" className="mt-4">
-        <TabsList>
+        {/* `h-auto flex-wrap`: com três abas a lista estourava a largura de 390px
+            e fazia a PÁGINA rolar de lado — o teste do celular pegou. Quebrar em
+            duas linhas é melhor que rolagem horizontal numa barra de navegação,
+            que esconde a aba de fora da tela sem nenhuma pista de que ela existe. */}
+        <TabsList className="h-auto flex-wrap">
           <TabsTrigger value="PPGPEP">
             PPGPEP
             <Badge variant="secondary" className="ml-2 font-normal">
@@ -522,6 +555,12 @@ export default async function Home() {
             PPGCC
             <Badge variant="outline" className="ml-2 font-normal">
               eliminado
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="especial">
+            Aluno especial
+            <Badge variant="secondary" className="ml-2 font-normal">
+              {special.length}
             </Badge>
           </TabsTrigger>
         </TabsList>
@@ -654,6 +693,92 @@ export default async function Home() {
             </p>
             <LinesTable program={ppgcc} termCollected />
           </section>
+        </TabsContent>
+
+        {/* ── Aluno especial ─────────────────────────────────────────────────
+            Uma aba, e não uma linha na tabela, porque o veredito aqui é de outra
+            natureza: os quatro requisitos avaliam o PROGRAMA, e esta porta muda
+            o que conta como aprovado sem mudar nada no programa. */}
+        <TabsContent value="especial" className="space-y-6">
+          <Card>
+            <CardContent className="space-y-4 px-6">
+              <div>
+                <h2 className="font-medium">Disciplina isolada, sem projeto de pesquisa</h2>
+                <p className="text-sm text-muted-foreground">
+                  seleção por análise de documentos · abre a cada semestre · não dá diploma
+                </p>
+              </div>
+              <p className="text-sm">
+                Todo processo regular desta página exige um <strong>projeto de pesquisa</strong>, que
+                é o trabalho inteiro. Aluno especial não exige nenhum — mas cursa as{" "}
+                <strong>mesmas disciplinas da mesma grade</strong>, então não relaxa o horário.
+              </p>
+              <Alert>
+                <Info className="size-4" />
+                <AlertDescription>
+                  O que muda é a <strong>unidade do problema</strong>: um aluno regular precisa que a
+                  grade inteira caiba na jornada, por anos; um aluno especial precisa de{" "}
+                  <strong>uma disciplina</strong> que caiba. É por isso que a resposta abaixo inverte
+                  justamente nos programas com noturno minoritário — e só neles.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+
+          {special
+            .map((c) => ({ c, req: eveningOf(c.program) }))
+            // Viável primeiro. Ordenar por nome deixaria o PPGCC no topo, que é o
+            // programa que ele quer e o único onde a porta não abre.
+            .sort((a, b) => Number(a.req?.status === "not_met") - Number(b.req?.status === "not_met"))
+            .map(({ c, req }) => {
+              const blocked = req?.status === "not_met";
+              return (
+                <Card key={c.id}>
+                  <CardHeader>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <CardTitle className="text-base">{c.program} · Aluno especial</CardTitle>
+                      <Badge variant={blocked ? "outline" : "secondary"}>
+                        {blocked ? "não resolve o horário" : "pode caber"}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Abre a cada semestre, com o calendário acadêmico
+                    </p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {c.notes && <p className="text-sm">{c.notes}</p>}
+                    {/* A evidência é a mesma do requisito de horário do programa —
+                        não uma segunda afirmação que pode divergir da primeira. */}
+                    {req?.evidence && (
+                      <p className="text-xs text-muted-foreground">{req.evidence}</p>
+                    )}
+                    {c.official_url && (
+                      <a
+                        className="inline-flex items-center gap-1 text-sm underline underline-offset-4"
+                        href={c.official_url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Página oficial da inscrição
+                        <ExternalLink className="size-3.5" />
+                      </a>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+
+          <Alert>
+            <AlertTriangle className="size-4" />
+            <AlertDescription>
+              <strong>Restaurante universitário: não verificado.</strong> A página da UFSCar diz
+              apenas que o RU atende &ldquo;toda a Comunidade Universitária&rdquo;, sem enumerar
+              categorias, e na prática a exigência é a carteira de estudante. Não achei fonte que
+              afirme nem negue para aluno especial de <em>pós</em>. Como ele é matriculado, o palpite
+              é que sim — mas palpite não é dado, e isso se resolve com uma pergunta à secretaria no
+              ato da matrícula.
+            </AlertDescription>
+          </Alert>
         </TabsContent>
       </Tabs>
 

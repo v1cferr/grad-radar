@@ -335,6 +335,16 @@ MECAI_SOURCES = [
 # O PPGCC publica editais SEMESTRAIS. O Edital 01/2026 (ingresso 2026/1) tem datas
 # de 06/10/2025 a 16/03/2026 — ou seja, saiu no começo de outubro. O de 2027/1
 # deve sair em outubro de 2026, e é essa página que vai anunciá-lo.
+# ── Aluno especial: a porta que dispensa projeto ─────────────────────────────
+# Cursar disciplina isolada, com seleção por ANÁLISE DE DOCUMENTOS — sem projeto de
+# pesquisa, sem prova. Não relaxa o requisito de horário (as disciplinas são as
+# MESMAS da grade), mas muda a unidade do problema: o aluno regular precisa que a
+# grade INTEIRA caiba na jornada; o especial precisa de UMA disciplina.
+SPECIAL_STUDENT_SOURCES = [
+    ("https://www.ppgcts.ufscar.br/pt-br/processos-seletivos/aluno-especial",
+     SourceType.ADMISSION_PAGE, "PPGCTS — aluno especial", None),
+]
+
 EESC_SOURCES = [
     ("https://posproducao.eesc.usp.br/disciplinas/", SourceType.COURSE_CATALOG,
      "EESC-EP — disciplinas e horários", None),
@@ -1054,6 +1064,58 @@ async def seed(db: AsyncSession) -> dict[str, int]:
     # Contar só o que foi realmente gravado. Antes reportava o tamanho do
     # dicionário, e mentiu: disse 55 aderências enquanto um dos programas do dicionário
     # não existia no banco — um número que confirma o que não aconteceu.
+    # ── Entrada como ALUNO ESPECIAL, onde existe ────────────────────────────
+    # Cursar disciplina isolada, com seleção por ANÁLISE DE DOCUMENTOS — sem projeto
+    # de pesquisa e sem prova. NÃO relaxa o requisito de horário (as disciplinas são
+    # as mesmas da grade), mas muda a UNIDADE do problema: o aluno regular precisa
+    # que a grade inteira caiba na jornada; o especial precisa de UMA disciplina.
+    #
+    # Ciclos sem data: são semestrais e seguem o calendário acadêmico, publicado a
+    # cada semestre. `applications_open_on` nulo faz `status_on` devolver EXPECTED em
+    # vez de inventar prazo — mesma regra do ciclo previsto do PPGCC.
+    special = {
+        "PPGCC": (
+            "https://www.ppgcc.ufscar.br/pt-br/processo-seletivo/aluno-especial",
+            (
+                "Seleção por ANÁLISE DE DOCUMENTOS — sem projeto de pesquisa e sem "
+                "prova. Exige diploma em computação ou área afim. MAS as disciplinas "
+                "são as da mesma grade: 08–12 e 14–18 em 2026/2, nenhuma após as 18h. "
+                "Como aluno especial o muro de horário é o mesmo."
+            ),
+        ),
+        "PPGCTS": (
+            "https://www.ppgcts.ufscar.br/pt-br/processos-seletivos/aluno-especial",
+            (
+                "Existe entrada como aluno especial. Mesma grade do programa: 8h–12h "
+                "e 14h–17h em 2026/2, sem noturno."
+            ),
+        ),
+        "EESC-EP": (
+            "https://posproducao.eesc.usp.br/processo-seletivo/",
+            (
+                "Processo Seletivo – Disciplinas (Aluno Especial), com formulário de "
+                "matrícula próprio. É a ÚNICA porta encontrada em que a grade tem "
+                "disciplina noturna: SEP5843 Tópicos Avançados em Servitização, "
+                "18h30–20h30, remota. Uma disciplina basta para um aluno especial — "
+                "não é preciso que a grade inteira caiba."
+            ),
+        ),
+    }
+    for acronym, (url, note) in special.items():
+        prog = all_programs.get(acronym)
+        if prog is None:
+            continue
+        c = await _get_or_create(
+            db, AdmissionCycle,
+            {"official_url": url, "notes": note},
+            program_id=prog.id, year=2027, semester=1,
+            entry_mode=EntryMode.SPECIAL_STUDENT,
+        )
+        c.degree_level = None
+    counts["special_student_routes"] = len(
+        [a for a in special if a in all_programs]
+    )
+
     counts["program_adherence"] = sum(
         len(rows) for a, rows in ADHERENCE.items() if a in all_programs
     )
@@ -1080,6 +1142,7 @@ async def seed(db: AsyncSession) -> dict[str, int]:
         + PPGCC_NEXT_SOURCES
         + PPGADS_SOURCES
         + EESC_SOURCES
+        + SPECIAL_STUDENT_SOURCES
         + INDEX_SOURCES
     )
     for url, kind, title, redirect in all_sources:

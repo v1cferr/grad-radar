@@ -31,7 +31,8 @@ Aplicam-se **apenas** ao que passou pelos eliminatórios:
 - aderência ao trabalho na FAI — cinco sinais derivados do edital, em
   [`ADERENCIA.md`](ADERENCIA.md);
 - docentes e laboratórios com atividade real na área — não o nome da linha;
-- possibilidade de entrar antes como aluno especial;
+- possibilidade de entrar antes como aluno especial — mapeado em
+  [`PROGRAMAS.md`](PROGRAMAS.md); dispensa projeto, mas NÃO relaxa o horário;
 - existência de bolsa compatível com vínculo empregatício;
 - distância e deslocamento;
 - potencial de rede e de impacto na carreira.
