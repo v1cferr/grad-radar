@@ -8,10 +8,10 @@ ninguém lê já foi o problema deste projeto uma vez.
 
 from __future__ import annotations
 
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import (
@@ -22,7 +22,13 @@ from app.models import (
     SourceSnapshot,
     SourceType,
 )
-from app.notify import REMINDERS, active_channels, collect_events, run
+from app.notify import (
+    REMINDERS,
+    active_channels,
+    announcement_lines,
+    collect_events,
+    run,
+)
 
 TODAY = date(2026, 8, 10)
 
@@ -139,6 +145,75 @@ class TestWhatIsNotNotified:
         assert not any(k.startswith("verdict:") for k in await _keys(db))
 
 
+class TestAnnouncementOnAWatchedPage:
+    """O buraco que este bloco fecha, com o caso real.
+
+    Em 10/08/2026 o monitor detectou mudança na página de processos seletivos do
+    PPGAdS e o edital novo estava lá — mas o notificador só avisava para
+    `edital_pdf`, e a fonte era `admission_page`. Se aquilo acontecesse com o
+    notificador rodando, NINGUÉM teria sido avisado. Foi encontrado à mão, porque
+    o Victor perguntou.
+    """
+
+    # Verbatim do diff dos dois snapshots reais.
+    BEFORE = "Processos Seletivos\n\nAcesse o edital de seleção 2025\n"
+    AFTER = (
+        "Processos Seletivos\n\nProcesso Seletivo 2026\n\n"
+        "Para a turma que iniciará as atividades em 2027\n\n"
+        "Acesse o\nedital de seleção 2026\n\nAcesse o edital de seleção 2025\n"
+    )
+
+    def test_it_reads_the_real_added_lines(self):
+        lines = announcement_lines(self.BEFORE, self.AFTER)
+        assert any("Processo Seletivo 2026" in x for x in lines)
+
+    def test_navigation_text_is_not_an_announcement(self):
+        """Só ADIÇÕES contam. "Processos Seletivos" já estava no menu antes, e um
+        alerta por causa de menu é o começo do canal virar ruído."""
+        assert announcement_lines(self.BEFORE, self.BEFORE) == []
+
+    def test_an_unrelated_change_is_silent(self):
+        before = "Bem-vindo ao programa\nÚltima atualização: 01/08/2026\n"
+        after = "Bem-vindo ao programa\nÚltima atualização: 10/08/2026\n"
+        assert announcement_lines(before, after) == []
+
+    async def test_the_event_fires_for_an_admission_page(
+        self, db: AsyncSession, seeded: None
+    ):
+        src = (
+            await db.scalars(
+                select(Source).where(Source.source_type == SourceType.ADMISSION_PAGE)
+            )
+        ).first()
+        base = datetime.now(UTC)
+        db.add(
+            SourceSnapshot(
+                source_id=src.id,
+                retrieved_at=base,
+                content_hash="antes",
+                text=self.BEFORE,
+                changed=False,
+            )
+        )
+        await db.flush()
+        db.add(
+            SourceSnapshot(
+                source_id=src.id,
+                retrieved_at=base + timedelta(hours=1),
+                content_hash="depois",
+                text=self.AFTER,
+                changed=True,
+            )
+        )
+        await db.flush()
+
+        events = [e for e in await collect_events(db, TODAY) if e.kind.value == "announcement"]
+        assert events, "anúncio numa admission_page TEM de gerar evento"
+        # O aviso diz O QUE apareceu, não "a página mudou".
+        assert "Processo Seletivo 2026" in events[0].body
+        assert src.url in events[0].body
+
+
 class TestGoingBlind:
     async def test_a_failing_source_is_reported(self, db: AsyncSession, seeded: None):
         src = (await db.scalars(select(Source))).first()
@@ -204,15 +279,30 @@ class TestScheduleVerdictChange:
 
 
 class TestDeduplication:
+    """Estes testes limpam a tabela primeiro, dentro da própria sessão revertida.
+
+    Sem isso eles dependem de a tabela estar vazia — e o timer na máquina do Victor
+    GRAVA notificações de verdade duas vezes por dia. O teste passaria a falhar
+    porque o sistema funcionou, que é o pior tipo de teste frágil: ele treina a
+    pessoa a ignorar a suíte.
+    """
+
+    @staticmethod
+    async def _clean(db: AsyncSession) -> None:
+        await db.execute(delete(Notification))
+        await db.flush()
+
     async def test_running_twice_sends_nothing_the_second_time(
         self, db: AsyncSession, seeded: None
     ):
+        await self._clean(db)
         first, _ = await run(db, TODAY, dry_run=False)
         assert first > 0
         second, delivered = await run(db, TODAY, dry_run=False)
         assert (second, delivered) == (0, 0)
 
     async def test_dry_run_records_nothing(self, db: AsyncSession, seeded: None):
+        await self._clean(db)
         before = len((await db.scalars(select(Notification))).all())
         n, delivered = await run(db, TODAY, dry_run=True)
         assert n > 0 and delivered == 0
@@ -227,6 +317,7 @@ class TestDeduplication:
         dedupe garantiria que nunca mais se tentasse enviar.
         """
         monkeypatch.delenv("NOTIFY_CHANNELS", raising=False)
+        await self._clean(db)
         await run(db, TODAY, dry_run=False)
         rows = (await db.scalars(select(Notification))).all()
         assert rows

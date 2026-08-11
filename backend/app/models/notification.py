@@ -28,6 +28,7 @@ class NotificationKind(enum.StrEnum):
     disso ensina a ignorar o canal.
     """
 
+    ANNOUNCEMENT = "announcement"  # apareceu ANÚNCIO de processo numa página vigiada
     CYCLE_OPEN = "cycle_open"  # apareceu processo que dá para fazer
     DEADLINE_SOON = "deadline_soon"  # o prazo está chegando
     NOTICE_CHANGED = "notice_changed"  # o EDITAL mudou — retificação

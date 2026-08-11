@@ -114,7 +114,7 @@ flowchart LR
         CO --> EXT["19 official sources<br/>HTML, PDF, SEI redirects"]
         M --> V["verify.py<br/>re-derive the schedule verdict"]
         V --> X["extract.py<br/>time bands, no model"]
-        V --> NT["notify.py<br/>five events, deduped"]
+        V --> NT["notify.py<br/>six events, deduped"]
         NT --> CH["ntfy · telegram"]
     end
 
@@ -292,7 +292,7 @@ checklist, application history and scores.
 | F2 | Filters and opportunity scoring — the adherence index | done; CRUD not needed yet |
 | F3 | UI — options table, deadline lead, next steps, weekly grid, edital viewer | done |
 | F5 | Monitoring — 19 registered sources, page and PDF change detection, systemd timer | done |
-| F4 | Notifications — deadline and change alerts, five event kinds, deduped | done |
+| F4 | Notifications — six event kinds including new-call announcements, deduped | done |
 | F6 | Extraction — turn a schedule document into a verdict without a human reading it | done for schedules |
 | F7 | LLM-assisted field extraction from editais, as **proposals** never as facts | planned |
 

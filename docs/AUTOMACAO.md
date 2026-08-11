@@ -102,13 +102,42 @@ São cinco eventos, e cada um responde a "isso faz alguém agir?":
 
 | Evento | Faz agir porque |
 | --- | --- |
+| `announcement` | apareceu **anúncio de processo** numa página vigiada |
 | `cycle_open` | apareceu processo que dá para fazer |
 | `deadline_soon` | o prazo está chegando e o projeto leva semanas |
 | `notice_changed` | o **edital** mudou — retificação muda regra |
 | `source_blind` | paramos de conseguir ver uma fonte; o silêncio virou cegueira |
 | `schedule_verdict` | a grade mudou o veredito de horário |
 
-O último é o mais valioso do projeto: é ele que avisa se o PPGCC abrir aula à noite.
+O `schedule_verdict` é o mais valioso a longo prazo: é ele que avisa se o PPGCC
+abrir aula à noite. O `announcement` é o que responde "como vamos saber quando
+sair um edital novo".
+
+### O buraco que o `announcement` fechou
+
+A primeira versão do notificador avisava sobre edital alterado apenas para fontes
+do tipo `EDITAL_PDF`. Mas o Edital 01/2026 do PPGAdS **apareceu numa
+`admission_page`** — a página de processos seletivos ganhou três linhas novas. Ou
+seja: se aquele edital tivesse aparecido com o notificador rodando, **ninguém teria
+sido avisado.** Foi encontrado à mão, porque o Victor perguntou como o
+acompanhamento funcionaria dali para frente.
+
+Agora `ADMISSION_PAGE` e `PROGRAM_INDEX` também disparam, mas **não por mudança de
+hash**: o evento compara os dois últimos snapshots, pega as linhas
+**acrescentadas** e só avisa se alguma parecer anúncio — "edital", "processo
+seletivo", "inscrições", "vagas", "ingresso".
+
+Duas consequências que valem mais que a detecção em si:
+
+- **O aviso diz O QUE apareceu.** O corpo da mensagem cita as linhas novas, então
+  a notificação lê "Processo Seletivo 2026 / Para a turma que iniciará as atividades
+  em 2027" em vez de "a página mudou". A diferença entre um alerta que se lê e um
+  que se arquiva.
+- **Texto de navegação não conta.** Só adições entram no diff, e o menu já estava
+  lá antes. A chave de dedupe é o hash das linhas ACRESCENTADAS, não da página — a
+  página muda de novo por outros motivos e o mesmo anúncio não volta.
+
+O caso real está no teste, verbatim, em `tests/test_notify.py`.
 
 ### Três detalhes que decidem se o canal é lido
 

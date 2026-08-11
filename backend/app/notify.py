@@ -30,7 +30,10 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import difflib
+import hashlib
 import os
+import re
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 
@@ -60,6 +63,39 @@ from app.models import (
 REMINDERS = (30, 14, 7, 3, 1)
 
 SITE = os.environ.get("SITE_URL", "https://pos.v1cferr.dev")
+
+# Páginas onde um edital NOVO é anunciado. Distinto de página de programa: uma
+# muda por contador de visitas, a outra muda porque abriu processo.
+ANNOUNCING = (SourceType.ADMISSION_PAGE, SourceType.PROGRAM_INDEX)
+
+# O que faz uma linha ACRESCENTADA parecer anúncio. O caso real que motivou isto:
+# em 10/08/2026 a página do PPGAdS ganhou "Processo Seletivo 2026 / Para a turma
+# que iniciará as atividades em 2027 / Acesse o edital de seleção 2026", e o
+# notificador não disse nada porque só olhava PDF de edital.
+_ANNOUNCEMENT = re.compile(
+    r"\b(?:edital|processo\s+seletivo|processos\s+seletivos|inscri[çc][õo]?[ea]s?|"
+    r"sele[çc][ãa]o|vagas|ingresso)\b",
+    re.IGNORECASE,
+)
+
+
+def announcement_lines(before: str, after: str) -> list[str]:
+    """As linhas que APARECERAM e parecem anúncio de processo.
+
+    Olhar só o hash diria "mudou"; olhar as linhas acrescentadas diz O QUE mudou,
+    e é a diferença entre um alerta que se ignora e um que se lê. Só adições
+    contam: texto de navegação já estava lá antes e não entra no diff.
+    """
+    added = [
+        line.strip()
+        for line in difflib.unified_diff(before.splitlines(), after.splitlines(), n=0)
+        if line.startswith("+") and not line.startswith("+++")
+    ]
+    return [
+        line[1:].strip()
+        for line in added
+        if len(line) > 12 and _ANNOUNCEMENT.search(line)
+    ]
 
 
 @dataclass(frozen=True)
@@ -160,6 +196,38 @@ async def _source_events(db: AsyncSession) -> list[Event]:
                 )
             )
             continue
+
+        # Anúncio numa página vigiada. O que fecha o buraco: o edital do PPGAdS
+        # apareceu numa admission_page, e antes disto só edital_pdf avisava.
+        if snap.changed and src.source_type in ANNOUNCING:
+            previous = (
+                await db.scalars(
+                    select(SourceSnapshot)
+                    .where(
+                        SourceSnapshot.source_id == src.id,
+                        SourceSnapshot.text.isnot(None),
+                        SourceSnapshot.id != snap.id,
+                    )
+                    .order_by(SourceSnapshot.retrieved_at.desc())
+                    .limit(1)
+                )
+            ).first()
+            if previous and snap.text:
+                new_lines = announcement_lines(previous.text, snap.text)
+                if new_lines:
+                    quoted = "\n".join(f"· {line}" for line in new_lines[:6])
+                    out.append(
+                        Event(
+                            NotificationKind.ANNOUNCEMENT,
+                            # Chave pelo CONTEÚDO acrescentado, não pelo hash da
+                            # página: a página muda de novo por outros motivos e o
+                            # mesmo anúncio não deve voltar.
+                            f"announce:{src.id}:"
+                            f"{hashlib.sha256(quoted.encode()).hexdigest()[:16]}",
+                            f"{who}: apareceu anúncio de processo seletivo",
+                            f"{src.title}\n\n{quoted}\n\n{src.url}",
+                        )
+                    )
 
         if snap.changed and src.source_type is SourceType.EDITAL_PDF:
             out.append(
