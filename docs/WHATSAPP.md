@@ -47,6 +47,9 @@ Somado a isso: **é o número que você usa na FAI.** O custo de um banimento n�
 perder a notificação — é perder o número de trabalho. Assimetria péssima para
 economizar um app no celular.
 
+> **Decidido em 11/08/2026: só ntfy.** Sem e-mail, sem WhatsApp. O tópico está
+> configurado no `.env` e as duas primeiras notificações foram entregues.
+
 ## O que eu faria, em ordem
 
 **1. Ligar o ntfy hoje.** Já está construído, custa zero e não tem risco nenhum.
@@ -57,10 +60,6 @@ mesmo tópico. O único custo real é um ícone a mais no celular.
 NOTIFY_CHANNELS=ntfy
 NTFY_TOPIC=algo-que-ninguem-adivinha
 ```
-
-**2. E-mail como segundo canal.** É o que chega onde vocês já olham durante o
-trabalho, sem instalar nada, e um aviso de prazo com link resolve bem em texto.
-Implementado em `app/notify.py` como canal `email`.
 
 **3. Se quiser WhatsApp mesmo: um chip dedicado.** Aí o caminho é a **Cloud API
 oficial** — sem risco de banimento, porque é permitido. O custo é o número

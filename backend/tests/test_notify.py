@@ -301,6 +301,27 @@ class TestDeduplication:
         second, delivered = await run(db, TODAY, dry_run=False)
         assert (second, delivered) == (0, 0)
 
+    async def test_an_undelivered_event_is_retried_when_a_channel_appears(
+        self, db: AsyncSession, seeded: None, monkeypatch: pytest.MonkeyPatch
+    ):
+        """O dedupe olha ENTREGA, não registro.
+
+        Sem isso, o primeiro efeito de ligar o ntfy é NÃO receber nada: os avisos
+        computados enquanto não havia canal já contam como "vistos". Aconteceu de
+        verdade — os dois processos abertos ficaram gravados como não entregues.
+        """
+        await self._clean(db)
+        monkeypatch.delenv("NOTIFY_CHANNELS", raising=False)
+        first, delivered = await run(db, TODAY, dry_run=False)
+        assert first > 0 and delivered == 0
+
+        rows = (await db.scalars(select(Notification))).all()
+        assert all(r.delivered_at is None for r in rows)
+
+        # Canal aparece. Os mesmos eventos têm de voltar a ser candidatos.
+        again, _ = await run(db, TODAY, dry_run=True)
+        assert again == first
+
     async def test_dry_run_records_nothing(self, db: AsyncSession, seeded: None):
         await self._clean(db)
         before = len((await db.scalars(select(Notification))).all())
@@ -326,17 +347,6 @@ class TestDeduplication:
 
 
 class TestChannelGating:
-    def test_email_needs_host_from_and_recipient(self, monkeypatch: pytest.MonkeyPatch):
-        """E-mail é o canal recomendado no lugar do WhatsApp no número próprio —
-        ver docs/WHATSAPP.md. Sem destinatário ele não pode ser considerado pronto."""
-        monkeypatch.setenv("NOTIFY_CHANNELS", "email")
-        monkeypatch.setenv("SMTP_HOST", "smtp.exemplo.br")
-        monkeypatch.setenv("SMTP_FROM", "radar@exemplo.br")
-        monkeypatch.delenv("EMAIL_TO", raising=False)
-        assert active_channels() == []
-        monkeypatch.setenv("EMAIL_TO", "victor@exemplo.br")
-        assert active_channels() == ["email"]
-
     def test_an_unknown_channel_name_is_ignored(self, monkeypatch: pytest.MonkeyPatch):
         """"whatsapp" no NOTIFY_CHANNELS não deve derrubar a cadeia enquanto o
         adaptador não existir — só não entra na lista de ativos."""

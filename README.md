@@ -115,7 +115,7 @@ flowchart LR
         M --> V["verify.py<br/>re-derive the schedule verdict"]
         V --> X["extract.py<br/>time bands, no model"]
         V --> NT["notify.py<br/>six events, deduped"]
-        NT --> CH["ntfy · e-mail · telegram"]
+        NT --> CH["ntfy"]
     end
 
     A --> DB[("PostgreSQL<br/>23 tables")]
@@ -292,7 +292,7 @@ checklist, application history and scores.
 | F2 | Filters and opportunity scoring — the adherence index | done; CRUD not needed yet |
 | F3 | UI — options table, deadline lead, next steps, weekly grid, edital viewer | done |
 | F5 | Monitoring — 19 registered sources, page and PDF change detection, systemd timer | done |
-| F4 | Notifications — six event kinds including new-call announcements, deduped | done |
+| F4 | Notifications — six event kinds including new-call announcements, deduped, over ntfy | done |
 | F6 | Extraction — turn a schedule document into a verdict without a human reading it | done for schedules |
 | F7 | LLM-assisted field extraction from editais, as **proposals** never as facts | planned |
 

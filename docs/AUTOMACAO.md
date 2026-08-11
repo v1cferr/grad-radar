@@ -153,6 +153,14 @@ ficar de fora de um caminho novo; uma constraint não. E o marco sobrevive à m�
 desligada: com `Persistent = true` no timer, uma checagem perdida roda atrasada e o
 marco não é nem perdido nem repetido.
 
+**E o dedupe olha ENTREGA, não registro.** Isso foi um bug real, encontrado no
+minuto em que o canal foi configurado: os dois avisos de processo aberto tinham sido
+computados antes de existir canal, ficaram gravados como não entregues, e o dedupe os
+suprimia. O primeiro efeito de ligar o ntfy seria **não receber nada** — justamente
+as duas mensagens mais importantes que o sistema tinha. Agora um evento registrado e
+não entregue volta a ser candidato, e a retentativa ATUALIZA a linha em vez de
+inserir, porque é o UNIQUE que garante o não-reenvio.
+
 **Entregue só quando algum canal aceitou.** `delivered_at` fica nulo se todos
 falharem, e a nota registra o erro por canal. Gravar entregue sem entrega tornaria
 a tabela um registro de mentiras — e o dedupe garantiria que nunca mais se
@@ -166,8 +174,10 @@ o tópico é a credencial.
 
 **Telegram** como segundo, também sem custo.
 
-**E-mail** como terceiro, e é o que eu recomendo ligar junto com o ntfy: chega onde
-os três já olham durante o trabalho, sem instalar nada.
+**Telegram** fica como segundo, sem custo, para o dia em que fizer sentido.
+
+**E-mail foi implementado e removido no mesmo dia**, por decisão do Victor: só ntfy.
+Código não usado é peso, e está no histórico do git se voltar a ser útil.
 
 **WhatsApp continua não implementado**, e a decisão está em
 [`WHATSAPP.md`](WHATSAPP.md) porque é de risco, não de arquitetura. Resumo: dá para

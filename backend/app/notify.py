@@ -34,10 +34,8 @@ import difflib
 import hashlib
 import os
 import re
-import smtplib
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
-from email.message import EmailMessage
 
 import httpx
 from sqlalchemy import select
@@ -355,40 +353,7 @@ async def _send_telegram(client: httpx.AsyncClient, ev: Event) -> str:
     return f"telegram {r.status_code}"
 
 
-async def _send_email(client: httpx.AsyncClient, ev: Event) -> str:
-    """SMTP, e não uma API de terceiro.
-
-    É o canal que chega onde os três já olham durante o trabalho, sem instalar
-    nada — e um aviso de prazo com link resolve bem em texto puro. Zero risco de
-    banimento, ao contrário do WhatsApp no número próprio (ver docs/WHATSAPP.md).
-
-    Roda em thread porque `smtplib` é bloqueante: chamá-lo direto num `async def`
-    travaria o loop, e num script de 30 segundos isso não dói — mas ele também é
-    importado pela API, e ali travaria requisições.
-    """
-    msg = EmailMessage()
-    msg["Subject"] = f"[GradRadar] {ev.title}"
-    msg["From"] = os.environ["SMTP_FROM"]
-    msg["To"] = os.environ["EMAIL_TO"]
-    msg.set_content(f"{ev.body}\n\n—\n{SITE}")
-
-    host = os.environ["SMTP_HOST"]
-    port = int(os.environ.get("SMTP_PORT", "587"))
-    user = os.environ.get("SMTP_USER")
-    password = os.environ.get("SMTP_PASSWORD")
-
-    def _send() -> None:
-        with smtplib.SMTP(host, port, timeout=30) as smtp:
-            smtp.starttls()
-            if user and password:
-                smtp.login(user, password)
-            smtp.send_message(msg)
-
-    await asyncio.to_thread(_send)
-    return f"email → {os.environ['EMAIL_TO']}"
-
-
-SENDERS = {"ntfy": _send_ntfy, "telegram": _send_telegram, "email": _send_email}
+SENDERS = {"ntfy": _send_ntfy, "telegram": _send_telegram}
 
 # O que cada canal precisa para ser considerado PRONTO. Um canal declarado sem
 # credencial falharia calado a cada execução, e o sintoma — "não recebo nada" — é
@@ -396,7 +361,6 @@ SENDERS = {"ntfy": _send_ntfy, "telegram": _send_telegram, "email": _send_email}
 REQUIRED_ENV = {
     "ntfy": ("NTFY_TOPIC",),
     "telegram": ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"),
-    "email": ("SMTP_HOST", "SMTP_FROM", "EMAIL_TO"),
 }
 
 
@@ -421,16 +385,27 @@ def active_channels() -> list[str]:
 async def run(db: AsyncSession, today: date, dry_run: bool) -> tuple[int, int]:
     events = await collect_events(db, today)
 
-    seen = set(
-        (
+    # O dedupe olha ENTREGA, não registro. Um evento gravado enquanto não havia
+    # canal configurado precisa ser tentado de novo quando o canal aparecer —
+    # senão o primeiro efeito de ligar o ntfy é não receber nada, porque os avisos
+    # mais importantes já foram "vistos" sem nunca ter saído. Foi exatamente o que
+    # aconteceu aqui: os dois processos abertos ficaram registrados como não
+    # entregues e o dedupe os suprimia.
+    known = {
+        n.dedupe_key: n
+        for n in (
             await db.scalars(
-                select(Notification.dedupe_key).where(
+                select(Notification).where(
                     Notification.dedupe_key.in_([e.dedupe_key for e in events] or [""])
                 )
             )
         ).all()
-    )
-    fresh = [e for e in events if e.dedupe_key not in seen]
+    }
+    fresh = [
+        e
+        for e in events
+        if e.dedupe_key not in known or known[e.dedupe_key].delivered_at is None
+    ]
 
     channels = active_channels()
     for e in fresh:
@@ -456,20 +431,28 @@ async def run(db: AsyncSession, today: date, dry_run: bool) -> tuple[int, int]:
                 notes.append("nenhum canal configurado — só registrado")
 
             now = datetime.now(UTC)
-            db.add(
-                Notification(
-                    kind=e.kind,
-                    dedupe_key=e.dedupe_key,
-                    title=e.title,
-                    body=e.body,
-                    created_at=now,
-                    # Só marca entregue se ALGUM canal aceitou. Gravar entregue sem
-                    # entrega transformaria a tabela num registro de mentiras, e o
-                    # dedupe garantiria que nunca mais se tentasse.
-                    delivered_at=now if ok else None,
-                    delivery_note="; ".join(notes),
+            # Só marca entregue se ALGUM canal aceitou. Gravar entregue sem entrega
+            # transformaria a tabela num registro de mentiras.
+            row = known.get(e.dedupe_key)
+            if row is None:
+                db.add(
+                    Notification(
+                        kind=e.kind,
+                        dedupe_key=e.dedupe_key,
+                        title=e.title,
+                        body=e.body,
+                        created_at=now,
+                        delivered_at=now if ok else None,
+                        delivery_note="; ".join(notes),
+                    )
                 )
-            )
+            else:
+                # Retentativa: ATUALIZA a linha existente. Inserir violaria o UNIQUE
+                # de `dedupe_key`, e é o UNIQUE que garante o não-reenvio.
+                row.title = e.title
+                row.body = e.body
+                row.delivered_at = now if ok else None
+                row.delivery_note = "; ".join(notes)
             delivered += int(ok)
     await db.commit()
     return len(fresh), delivered
