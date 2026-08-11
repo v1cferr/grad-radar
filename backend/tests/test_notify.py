@@ -326,6 +326,25 @@ class TestDeduplication:
 
 
 class TestChannelGating:
+    def test_email_needs_host_from_and_recipient(self, monkeypatch: pytest.MonkeyPatch):
+        """E-mail é o canal recomendado no lugar do WhatsApp no número próprio —
+        ver docs/WHATSAPP.md. Sem destinatário ele não pode ser considerado pronto."""
+        monkeypatch.setenv("NOTIFY_CHANNELS", "email")
+        monkeypatch.setenv("SMTP_HOST", "smtp.exemplo.br")
+        monkeypatch.setenv("SMTP_FROM", "radar@exemplo.br")
+        monkeypatch.delenv("EMAIL_TO", raising=False)
+        assert active_channels() == []
+        monkeypatch.setenv("EMAIL_TO", "victor@exemplo.br")
+        assert active_channels() == ["email"]
+
+    def test_an_unknown_channel_name_is_ignored(self, monkeypatch: pytest.MonkeyPatch):
+        """"whatsapp" no NOTIFY_CHANNELS não deve derrubar a cadeia enquanto o
+        adaptador não existir — só não entra na lista de ativos."""
+        monkeypatch.setenv("NOTIFY_CHANNELS", "whatsapp,ntfy")
+        monkeypatch.setenv("NTFY_TOPIC", "t")
+        assert active_channels() == ["ntfy"]
+
+
     def test_a_channel_without_credentials_is_not_active(
         self, monkeypatch: pytest.MonkeyPatch
     ):

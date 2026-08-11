@@ -115,7 +115,7 @@ flowchart LR
         M --> V["verify.py<br/>re-derive the schedule verdict"]
         V --> X["extract.py<br/>time bands, no model"]
         V --> NT["notify.py<br/>six events, deduped"]
-        NT --> CH["ntfy · telegram"]
+        NT --> CH["ntfy · e-mail · telegram"]
     end
 
     A --> DB[("PostgreSQL<br/>23 tables")]
@@ -240,7 +240,7 @@ containers. This keeps the host machine clean and the environment reproducible p
 | `backend/app/seed.py` | every verified fact, idempotent, with the evidence sentence attached |
 | `backend/alembic/` | 7 migrations. The app never calls `create_all` |
 | `frontend/web/src/app/` | dashboard — deadline hero, options table, next steps, weekly grid, monitoring |
-| `docs/` | the decisions: `GOAL`, `ADERENCIA`, `PROGRAMAS`, `AUTOMACAO`, `SEM-LOGIN`, `METADADOS`, `research/` |
+| `docs/` | the decisions: `GOAL`, `ADERENCIA`, `PROGRAMAS`, `AUTOMACAO`, `WHATSAPP`, `SEM-LOGIN`, `METADADOS`, `research/` |
 | `deploy/README.md` | points at the central Caddy in the dotfiles |
 
 The dotfiles own two units for this project: `grad-radar.service` brings the stack up at boot, and

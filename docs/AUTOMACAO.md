@@ -166,11 +166,17 @@ o tópico é a credencial.
 
 **Telegram** como segundo, também sem custo.
 
-**WhatsApp continua não implementado**, e o motivo é atrito e não código: exige um
-número **dedicado** (um número registrado na Cloud API não pode mais ser usado no
-app) e todo alerta é business-initiated, então cada mensagem precisa vir de um
-template `utility` pré-aprovado. O adaptador entra como um `_send_whatsapp` ao lado
-dos outros quando houver número.
+**E-mail** como terceiro, e é o que eu recomendo ligar junto com o ntfy: chega onde
+os três já olham durante o trabalho, sem instalar nada.
+
+**WhatsApp continua não implementado**, e a decisão está em
+[`WHATSAPP.md`](WHATSAPP.md) porque é de risco, não de arquitetura. Resumo: dá para
+usar o número próprio com bibliotecas FOSS (Baileys, whatsmeow, Evolution API), mas
+em 2025–2026 o WhatsApp baniu contas de uso legítimo e baixo volume usando essas
+bibliotecas — e a detecção pondera muito a **razão de resposta**, que num bot de
+notificação é zero. Este caso de uso é o perfil que o classificador procura, não uma
+exceção improvável. Com o número da FAI, o custo de um banimento é perder o número
+de trabalho.
 
 Um canal só conta como ativo se as credenciais dele existirem. Canal declarado sem
 credencial falharia calado a cada execução, e o sintoma — "não recebo nada" — é

@@ -34,8 +34,10 @@ import difflib
 import hashlib
 import os
 import re
+import smtplib
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
+from email.message import EmailMessage
 
 import httpx
 from sqlalchemy import select
@@ -353,23 +355,67 @@ async def _send_telegram(client: httpx.AsyncClient, ev: Event) -> str:
     return f"telegram {r.status_code}"
 
 
-SENDERS = {"ntfy": _send_ntfy, "telegram": _send_telegram}
+async def _send_email(client: httpx.AsyncClient, ev: Event) -> str:
+    """SMTP, e não uma API de terceiro.
+
+    É o canal que chega onde os três já olham durante o trabalho, sem instalar
+    nada — e um aviso de prazo com link resolve bem em texto puro. Zero risco de
+    banimento, ao contrário do WhatsApp no número próprio (ver docs/WHATSAPP.md).
+
+    Roda em thread porque `smtplib` é bloqueante: chamá-lo direto num `async def`
+    travaria o loop, e num script de 30 segundos isso não dói — mas ele também é
+    importado pela API, e ali travaria requisições.
+    """
+    msg = EmailMessage()
+    msg["Subject"] = f"[GradRadar] {ev.title}"
+    msg["From"] = os.environ["SMTP_FROM"]
+    msg["To"] = os.environ["EMAIL_TO"]
+    msg.set_content(f"{ev.body}\n\n—\n{SITE}")
+
+    host = os.environ["SMTP_HOST"]
+    port = int(os.environ.get("SMTP_PORT", "587"))
+    user = os.environ.get("SMTP_USER")
+    password = os.environ.get("SMTP_PASSWORD")
+
+    def _send() -> None:
+        with smtplib.SMTP(host, port, timeout=30) as smtp:
+            smtp.starttls()
+            if user and password:
+                smtp.login(user, password)
+            smtp.send_message(msg)
+
+    await asyncio.to_thread(_send)
+    return f"email → {os.environ['EMAIL_TO']}"
+
+
+SENDERS = {"ntfy": _send_ntfy, "telegram": _send_telegram, "email": _send_email}
+
+# O que cada canal precisa para ser considerado PRONTO. Um canal declarado sem
+# credencial falharia calado a cada execução, e o sintoma — "não recebo nada" — é
+# indistinguível de "não houve novidade".
+REQUIRED_ENV = {
+    "ntfy": ("NTFY_TOPIC",),
+    "telegram": ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"),
+    "email": ("SMTP_HOST", "SMTP_FROM", "EMAIL_TO"),
+}
 
 
 def active_channels() -> list[str]:
-    """Canal ligado é canal com variável definida.
+    """Canal ligado é canal com TODAS as variáveis dele definidas.
 
     Um canal habilitado sem credencial falharia em silêncio a cada execução, e o
-    sintoma seria "não recebo nada" — indistinguível de "não houve novidade".
+    sintoma — "não recebo nada" — é indistinguível de "não houve novidade".
+
+    Um nome desconhecido é ignorado em vez de derrubar a cadeia: deixar
+    `whatsapp` no NOTIFY_CHANNELS enquanto o adaptador não existe (ver
+    docs/WHATSAPP.md) não deve impedir o ntfy de funcionar.
     """
     declared = [c.strip() for c in os.environ.get("NOTIFY_CHANNELS", "").split(",") if c.strip()]
-    ready = []
-    for c in declared:
-        if c == "ntfy" and os.environ.get("NTFY_TOPIC") or c == "telegram" and os.environ.get("TELEGRAM_BOT_TOKEN") and os.environ.get(
-            "TELEGRAM_CHAT_ID"
-        ):
-            ready.append(c)
-    return ready
+    return [
+        c
+        for c in declared
+        if c in REQUIRED_ENV and all(os.environ.get(v) for v in REQUIRED_ENV[c])
+    ]
 
 
 async def run(db: AsyncSession, today: date, dry_run: bool) -> tuple[int, int]:
