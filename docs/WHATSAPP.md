@@ -52,22 +52,24 @@ economizar um app no celular.
 
 ## O que eu faria, em ordem
 
-**1. Ligar o ntfy hoje.** Já está construído, custa zero e não tem risco nenhum.
-Escolha um tópico difícil de adivinhar, instale o app, e o JP e o César assinam o
+**1. ntfy — feito.** Custa zero e não tem risco nenhum. O tópico é **gerado
+aleatoriamente**, não escolhido: no ntfy.sh público o tópico É a credencial, então
+"gradradar" ou "editais" seriam adivinhados em segundos. O JP e o César assinam o
 mesmo tópico. O único custo real é um ícone a mais no celular.
 
 ```
 NOTIFY_CHANNELS=ntfy
-NTFY_TOPIC=algo-que-ninguem-adivinha
+NTFY_URL=https://ntfy.sh
+NTFY_TOPIC=<gerado; está no .env, que é gitignored>
 ```
 
-**3. Se quiser WhatsApp mesmo: um chip dedicado.** Aí o caminho é a **Cloud API
+**2. Se quiser WhatsApp mesmo: um chip dedicado.** Aí o caminho é a **Cloud API
 oficial** — sem risco de banimento, porque é permitido. O custo é o número
 dedicado, um WhatsApp Business Account e um template `utility` aprovado para
 mensagem iniciada pelo sistema. Você mesmo levantou essa possibilidade meses atrás,
 e continua sendo a saída certa.
 
-**4. Evolution API no seu número, se você aceitar o risco.** Não vou fingir que não
+**3. Evolution API no seu número, se você aceitar o risco.** Não vou fingir que não
 funciona. Se for esse o caminho, o mínimo é: rodar self-hosted, mandar **só** para
 si mesmo, volume baixíssimo, e aceitar que o número pode cair sem aviso. Não use o
 número da FAI.
