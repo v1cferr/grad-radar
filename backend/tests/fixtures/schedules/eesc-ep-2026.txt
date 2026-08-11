@@ -1,0 +1,1018 @@
+Disciplinas – Pós-Graduação em Engenharia de Produção
+
+Departamento
+
+Moodle
+
+Intranet
+
+São Carlos
+,
+SP
+
+CEP 13566-590
+,
+
+Brasil
+
++55 16 3373.8126
+
+posgraduacao.producao@eesc.usp.br
+
+Programa
+
+Cursos
+
+Mestrado
+
+Doutorado
+
+Pós-Doc
+
+Linhas de Pesquisa
+
+Manufatura para Indústria 4.0
+
+Pesquisa Operacional e Gestão de Sistemas
+
+Inovação e Economia Circular
+
+Gestão de Operações
+
+Comissão Coordenadora da Pós
+
+Calendário de reuniões da CCP
+
+Sistema de Gestão
+
+Regras
+
+Padrões
+
+Processos
+
+Missão, Visão e Foco
+
+Pessoas
+
+Docentes
+
+Pós-Doc
+
+Funcionários
+
+Discentes
+
+Processo Seletivo
+
+Disciplinas
+
+Dissertações/Teses
+
+Internacionalização
+
+Integração Internacional
+
+Informações Essenciais para Alunos Estrangeiros
+
+Notícias
+
+Informes, divulgação e notícias do programa
+
+Próximas defesas
+
+Contato
+
+Disciplinas oferecidas: 2º Semestre de 2026
+
+CÓDIGO – VERSÃO/TURMA
+DISCIPLINA
+MINISTRANTE(S)
+INÍCIO
+HORÁRIO
+SEMANAS
+CRÉDITOS
+OFERECIMENTO / LOCAL / OBSERVAÇÕES
+SEP5867 – 1/1
+Modelagem e Simulação em Dinâmica de Sistemas aplicadas à Economia Circular
+Janaina Mascarenhas H. da Costa – Colaborador: Dr. Raphael Cobra
+08/jul (quarta-feira)
+08h00 – 12h00
+10
+14
+Presencial / Dep. de Eng. de Produção – NUMA / *COM PRÉ-REQUISITO DA DISCIPLINA SEP5866 — **SEM VAGAS PARA ALUNOS(AS) ESPECIAIS
+SEP5870 – 1/1
+Introduction to Machine Learning Applications for Sustainability Research (Introdução a Aplicações de Aprendizado de Máquina para Pesquisa em Sustentabilidade)
+Lucas Gabriel Zanon – Colaboradores: Tiago F. A. Cavalcanti Sigahi e Monica Rossi
+13/jul (segunda-feira)
+Segunda-feira: 08h00 – 12h00, Terça-feira: 08h00 – 12h00, Quarta-feira: 08h00 – 12h00, Quinta-feira: 08h00 – 12h00 e Sexta-feira: 08h00 – 12h00
+
+2
+4
+Remoto / Google Meet / *EM INGLÊS — **DE SEGUNDA A SEXTA-FEIRA — ***SEM VAGAS PARA ALUNOS(AS) ESPECIAIS
+SEP5864 – 1/1 (PAE)
+Design Science Research: Preparação Pedagógica, Estratégia de Pesquisa, Metodologias e Métodos
+Fábio Müller Guerrini
+03/ago (segunda-feira)
+Segundas-feiras: 08h00 – 11h00, Quartas-feiras: 08h00 – 11h00 e Sextas-feiras: 08h00 – 11h00
+3
+6
+Presencial / Dep. de Engenharia de Produção / *DE SEGUNDA, QUARTA E SEXTA-FEIRA
+SEP5843 – 2/5
+Tópicos Avançados em Servitização
+Henrique Rozenfeld e Maicon Gouvêa de Oliveira
+03/ago (segunda-feira)
+Segunda-feira: 18h30 – 20h30 e Quarta-feira: 18h30 – 20h30
+6
+4
+Remoto / Google Meet / *DE SEGUNDA E QUARTA-FEIRA
+SEP5837 – 2/6
+
+Inovação e Sustentabilidade na Manufatura
+Eraldo Jannone da Silva e Antônio Carlos Pacagnella Júnior
+05/ago (quarta-feira)
+14h00 – 18h00
+15
+12
+Presencial / Dep. de Eng. de Produção
+SEP5835 – 5/3
+Gestão da Mudança
+Mateus Cecílio Gerolamo e Sânia da Costa Fernandes
+07/ago (sexta-feira)
+08h00 – 12h00
+15
+12
+Remoto / Zoom
+SEP5868 – 1/1
+Sistemas Inteligentes e Sistemas Clássicos de Gestão da Produção
+Juliana Keiko Sagawa
+26/ago (quarta-feira)
+08h10 – 11h10
+
+12
+12
+Presencial / Dep. de Eng. de Produção
+SEP5853 – 1/3
+Tópicos Avançados sobre Agilidade e Métodos Ágeis em Inovação e Gestão do Desenvolvimento de Produtos
+Daniel Capaldo Amaral
+27/ago (quinta-feira)
+14h00 – 18h00
+10
+8
+Presencial / Dep. de Engenharia de Produção / *COM PRÉ-REQUISITO DA DISCIPLINA SEP5812
+
+Disciplinas oferecidas: 1º Semestre de 2026
+
+CÓDIGO – VERSÃO/TURMA
+DISCIPLINA
+MINISTRANTE(S)
+INÍCIO / DIA(S) DE OFERECIMENTO
+HORÁRIO
+SEMANAS
+CRÉDITOS
+OFERECIMENTO / LOCAL
+SEP5812 – 4/5
+Fundamentos de Gerenciamento Ágil de Projetos
+Daniel Capaldo Amaral
+23/fev | segunda-feira
+14h00 às 18h00
+10
+8
+100% remota / Google Meet
+SEP5862 – 1/1
+Introdução à Pesquisa Operacional e Gestão de Sistemas
+Fábio Müller Guerrini, Marcelo Seido Nagano e Juliana Keiko Sagawa – Colaboradores: Marcel Andreotti Musetti e Kleber Francisco Esposto
+24/fev | terça-feira
+08h00 às 11h00
+10
+8
+Presencial / Dep. Eng. Produção
+SEP5863 – 1/1
+Transição para Economia Circular: da Engenharia e Gestão do Ciclo de Vida a Ecossistemas Circulares
+Aldo Roberto Ometto e Sânia da Costa Fernandes
+24/fev | terça-feira
+10h00 às 12h00
+8
+8
+Presencial / Dep. Eng. Produção
+SEP5865 – 1/1
+Conceitos Essenciais sobre a Mentalidade Enxuta
+Eraldo Jannone da Silva – Colaborador: Kleber Francisco Esposto
+26/mai | terça-feira
+09h00 às 12h00
+5
+4
+Presencial / Dep. Eng. Produção
+SEP5852 – 3/1
+Roadmapping para Gestão Estratégica de Tecnologia e Inovação
+Maicon Gouvêa de Oliveira
+06/mai | quarta-feira
+10h00 às 12h00
+6
+4
+100% remota / Zoom
+SEP5856 – 2/1
+Introdução à Pesquisa em Inovação e Economia Circular
+Maicon Gouvea de Oliveira, Janaina Mascarenhas H. da Costa, Aldo Roberto Ometto, Daniel Capaldo Amaral e Eraldo Jannone da Silva – Colaborador: Henrique Rozenfeld
+26/fev | quinta-feira
+08h00 às 12h00
+10
+8
+Presencial / Dep. Eng. Produção
+SEP5823 – 10/2
+Preparação Pedagógica em Engenharia de Produção
+Janaina Mascarenhas H. da Costa e Daisy A. do N. Rebelatto
+26/fev | quinta-feira
+14h00 às 16h00
+12
+8
+100% remoto / Google Meet
+SEP5828 – 4/1
+Metodologia de Pesquisa para Sistemas Sóciotécnicos
+Luiz César Ribeiro Carpinetti, Sânia da Costa Fernandes e Lucas Gabriel Zanon – Colaboradores: Roberto Antonio Martins e Kleber Francisco Esposto
+26/fev | quinta-feira
+14h00 às 17h00
+10
+8
+Presencial / Dep. Eng. Produção
+SEP5841 – 2/5
+Simulação Computacional Aplicada à Gestão da Manufatura
+Walther Azzolini Junior
+27/fev | sexta-feira
+08h00 às 12h00
+15
+12
+Presencial / Dep. Eng. Produção
+
+Disciplinas oferecidas: 2º Semestre de 2025
+
+CÓDIGO – VERSÃO/TURMA
+DISCIPLINA
+MINISTRANTE(S)
+INÍCIO
+HORÁRIO
+SEMANAS
+CRÉDITOS
+OFERECIMENTO / LOCAL
+SEP5853 – 1/3 *
+Tópicos Avançados sobre Agilidade e Métodos Ágeis em Inovação e Gestão do Desenvolvimento de Produtos
+Daniel Capaldo Amaral
+04/ago (segunda-feira)
+08h00 – 12h00
+10
+8
+Presencial / Dep. de Eng. de Produção – Projetos II – POSSUI COMO PRÉ-REQUISITO A DISCIPLINA SEP5812
+SEP5700 – 9/2
+Técnicas de Sequenciamento e Programação de Operações em Máquinas
+Marcelo Seido Nagano
+04/ago (segunda-feira)
+13h00 – 17h00
+15
+12
+Presencial / Dep. de Engenharia de Produção – Projetos II
+SEP5860 – 1/1
+Design Science Research: Estratégia de Pesquisa, Metodologias e Métodos
+Fábio Müller Guerrini
+11/ago (segunda-feira)
+Segundas-feiras: 08h00 – 11h00, Quartas-feiras: 08h00 – 11h00 E Sextas-feiras: 08h00 – 11h00
+3
+6
+Presencial – DE SEGUNDA, QUARTA E SEXTA-FEIRA / Departamento de Engenharia de Produção – sala B03
+SEP5837 – 2/5
+Inovação e Sustentabilidade na Manufatura
+Eraldo Jannone da Silva e Antônio Carlos Pacagnella Júnior
+06/ago (quarta-feira)
+14h00 – 18h00
+15
+12
+Presencial / Dep. de Engenharia de Produção – sala do NUMA
+SEP5835 – 5/2 **
+Change Management (Gestão da Mudança)
+Mateus Cecílio Gerolamo e Sânia da Costa Fernandes (colaboradora)
+08/ago (sexta-feira)
+08h00 – 12h00
+15
+12
+Remoto / Zoom – *EM INGLÊS
+SEP5859 – 1/1
+Introdução ao Aprendizado de Máquina na Gestão de Operações
+Lucas Gabriel Zanon
+08/ago (sexta-feira)
+14h00 – 18h00
+15
+12
+Presencial / Dep. de Engenharia de Produção – Projetos II
+SEP5843 – 2/4
+Tópicos Avançados em Servitização
+Henrique Rozenfeld
+23/set (terça-feira)
+Terça-feira: 18h30 – 20h00 E Quarta-feira: 18h30 – 20h00
+6
+4
+Google Meet
+SEP5861-1/1
+Econometria Industrial
+Daisy Ap. do Nascimento Rebelatto e Diogo Ferraz
+01/dez (segunda-feira)
+Segundas-feiras: 08h00 – 12h00, Quartas-feiras: 08h00 – 12h00 E Sextas-feiras: 08h00 – 12h00
+3
+6
+Presencial / Dep. de Engenharia de Produção – Projetos II
+
+* A disciplina SEP5853 possui como pré-requisito obrigatório a disciplina SEP5812. Não serão aceitas inscrições de candidatos(as) que não tenham cursado e sido aprovados(as) em SEP5812.
+
+** A disciplina SEP5835 será oferecida em inglês.
+
+Disciplinas oferecidas: 1º Semestre de 2025
+
+CÓDIGO – VERSÃO/TURMA
+DISCIPLINA
+MINISTRANTE(S)
+INÍCIO / DIA(S) DE OFERECIMENTO
+HORÁRIO
+SEMANAS
+CRÉDITOS
+OFERECIMENTO / LOCAL
+SEP5812 – 4/4
+Fundamentos de Gerenciamento Ágil de Projetos
+Daniel C. Amaral
+24/fev | segunda-feira
+14h00 às 18h00
+10
+8
+100% remoto / Google Meet
+SEP5836 – 5/2
+Técnicas de Suporte à Decisão Aplicadas à Gestão de Desempenho de Cadeias de Suprimento
+Luiz C. R. Carpinetti
+25/fev | terça-feira
+08h00 às 12h00
+15
+12
+Presencial / Dep. Eng. Produção
+SEP5841 – 2/3
+Simulação Computacional Aplicada à Gestão da Manufatura
+Walther Azzolini Junior
+26/fev | quarta-feira
+08h00 às 12h00
+15
+12
+Presencial / Dep. Eng. Produção
+SEP5856 – 1/1
+Introdução à Pesquisa em Inovação e Economia Circular
+Maicon G. de Oliveira, Janaina Mascarenhas H. da Costa, Aldo R. Ometto e Daniel C. Amaral Colaboradores: Henrique Rozenfeld e Eraldo J. da Silva
+27/fev | quinta-feira
+08h00 às 12h00
+12
+12
+Presencial / Dep. Eng. Produção
+SEP5851 – 1/2
+Tópicos sobre Mentalidade Enxuta
+Kleber F. Esposto
+27/fev | quinta-feira
+08h00 às 12h00
+10
+8
+Presencial / Dep. Eng. Produção
+SEP5823 – 10/1
+Preparação Pedagógica em Engenharia de Produção
+Janaina Mascarenhas H. da Costa e Daisy A. do N. Rebelatto
+27/fev | quinta-feira
+14h00 às 16h00
+12
+8
+100% remoto / Google Meet
+SEP5857 – 1/1
+Elementos e Dinâmicas de Ecossistemas Circulares
+Janaina Mascarenhas H. da Costa
+03/fev | segunda, quarta e sexta-feira
+14h00 às 17h00
+3
+6
+Presencial / Dep. Eng. Produção
+SEP5858 – 1/1
+Técnicas de Codificação de Dados Qualitativos
+Janaina Mascarenhas H. da Costa
+24/fev | segunda, quarta e sexta-feira
+14h00 às 17h00
+6
+12
+Presencial / Dep. Eng. Produção
+
+Disciplinas oferecidas: 2º Semestre de 2024
+
+CÓDIGO – VERSÃO/TURMA
+DISCIPLINA
+MINISTRANTE(S)
+INÍCIO
+HORÁRIO
+SEMANAS
+CRÉDITOS
+OFERECIMENTO / LOCAL
+SEP5828 – 3/3
+Metodologia de Pesquisa para Sistemas Sóciotecnicos
+Luiz César R. Carpinetti / Roberto A. Martins (colaborador)
+06/ago (terça-feira)
+08h00 – 12h00
+15
+12
+Presencial / sala de Seminários (Dep. Eng. Produção)
+SEP5841 – 2/2
+Simulação Computacional Aplicada à Gestão da Manufatura
+Walther Azzolini Junior
+07/ago (quarta-feira)
+08h00 – 12h00
+15
+12
+Presencial / Projetos II (Dep. Eng. Produção)
+SEP5819 – 7/2 *
+Modelagem de Redes Colaborativas Dinâmicas
+Fábio Müller Guerrini
+07/ago (quarta-feira)
+08h00 – 12h00
+8
+8
+Híbrido / sala de Seminários (Dep. Eng. Produção) e remoto
+SEP5815 – 4/1 *
+Desenvolvimento de Projetos de Engenharia para a Sustentabilidade e Economia Circular
+Aldo Roberto Ometto
+07/ago (quarta-feira)
+14h00 – 18h00
+10
+8
+Presencial / sala de Seminários (Dep. Eng. Produção)
+SEP5855 – 1/1 **
+Tópicos Avançados em Abordagens de Sistemas de Recuperação de Valor de Embalagens
+Janaina Mascarenhas
+07/ago (quarta-feira)
+Quartas-feiras: 14:00 – 17:00 E Quintas-feiras: 14h00 – 17:00
+10
+14
+NUMA (Dep. Engenharia de Produção)
+SEP5853 – 1/2 ***
+Tópicos Avançados sobre Agilidade e Métodos Ágeis em Inovação e Gestão do Desenvolvimento de Produtos
+Daniel Capaldo Amaral
+08/ago (quinta-feira)
+08h00 – 12h00
+10
+8
+Presencial / sala de Projetos II (Dep. Eng. Produção)
+SEP5835 – 5/2 ****
+Change Management (Gestão da Mudança)
+Mateus Cecílio Gerolamo
+09/ago (sexta-feira)
+08h00 – 12h00
+15
+12
+Remoto / Zoom
+SEP5843 – 2/3
+Tópicos Avançados em Servitização
+Henrique Rozenfeld
+16/set (segunda-feira)
+Segundas-feiras: 18h30 – 20h30 E Quartas-feiras: 18h30 – 20h30
+6
+4
+E-disciplinas
+
+* Recomenda-se –
+não sendo obrigatório
+– que os candidatos/alunos que se inscreverem na disciplina SEP5819 também considerem a inscrição na disciplina SEP5815, devido à intenção dos ministrantes de desenvolver um projeto interdisciplinar.
+
+** Os candidatos/alunos interessados na disciplina SEP5855 devem enviar seus projetos de pesquisa antecipadamente para a professora responsável pela disciplina, a fim de verificar os requisitos das atividades práticas. E-mail da professora:
+jana.mascarenhas@usp.br
+.
+
+*** A disciplina SEP5853 tem como pré-requisito obrigatório a disciplina SEP5812.
+
+**** A disciplina SEP5835 será oferecida em inglês.
+
+Disciplinas oferecidas: 1º Semestre de 2024
+
+CÓDIGO – VERSÃO/TURMA
+DISCIPLINA
+MINISTRANTE(S)
+INÍCIO
+HORÁRIO
+SEMANAS
+CRÉDITOS
+OFERECIMENTO / LOCAL
+SEP5812 – 4/3
+Fundamentos de Gerenciamento Ágil de Projetos
+Daniel C. Amaral
+04/mar (segunda-feira)
+14h00 às 18h00
+10
+8
+100% remoto / Google Meet
+SEP5836 – 5/1
+Técnicas de Suporte à Decisão Aplicadas à Gestão de Desempenho de Cadeias de Suprimento
+Luiz Carpinetti e Lucas Zanon
+05/mar (terça-feira)
+08h00 às 12h00
+15
+12
+Presencial / Sala de Seminários (Dep. Eng. Produção)
+SEP5700 – 9/1
+Técnicas de Sequenciamento e Programação de Operações em Máquinas
+Marcelo Nagano
+05/mar (terça-feira)
+13h00 às 16h00
+15
+12
+Presencial / Sala de Seminários (Dep. Eng. Produção)
+SEP5837 – 2/3
+Inovação e Sustentabilidade na Manufatura
+Eraldo J. Silva
+06/mar (quarta-feira)
+08h00 às 12h00
+15
+12
+Presencial / Sala de Seminários (Dep. Eng. Produção)
+SEP5852 – 2/1
+Roadmapping para Gestão Estratégica de Tecnologia e Inovação
+Maicon G. Oliveira
+06/mar (quarta-feira)
+14h00 às 18h00
+12
+12
+100% remoto / Zoom
+SEP5765 – 9/2
+Modelos de Excelência em Logística Integrada e a Gestão da Cadeia de Suprimentos
+Marcel A. Musetti
+07/mar (quinta-feira)
+08h00 às 12h00
+15
+12
+Presencial / Sala de Seminários (Dep. Eng. Produção)
+SEP5823 – 9/3
+Métodos e Tecnologias para Apoiar o Processo de Ensino e Aprendizagem em Engenharia
+Janaina Mascarenhas e Daisy Rebelatto
+07/mar (quinta-feira)
+14h00 às 16h00
+12
+8
+Híbrido / Sala de Seminários (Dep. Eng. Produção) e Google Meet
+SEP5854 – 1/1
+Técnicas para Tomada de Decisão Aplicadas à Gestão de Operações
+Lucas Zanon e Luiz Carpinetti
+08/mar (sexta-feira)
+14h00 às 18h00
+15
+12
+100% remoto / Google Meet
+
+Disciplinas oferecidas: 2º Semestre de 2023
+
+CÓDIGO
+DISCIPLINA
+MINISTRANTE(S)
+INÍCIO
+HORÁRIO
+SEMANAS
+CRÉDITOS
+OFERECIMENTO / LOCAL
+SEP5828
+Metodologia de Pesquisa para Sistemas Sóciotecnicos
+Mateus Cecílio Gerolamo / Luiz César R. Carpinetti / Roberto A. Martins (colaborador)
+08/ago (terça-feira)
+08h00 às 12h00
+15
+12
+Presencial / sala de Seminários (Dep. Eng. Produção)
+SEP5853
+Tópicos Avançados sobre Agilidade e Métodos Ágeis em Inovação e Gestão do Desenvolvimento de Produtos
+Daniel Capaldo Amaral
+09/ago (quarta-feira)
+08h00 às 12h00
+10
+8
+Presencial / Projetos II (Dep. Eng. Produção)
+SEP5841
+Simulação Computacional Aplicada à Gestão da Manufatura
+Walther Azzolini Junior
+09/ago (quarta-feira)
+14h00 às 18h00
+15
+12
+Presencial / Projetos II (Dep. Eng. Produção)
+SEP5819
+Modelagem de Redes Colaborativas Dinâmicas
+Fábio Müller Guerrini
+10/ago (quinta-feira)
+08h00 às 12h00
+8
+8
+Híbrido / sala de Seminários (Dep. Eng. Produção), Google Meet e E-Disciplinas
+SEP5835
+Change Management (Gestão da Mudança)
+Mateus Cecílio Gerolamo
+11/ago (sexta-feira)
+08h00 às 12h00
+15
+12
+100% remoto / Zoom e Google Classroom
+SEP5843
+Tópicos Avançados em Servitização
+Henrique Rozenfeld
+16/out (segunda-feira)
+segundas-feiras: das 18h30 às 20h30 E quartas-feiras: das 18h30 às 20h30
+6
+4
+100% remoto
+
+Disciplinas oferecidas: 1º Semestre de 2023
+
+CÓDIGO
+DISCIPLINA
+MINISTRANTE(S)
+INÍCIO
+HORÁRIO
+SEMANAS
+CRÉDITOS
+OFERECIMENTO / LOCAL
+SEP5812
+Fundamentos de Gerenciamento Ágil de Projetos
+Daniel Amaral
+27/02 (segunda-feira)
+14h00 às 18h00
+10
+8
+100% remoto / Google Meet
+SEP5836
+Técnicas de Suporte à Decisão Aplicadas à Gestão de Desempenho de Cadeias de Suprimento
+Luiz Carpinetti
+28/fev (terça-feira)
+08h00 às 12h00
+15
+12
+Presencial / Sala de Seminários (Dep. Eng. Produção)
+SEP5837
+Inovação e Sustentabilidade na Manufatura
+Eraldo Jannone da Silva
+01/mar (quarta-feira)
+08h00 às 12h00
+15
+12
+Presencial / Sala de Seminários (Dep. Eng. Produção)
+SEP5765
+Modelos de Excelência em Logística Integrada e a Gestão da Cadeia de Suprimentos
+Marcel Musetti
+02/mar (quinta-feira)
+08h00 às 12h00
+15
+12
+Presencial / Sala de Seminários (Dep. Eng. Produção)
+SEP5823
+Métodos e Tecnologias para Apoiar o Processo de Ensino e Aprendizagem em Engenharia
+Janaina Mascarenhas / Daisy Rebelatto
+02/mar (quinta-feira)
+14h00 às 16h00
+12
+8
+Híbrido / Sala de Seminários (Dep. Eng. Produção) e Google Meet
+SEP5819
+Modelagem de Redes Colaborativas Dinâmicas
+Fábio Guerrini
+03/mar (sexta-feira)
+08h00 às 12h00 e das 14h00 às 18h00
+4
+4
+Híbrido / Sala de Seminários (Dep. Eng. Produção) e Google Meet
+SEP5852
+Roadmapping para Gestão Estratégica de Tecnologia e Inovação
+Maicon G. Oliveira
+05/abr (quarta-feira)
+14h00 às 18h00
+8
+8
+100% remoto / Google Meet
+
+Disciplinas oferecidas: 2º Semestre de 2022
+
+CÓDIGO
+DISCIPLINA
+MINISTRANTE(S)
+INÍCIO
+HORÁRIO
+SEMANAS
+CRÉDITOS
+OFERECIMENTO
+SEP5851
+Tópicos sobre a Mentalidade Enxuta
+Kleber F. Espôsto
+08/ago
+Segunda-feira: das 14h às 18h
+10
+8
+Presencial – sala de reuniões do NUMA (2º andar)
+SEP5828
+Metodologia de Pesquisa para Sistemas Sóciotécnicos
+Luiz Cesar R. Carpinetti, Mateus C. Gerolamo e Roberto A.Martins (colaborador)
+09/ago
+Terça-feira: das 8h às 12h
+15
+12
+Presencial – sala de Seminários (Dep. Engenharia de Produção)
+SEP5798
+Economia Circular, Gestão e Engenharia do Ciclo de Vida
+Aldo R. Ometto
+12/ago
+Sexta-feira: das 14h às 18h
+15
+12
+Presencial – sala de Seminários (Dep. Engenharia de Produção)
+
+Disciplinas oferecidas: 1º Semestre de 2022
+
+CÓDIGO
+DISCIPLINA
+MINISTRANTE(S)
+INÍCIO
+HORÁRIO
+SEMANAS
+CRÉDITOS
+OFERECIMENTO
+LOCAL
+SEP5819
+Modelagem de Redes Colaborativas Dinâmicas
+Fábio M. Guerrini
+28/março
+Segunda-feira: das 10h às 12h (presencial) e das 14h às 16h (remoto)
+8
+8
+Híbrido (50% remoto e 50% presencial)
+Sala de Seminários (SEP) / atividades assíncronas
+SEP5843
+Tópicos Avançados em Servitização
+Henrique Rozenfeld
+10/maio
+Terça-feira: das 18h às 20h / Quarta-feira: das 18h às 20h
+6
+4
+100% remoto
+Google Meet
+SEP5812
+Fundamentos do Gerenciamento Ágil de Projetos
+Daniel C. Amaral
+30/março
+Quarta-feira: das 08h às 12h
+10
+8
+100% remoto
+E-disciplinas e Google Meet
+SEP5823
+Métodos e Tecnologias para Apoiar o Processo de Ensino e Aprendizagem em Engenharia (PAE)
+Daisy A. N. Rebelatto
+31/março
+Quinta-feira: das 14h às 16h
+12
+8
+Híbrido (67% remoto e 33% presencial)
+Google Meet / Sala de Seminários (SEP)
+SEP5765
+Modelos de Excelência em logística integrada e a Gestão da Cadeia de Suprimentos
+Marcel A. Mussetti
+31/março
+Quinta-feira: das 08h às 12h
+15
+12
+100% presencial
+Sala B03 (Térreo -Prédio SEP)
+
+* Não serão oferecidas vagas para alunos especias para a disciplina “Preparação Pedagógica em Engenharia de Produção | SEP5823”.
+
+Disciplinas oferecidas: 2º Semestre de 2021
+
+CÓDIGO
+DISCIPLINA
+MINISTRANTE(S)
+INÍCIO
+HORÁRIO
+SEMANAS
+CRÉDITOS
+OFERECIMENTO
+SEP5848
+Integrated Innovation and Technology Management
+Henrique Rozenfeld
+03/ago
+Terça-feira: 16hs às 20hs
+5
+7
+Não presencial
+SEP5839
+Métodos Quantitativos em Economia e Finanças
+Aquiles Kalatzis
+10/ago
+Terça-feira: 9hs às 12hs
+10
+8
+Não presencial
+SEP5833
+Conceitos e Práticas em Gestão da Cadeia de Suprimentos
+Kleber Esposto
+11/ago
+Quarta-feira: 8hs às 12hs
+15
+12
+Não presencial
+SEP5798
+Economia Circular, Gestão e Engenharia do Ciclo de Vida
+Aldo Ometto
+11/ago
+Quarta-feira: 14hs às 18hs
+15
+12
+Não presencial
+SEP5765
+Modelos de Excelência em Logística Integrada e a Gestão da Cadeia de Suprimentos
+Marcel Musetti
+12/ago
+Quinta-feira: 8hs às 12hs
+15
+12
+Não presencial
+SEP5845
+Teoria e Prática de Indicadores Econômicos Aplicados à Engenharia de Produção
+Humberto Bettini
+12/ago
+Quinta-feira: 14hs às 18hs
+15
+8
+Não presencial
+SEP5835
+Change Management
+Mateus Gerolamo
+13/ago
+Sexta-feira: 8hs às 12hs
+15
+12
+Não presencial
+SEP5841
+Simulação Computacional Aplicada à Gestão da Manufatura
+Walther Azzolini
+13/ago
+Sexta-feira: 8hs às 12hs
+15
+12
+Não presencial
+
+Disciplinas oferecidas: 1º Semestre de 2021
+
+CÓDIGO
+DISCIPLINA
+MINISTRANTE(S)
+INÍCIO
+HORÁRIO
+SEMANAS
+CRÉDITOS
+OFERECIMENTO
+SEP5824
+Manufatura por Processos Aditivos
+Reginaldo Coelho
+05/abr
+Segunda-feira: 8hs às 10hs
+12
+8
+Não presencial
+SEP5819
+Modelagem de Redes Dinâmicas
+Fábio Guerrini
+05/abr
+Segunda-feira: 14hs às 18hs
+12
+8
+Não presencial
+SEP5843
+Tópicos Avançados sobre Pesquisas Acadêmicas em Servitização
+Henrique Rozenfeld
+31/mai
+Segunda e terça-feira: 18hs às 20hs
+6
+4
+Não presencial
+SEP5840
+Tópicos Especiais em Modelagem de Empresas sob a Ótica dos Sistemas Complexos
+Edson Cazarini
+06/abr
+Terça-feira: 8hs às 12hs
+15
+12
+Não presencial
+SEP5839
+Métodos Quantitativos em Economia e Finanças
+Aquiles Kalatzis
+06/abr
+Terça-feira: 9hs às 12hs
+10
+8
+Não presencial
+SEP5837
+Inovação e Sustentabilidade na Manufatura
+Eraldo Jannone da Silva
+07/abr
+Quarta-feira: 8hs às 12hs
+15
+12
+Não presencial
+SEP5823
+Preparação Pedagógica em Engenharia de Produção (PAE)
+Janaina Mascarenhas Daisy Rebelatto
+07/abr
+Quarta-feira: 14hs às 16hs
+10
+4
+Não presencial
+SEP5836
+Técnicas de Suporte à Decisão Aplicadas à Gestão de Desempenho de Cadeias de Suprimento
+Luiz Carpinetti
+08/abr
+Quinta-feira: 14hs às 18hs
+15
+12
+Não presencial
+SEP5754
+Modelos de Negócio para Digitalização
+Janaina Mascarenhas Daniel Amaral
+09/abr
+Sexta-feira: 14hs às 18hs
+15
+12
+Não presencial
+
+* Não serão oferecidas vagas para alunos especias para a disciplina “Preparação Pedagógica em Engenharia de Produção | SEP5823”.
+
+Lista das disciplinas do programa
+
+Avanços em Processos Não-Tradicionais de Manufatura | SEP5850
+
+Conceitos e Práticas em Gestão da Cadeia de Suprimentos | SEP5833
+
+Desenvolvimento de Projetos de Engenharia para a Sustentabilidade e Economia Circular | SEP5815
+
+Economia Circular, Gestão e Engenharia do Ciclo de Vida | SEP5798
+
+Estratégia e Modelagem de Empresas para Inovação Colaborativa | SEP5838
+
+Formação do Pensamento Administrativo | SEP5751
+
+Fundamentos do Gerenciamento Ágil de Projetos | SEP5812
+
+Gestão da Mudança | SEP5835
+
+Gestão da Qualidade | SEP5753
+
+Gestão de Serviços | SEP5827
+
+Gestão Integrada da Inovação e Tecnologia | SEP5848
+
+Inovação e Sustentabilidade na Manufatura | SEP5837
+
+Inovação, Mudança Produtiva e Desenvolvimento Humano | SEP5847
+
+Integração das Estratégias de Recursos Humanos e de Produção | SEP5762
+
+Introdução à Análise Envoltória de Dados | SEP5830
+
+Manufatura Híbrida | SEP5849
+
+Manufatura por Processos Aditivos | SEP5824
+
+Metodologia de Pesquisa para Sistemas Sóciotécnicos | SEP5828
+
+Métodos Quantitativos em Economia e Finanças | SEP5839
+
+Modelagem de Empresas: Conceitos e Métodos | SEP5844
+
+Modelagem de Redes Dinâmicas | SEP5819
+
+Modelos de Excelência em Logística Integrada e a Gestão da Cadeia de Suprimentos | SEP5765
+
+Modelos de Negócio para Digitalização | SEP5754
+
+Preparação Pedagógica em Engenharia de Produção | SEP5823
+
+Simulação Computacional Aplicada à Gestão da Manufatura | SEP5841
+
+Técnicas de Sequenciamento e Programação de Operações em Máquinas | SEP5700
+
+Técnicas de Suporte à Decisão Aplicadas à Gestão de Desempenho de Cadeias de Suprimento | SEP5836
+
+Teoria e Prática de Indicadores Econômicos Aplicados à Engenharia de Produção | SEP5845
+
+Tópicos Avançados sobre Pesquisas Acadêmicas em Servitização | SEP5843
+
+Tópicos em Dados Longitudinais para Economia e Finanças | SEP5846
+
+Tópicos Especiais em Modelagem de Empresas sob a Ótica dos Sistemas Complexos | SEP5840
+
+Tópicos Especiais em Planejamento de Experimentos | SEP5842
+
+Tópicos Especiais em Sistemas Complexos e Gestão do Conhecimento | SEP5829
+
+Veja as disciplinas dos outros programas da USP
+
+Contato
+posgraduacao.producao@eesc.usp.br
+Telefone: +55 16 3373-8126
+Av. Trabalhador São-Carlense, 400. São Carlos (SP)
+
+Pós-Graduação em Engenharia de Produção | USP EESC Escola de Engenharia de São Carlos

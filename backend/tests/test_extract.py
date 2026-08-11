@@ -41,6 +41,11 @@ CASES = [
     ("ppgci-2026-1", NOT_MET, "prosa: 'Horário de oferta: Manhã e Tarde', sem faixas"),
     ("mecai-edital-002-2026", UNKNOWN, "diz noturno, mas com 'poderão' — permissão, não oferta"),
     ("icmc-soft-404", UNKNOWN, "página de erro servida com HTTP 200"),
+    (
+        "eesc-ep-2026",
+        UNKNOWN,
+        "3 faixas noturnas em 18 — uma disciplina recorrente e remota; existir não é integralizar",
+    ),
 ]
 
 
@@ -80,6 +85,28 @@ class TestTimeBands:
         assert [str(b) for b in bands] == ["08:00–12:00", "14:00–18:00"]
 
 
+class TestExistingIsNotIntegralising:
+    """A refinação que a grade da EESC/USP forçou.
+
+    "Qualquer faixa depois das 18h" dava ATENDE para uma grade com 3 slots noturnos
+    em 18 — uma única disciplina recorrente, e remota. Isso faria o sistema
+    recomendar o impossível.
+    """
+
+    def test_a_minority_of_evening_bands_is_unknown(self):
+        grade = "Seg 08h às 12h\nTer 08h às 12h\nQua 14h às 18h\nQui 18h30 às 20h30"
+        r = evening_offer(grade)
+        assert r.status is UNKNOWN
+        assert "existir não é integralizar" in r.evidence
+
+    def test_a_majority_of_evening_bands_is_met(self):
+        grade = "Seg 19h às 22h\nTer 19h às 22h\nQua 08h às 12h"
+        assert evening_offer(grade).status is MET
+
+    def test_no_evening_band_is_still_not_met(self):
+        assert evening_offer("Seg 08h às 12h\nTer 14h às 18h").status is NOT_MET
+
+
 class TestTheRuleIsAboutTheStart:
     def test_a_class_ending_at_eighteen_still_conflicts(self):
         """Foi assim que o PPGEP e o PPGEE caíram: a última faixa TERMINA às 18h.
@@ -87,6 +114,7 @@ class TestTheRuleIsAboutTheStart:
         assert evening_offer("14h às 18h").status is NOT_MET
 
     def test_a_class_starting_at_eighteen_is_accepted(self):
+        """Faixa única às 18h: 1 de 1 é maioria, então atende."""
         assert evening_offer("18h às 22h").status is MET
 
     def test_the_working_day_is_a_parameter(self):

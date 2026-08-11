@@ -240,7 +240,7 @@ containers. This keeps the host machine clean and the environment reproducible p
 | `backend/app/seed.py` | every verified fact, idempotent, with the evidence sentence attached |
 | `backend/alembic/` | 7 migrations. The app never calls `create_all` |
 | `frontend/web/src/app/` | dashboard — deadline hero, options table, next steps, weekly grid, monitoring |
-| `docs/` | the decisions: `GOAL`, `ADERENCIA`, `PROGRAMAS`, `AUTOMACAO`, `WHATSAPP`, `SEM-LOGIN`, `METADADOS`, `research/` |
+| `docs/` | the decisions: `GOAL`, `ADERENCIA`, `PROGRAMAS`, `AUTOMACAO`, `NTFY`, `WHATSAPP`, `SEM-LOGIN`, `METADADOS`, `research/` |
 | `deploy/README.md` | points at the central Caddy in the dotfiles |
 
 The dotfiles own two units for this project: `grad-radar.service` brings the stack up at boot, and
@@ -266,8 +266,10 @@ GradRadar centralizes this into a structured decision-making system, tracked per
 
 ## Scope
 
-Ten programmes have been swept and judged so far — the full UFSCar catalogue of 47 was screened, and the
-São Carlos candidates that touch the target work were investigated one by one. Exactly **one** passes all four
+Eleven programmes have been swept and judged so far — the full UFSCar catalogue of 47 and the 16 stricto sensu
+programmes of USP São Carlos were screened, and the candidates that touch the target work were
+investigated one by one. Paid programmes are listed too — with their cost and a link — because a
+silent omission is indistinguishable from an oversight. Exactly **one** passes all four
 eliminatory requirements. The uncomfortable finding, now measured rather than asserted: the three most adherent
 programmes in the sweep are all eliminated on schedule, because technical AI lives in the *academic* programmes
 and classes outside business hours live in the *professional* ones. See [`docs/PROGRAMAS.md`](docs/PROGRAMAS.md).

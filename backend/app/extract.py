@@ -27,6 +27,13 @@ from datetime import time
 
 from app.models import RequirementStatus
 
+# Fração de faixas noturnas a partir da qual a grade conta como noturna. Abaixo
+# disso o veredito é "não sabemos", não "atende": uma ou duas disciplinas à noite
+# numa grade diurna não permitem cursar o programa trabalhando 08–18. Descoberto
+# lendo a grade da Eng. de Produção da EESC/USP, que tem 3 faixas noturnas em 18 —
+# uma disciplina recorrente, e remota.
+EVENING_MAJORITY = 0.5
+
 # Formatos vistos nos documentos reais, em ordem de aparição:
 #   8h às 12h · 14h às 17h        (PPGCTS, PPGEP)
 #   08h - 12h · 14h - 18h         (PPGCC)
@@ -144,11 +151,25 @@ def evening_offer(text: str, work_ends_at: time = time(18, 0)) -> EveningOffer:
     if bands:
         evening = [b for b in bands if b.starts_at >= work_ends_at]
         listed = ", ".join(str(b) for b in bands[:8]) + ("…" if len(bands) > 8 else "")
-        if evening:
+        if evening and len(evening) / len(bands) >= EVENING_MAJORITY:
             return EveningOffer(
                 RequirementStatus.MET,
                 f"{len(evening)} de {len(bands)} faixas começam {work_ends_at:%H:%M} ou "
                 f"depois: {', '.join(str(b) for b in evening[:4])}. Faixas no documento: {listed}.",
+                bands,
+            )
+        if evening:
+            # EXISTIR NÃO É INTEGRALIZAR. A grade da Eng. de Produção da EESC/USP
+            # tem 3 faixas noturnas em 18 — uma disciplina recorrente, e remota. Um
+            # slot noturno isolado não permite cursar o programa trabalhando 08–18,
+            # e chamar isso de "atende" faria o sistema recomendar o impossível.
+            # É a mesma distinção que separou o veredito certo do errado no MECAI.
+            return EveningOffer(
+                RequirementStatus.UNKNOWN,
+                f"Só {len(evening)} de {len(bands)} faixas começam {work_ends_at:%H:%M} ou "
+                f"depois ({', '.join(str(b) for b in evening[:4])}) — existir não é "
+                f"integralizar. Falta saber se as obrigatórias cabem no noturno. "
+                f"Faixas no documento: {listed}.",
                 bands,
             )
         latest = max(bands, key=lambda b: b.starts_at)

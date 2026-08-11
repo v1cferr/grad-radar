@@ -184,11 +184,44 @@ Está registrado no banco como ciclo `expected` com `applications_open_on` nulo:
 previsão vive na nota, onde não pode ser confundida com data confirmada. A página
 índice dos processos entrou no monitor para anunciar a publicação.
 
+### EESC-EP — Engenharia de Produção (EESC/USP)
+
+**Aderência 60% — a maior entre os não eliminados**, acima do próprio PPGPEP. Achado
+em 11/08/2026 varrendo o catálogo completo da USP São Carlos, que eu nunca tinha
+aberto inteiro. Pública, presencial em São Carlos, quatro linhas: Manufatura para
+Indústria 4.0, Pesquisa Operacional e Gestão de Sistemas, Inovação e Economia
+Circular, Gestão de Operações.
+
+O achado dentro do achado: **`SEP5859 — Introdução ao Aprendizado de Máquina na
+Gestão de Operações`** está na grade. É IA aplicada a operações — literalmente a
+interseção do trabalho na FAI —, e é a única disciplina desse tipo encontrada fora
+de um programa de computação.
+
+**Horário: existe noturno, mas pouco.** A grade tem **3 faixas noturnas em 18** —
+18:00–20:00, 18:30–20:00, 18:30–20:30 — e todas são da mesma disciplina recorrente
+(`SEP5843 Tópicos Avançados em Servitização`), oferecida **remotamente**. O resto é
+manhã e tarde.
+
+> Aqui eu errei e o extrator me corrigiu. Meu primeiro grep mostrou as oito
+> primeiras faixas em ordem alfabética, todas de manhã, e eu concluí "eliminado". O
+> extrator, que varre o documento inteiro, achou as três noturnas. Isso forçou uma
+> refinação real na regra: **existir não é integralizar.** Uma minoria de faixas
+> noturnas devolve "não sabemos", não "atende" — senão o sistema recomendaria o
+> impossível. Ver `EVENING_MAJORITY` em `backend/app/extract.py`.
+
+Gratuidade: **não verificada.** Nenhuma página do programa afirma, e estender a FAQ
+do ICMC à EESC seria inferência.
+
+**Compensa:** vale o e-mail. A pergunta é a mesma dos outros — dá para integralizar
+as obrigatórias à noite? Se a resposta for sim, é o melhor casamento entre aderência
+e viabilidade que apareceu.
+
 ### CCMC — Ciências de Computação e Matemática Computacional (ICMC/USP)
 
 O programa técnico de referência da região em IA/ML. Acadêmico, então o risco de
-ser diurno é alto — mesmo perfil do PPGCC, que morreu exatamente assim. Horário
-não olhado.
+ser diurno é alto — mesmo perfil do PPGCC, que morreu exatamente assim. A grade
+**não é publicada na web**: as URLs candidatas do ICMC devolvem página de erro e a
+USP publica oferta pelo Janus, com login. Só a secretaria resolve.
 
 ---
 
@@ -223,6 +256,61 @@ PPGCTS 70%, PPGEP 60%, PPGCI 50% — estão todos eliminados por horário.**
 
 ---
 
+## O catálogo completo, para plena visão
+
+Tudo que existe na região, aderente ou não, com link. Um programa fora da lista de
+candidatos não é um esquecimento — é uma decisão registrada.
+
+### USP São Carlos — 16 programas stricto sensu
+
+Fonte: [Mestrado e Doutorado, campus USP São Carlos](https://saocarlos.usp.br/programas-mestrado-e-doutorado/).
+Todos públicos e presenciais em São Carlos; a gratuidade do stricto sensu da USP não
+é afirmada pelas páginas dos programas, então fica como não verificada.
+
+| Programa | Unidade | Situação |
+| --- | --- | --- |
+| [Engenharia de Produção](https://posproducao.eesc.usp.br/) | EESC | ⏳ **candidato** — aderência 60%, 3 faixas noturnas em 18 |
+| [Ciências de Computação e Matemática Computacional](http://www.icmc.usp.br/pos-graduacao/ppgccmc) | ICMC | ⏳ candidato — grade não publicada |
+| [MECAI](https://www.icmc.usp.br/pos-graduacao/mecai) (profissional) | ICMC | ⏳ candidato — edital permite noturno |
+| [Estatística](http://www.icmc.usp.br/pos-graduacao/pipges) (= PIPGEs) | ICMC | ❌ eliminado por horário |
+| [Engenharia Elétrica](https://eesc.usp.br/ppgs/sel/) | EESC | ⏳ não olhado — aderência fraca, mesmo perfil do PPGEE |
+| [Matemática](http://www.icmc.usp.br/pos-graduacao/ppgmat) | ICMC | ❌ não aderente |
+| [Bioengenharia](https://bioeng.eesc.usp.br/) | EESC | ❌ não aderente |
+| [Ciências da Engenharia Ambiental](https://ppg-sea.eesc.usp.br/) | EESC | ❌ não aderente |
+| [Ciência e Engenharia de Materiais](http://www.ppg-cem.eesc.usp.br/) | EESC | ❌ não aderente |
+| [Engenharia Hidráulica e Saneamento](http://www1.eesc.usp.br/ppgshs/index.php) | EESC | ❌ não aderente |
+| [Engenharia Civil / Estruturas](http://ppgset.eesc.usp.br/) | EESC | ❌ não aderente |
+| [Engenharia Mecânica](http://www1.eesc.usp.br/ppgem/) | EESC | ❌ não aderente |
+| [Engenharia de Transportes](https://stt.eesc.usp.br/pos-graduacao/) | EESC | ❌ não aderente |
+| [Geotecnia](https://sgs.eesc.usp.br/pos-graduacao/) | EESC | ❌ não aderente |
+| [Física](https://www2.ifsc.usp.br/pos/apresentacao-do-programa/) | IFSC | ❌ não aderente |
+| [Química](http://spgr.iqsc.usp.br/areasdeconcentracao/) | IQSC | ❌ não aderente |
+| [Arquitetura e Urbanismo](https://www.iau.usp.br/posgrad/) | IAU | ❌ não aderente |
+
+### Opções PAGAS — listadas para transparência, eliminadas pelo requisito 3
+
+Nenhuma foi descartada por preconceito: o requisito de gratuidade é eliminatório
+desde o começo do projeto ([`GOAL.md`](GOAL.md)). Ficam aqui com link e preço
+declarado para a visão ser completa.
+
+| Programa | Instituição | Custo | Outros problemas |
+| --- | --- | --- | --- |
+| [Mestrado em Educação — Processos de Ensino, Gestão e Inovação](https://www.uniara.com.br/ppg/processos-ensino-gestao-inovacao/) | UNIARA, Araraquara | **24 mensalidades** (valor sob consulta) | Araraquara (~45 km) falha no requisito 2; área não aderente. Aulas sexta à tarde/noite + sábado de manhã |
+| [Mestrado em Direito e Gestão de Conflitos](https://www.uniara.com.br/ppg/direito/) | UNIARA, Araraquara | **pago** | idem; área não aderente |
+| [MBA em Inteligência Artificial e Big Data](https://www.icmc.usp.br/pos-graduacao) | ICMC/USP | **pago** | **lato sensu, não é mestrado** — é o item mais tentador da lista pelo nome |
+| [MBA em Ciência de Dados](https://www.icmc.usp.br/pos-graduacao) | ICMC/USP | **pago** | lato sensu |
+| [MBA em Segurança de Dados](https://www.icmc.usp.br/pos-graduacao) | ICMC/USP | **pago** | lato sensu |
+
+> **Uma distinção que vale para decidir.** Eliminação por **custo** é reconsiderável
+> — é uma escolha de orçamento, e vocês podem mudar de ideia. Eliminação por
+> **horário** não é negociável: não existe como assistir aula às 14h trabalhando até
+> as 18h. Se algum dia a lista de gratuitos secar, os pagos voltam à mesa; os
+> diurnos não voltam.
+>
+> Note também: os MBAs do ICMC são **lato sensu**. Não dão título de mestre, não têm
+> defesa de dissertação e não abrem caminho para doutorado. São outra coisa, não uma
+> versão paga do mestrado.
+
 ## IFSP — investigado e fora
 
 O **IFSP campus São Carlos não oferece mestrado.** A página de cursos do campus tem
@@ -230,13 +318,28 @@ zero ocorrências de "Mestrado" ou "Stricto sensu" — só técnico, graduação
 (Bacharelado em Engenharia de Software, Processos Gerenciais) e especialização
 (lato sensu).
 
-O IFSP **tem** stricto sensu, mas em outros campi — o de São Paulo concentra os
-programas (PROFMAT, Ensino de Ciências e Matemática). Isso falha no requisito 2, e
-por um motivo que não tem contorno: não é horário, é geografia.
+O IFSP **tem** stricto sensu, mas em outros campi. O de São Paulo concentra os
+programas (Ensino de Ciências e Matemática, PROFMAT), e há o **ProfEPT** — Mestrado
+Profissional em Educação Profissional e Tecnológica, em rede nacional — em campi
+como Sertãozinho. Os mais próximos de São Carlos com stricto sensu ficam a ~40–45 km
+(Matão, Araraquara).
 
-Registrado aqui para não ser reinvestigado. Se algum dia o campus de São Carlos
-abrir um programa stricto sensu, o catálogo institucional do IFSP seria a fonte a
-vigiar — mas não vale adicioná-la ao monitor antes de haver o que monitorar.
+Dois motivos independentes para ficar fora, e nenhum é contornável:
+
+- **Geografia.** Requisito 2 é presencial em São Carlos. 40 km depois de trabalhar
+  até as 18h não é aula noturna, é uma segunda jornada.
+- **Aderência.** ProfEPT e Ensino de Ciências tocam só o sinal 5 (capacitação), o
+  menos central dos cinco. Não justifica um mestrado, ainda menos com deslocamento.
+
+O que o **campus São Carlos** tem, para registro: técnico, graduação (inclusive
+Bacharelado em **Engenharia de Software**) e **especialização lato sensu** — gratuita,
+por ser federal, mas lato sensu não é mestrado.
+[Cursos do campus](https://scl.ifsp.edu.br/index.php/cursos.html) ·
+[Catálogo institucional](https://www.ifsp.edu.br/cursos).
+
+Registrado para não ser reinvestigado. Se algum dia o campus de São Carlos abrir
+stricto sensu, o catálogo institucional do IFSP é a fonte a vigiar — mas não vale
+adicioná-la ao monitor antes de haver o que monitorar.
 
 ## Não aderentes — decidido, não pendente
 

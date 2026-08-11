@@ -95,7 +95,15 @@ async def run(db: AsyncSession, apply: bool) -> int:
         # verificado — só não tem o que dizer. Tratar como divergência enchia o
         # relatório de ruído e escondia a única linha que importa.
         if offer.status is RequirementStatus.UNKNOWN:
-            print(f"  sem horário   {program.acronym:<8} ({when:%d/%m} · {source.title})")
+            # Duas coisas diferentes caem em UNKNOWN e não devem ler igual: um
+            # catálogo sem horário nenhum, e uma grade com faixas noturnas em
+            # minoria (o caso da EESC/USP). A segunda é uma pergunta a fazer; a
+            # primeira é só ausência de dado.
+            if offer.bands:
+                print(f"  inconclusivo  {program.acronym:<8} ({when:%d/%m} · {source.title})")
+                print(f"                {offer.evidence}")
+            else:
+                print(f"  sem horário   {program.acronym:<8} ({when:%d/%m} · {source.title})")
             continue
 
         agrees = stored is not None and stored.status is offer.status

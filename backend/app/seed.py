@@ -335,6 +335,13 @@ MECAI_SOURCES = [
 # O PPGCC publica editais SEMESTRAIS. O Edital 01/2026 (ingresso 2026/1) tem datas
 # de 06/10/2025 a 16/03/2026 — ou seja, saiu no começo de outubro. O de 2027/1
 # deve sair em outubro de 2026, e é essa página que vai anunciá-lo.
+EESC_SOURCES = [
+    ("https://posproducao.eesc.usp.br/disciplinas/", SourceType.COURSE_CATALOG,
+     "EESC-EP — disciplinas e horários", None),
+    ("https://posproducao.eesc.usp.br/processo-seletivo/", SourceType.ADMISSION_PAGE,
+     "EESC-EP — processo seletivo", None),
+]
+
 PPGCC_NEXT_SOURCES = [
     ("https://www.ppgcc.ufscar.br/pt-br/processo-seletivo/mestrado",
      SourceType.ADMISSION_PAGE, "PPGCC — índice dos processos de mestrado", None),
@@ -409,6 +416,9 @@ SWEPT_PROGRAMS: list[tuple[str, str, str, str, str, str]] = [
     ("MECAI", "USP", "Instituto de Ciências Matemáticas e de Computação", "ICMC",
      "Mestrado Profissional em Matemática, Estatística e Computação Aplicadas à Indústria",
      "https://www.icmc.usp.br/pos-graduacao/mecai"),
+    ("EESC-EP", "USP", "Escola de Engenharia de São Carlos", "EESC",
+     "Programa de Pós-Graduação em Engenharia de Produção (EESC/USP)",
+     "https://posproducao.eesc.usp.br/"),
     ("CCMC", "USP", "Instituto de Ciências Matemáticas e de Computação", "ICMC",
      "Programa de Pós-Graduação em Ciências de Computação e Matemática Computacional",
      "https://www.icmc.usp.br/pos-graduacao"),
@@ -479,6 +489,22 @@ REQUIREMENTS: dict[str, list[tuple[Requirement, RequirementStatus, str]]] = {
             "FAQ: 'Os cursos de Pós-Graduação oferecidos pelo ICMC são gratuitos' e 'Não "
             "há taxa de matrícula para alunos regulares'. Há taxa de INSCRIÇÃO no "
             "processo (~R$ 214–259), com critérios de isenção — não é mensalidade."
+        )),
+        (_PUBLIC, _MET, "USP — universidade pública estadual."),
+    ],
+    "EESC-EP": [
+        (_NIGHT, _UNK, (
+            "Grade lida (posproducao.eesc.usp.br/disciplinas): 3 de 18 faixas começam "
+            "18h ou depois — 18:00–20:00, 18:30–20:00, 18:30–20:30 —, todas da mesma "
+            "disciplina recorrente (SEP5843 Tópicos Avançados em Servitização), e "
+            "REMOTAS. Existir não é integralizar: falta saber se as obrigatórias cabem "
+            "no noturno."
+        )),
+        (_LOCAL, _MET, "Dep. de Engenharia de Produção, campus USP São Carlos."),
+        (_FREE, _UNK, (
+            "Nenhuma página do programa afirma gratuidade. A FAQ do ICMC afirma para os "
+            "cursos DELE; estender isso à EESC seria inferência, e o projeto não grava "
+            "inferência como fato verificado."
         )),
         (_PUBLIC, _MET, "USP — universidade pública estadual."),
     ],
@@ -627,6 +653,24 @@ ADHERENCE: dict[str, list[tuple[AdherenceSignal, AdherenceLevel, bool, str]]] = 
         (_DATA, _S, False, "Estatística e ciência de dados aplicadas são o núcleo do programa."),
         (_GOV, _U, False, "Não investigado."),
         (_TRAIN, _A, False, "Nada de formação organizacional."),
+    ],
+    "EESC-EP": [
+        (_ORG, _S, True, (
+            "Grade lida: Tópicos Avançados em Servitização, Inovação e Sustentabilidade "
+            "na Manufatura, Change Management, Modelagem de Redes Colaborativas. "
+            "Linhas: Gestão de Operações, Inovação e Economia Circular."
+        )),
+        (_TECH, _P, True, (
+            "SEP5859 — Introdução ao APRENDIZADO DE MÁQUINA na Gestão de Operações está "
+            "na grade. É IA aplicada de verdade, mas uma disciplina, não uma linha de "
+            "pesquisa como a AMPLN do PPGCC."
+        )),
+        (_DATA, _S, True, (
+            "Linha Pesquisa Operacional e Gestão de Sistemas; Econometria Industrial e "
+            "Manufatura para Indústria 4.0 na grade."
+        )),
+        (_GOV, _U, False, "Não investigado."),
+        (_TRAIN, _P, True, "Change Management toca gestão da mudança, não formação em IA."),
     ],
     "CCMC": [
         (_ORG, _A, False, "Programa de computação; organizações não são objeto."),
@@ -988,7 +1032,9 @@ async def seed(db: AsyncSession) -> dict[str, int]:
                 {"status": status, "evidence": evidence, "verified_on": date(2026, 8, 8)},
                 program_id=program.id, requirement=requirement,
             )
-    counts["program_requirements"] = sum(len(r) for r in REQUIREMENTS.values())
+    counts["program_requirements"] = sum(
+        len(rows) for a, rows in REQUIREMENTS.items() if a in all_programs
+    )
 
     for acronym, rows in ADHERENCE.items():
         program = all_programs.get(acronym)
@@ -1005,7 +1051,12 @@ async def seed(db: AsyncSession) -> dict[str, int]:
                 },
                 program_id=program.id, signal=signal,
             )
-    counts["program_adherence"] = sum(len(r) for r in ADHERENCE.values())
+    # Contar só o que foi realmente gravado. Antes reportava o tamanho do
+    # dicionário, e mentiu: disse 55 aderências enquanto um dos programas do dicionário
+    # não existia no banco — um número que confirma o que não aconteceu.
+    counts["program_adherence"] = sum(
+        len(rows) for a, rows in ADHERENCE.items() if a in all_programs
+    )
 
     # A qual programa cada fonte pertence, por prefixo de URL. Derivado e não
     # digitado: uma fonte nova do PPGPEP entra ligada sem ninguém lembrar.
@@ -1019,6 +1070,7 @@ async def seed(db: AsyncSession) -> dict[str, int]:
         "ppgee.ufscar.br": "PPGEE",
         "pipges.ufscar.br": "PIPGEs",
         "mecai": "MECAI",
+        "posproducao.eesc.usp.br": "EESC-EP",
     }
 
     all_sources = (
@@ -1027,6 +1079,7 @@ async def seed(db: AsyncSession) -> dict[str, int]:
         + MECAI_SOURCES
         + PPGCC_NEXT_SOURCES
         + PPGADS_SOURCES
+        + EESC_SOURCES
         + INDEX_SOURCES
     )
     for url, kind, title, redirect in all_sources:
@@ -1050,7 +1103,10 @@ async def seed(db: AsyncSession) -> dict[str, int]:
             },
             url=url,
         )
-    counts["sources"] = len(all_sources)
+    # URLs ÚNICAS, não o tamanho das listas somadas: a página índice do PPGCC
+    # aparecia em duas listas e o número dizia 23 enquanto o banco tinha 22.
+    # Número que não bate com a realidade é pior que número ausente.
+    counts["sources"] = len({url for url, _, _, _ in all_sources})
 
     victor = await _get_or_create(
         db, Candidate,
